@@ -58,7 +58,20 @@ main{padding:16px;min-width:0}
 .titlebar h2{margin:0;font-size:20px;flex:1;min-width:200px;cursor:text}
 .titlebar h2:hover{text-decoration:underline dotted #666}
 .watch{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
-.playerbox{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden}
+.playerbox{position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden}
+.playerwrap{background:#000;border-radius:12px;overflow:hidden}
+.cbar{display:flex;align-items:center;gap:6px;padding:6px 8px;background:#141414}
+.cbar[hidden]{display:none}
+.cbar button{background:transparent;border:0;padding:5px 8px;font-size:15px;line-height:1}
+.cbar button:hover{background:#2a2a2a}
+.ctime{font-variant-numeric:tabular-nums;font-size:13px;color:#ddd;white-space:nowrap}
+.cprog{flex:1;height:20px;display:flex;align-items:center;cursor:pointer;touch-action:none;margin:0 6px}
+.ctrack{position:relative;width:100%;height:5px;background:#3a3a3a;border-radius:3px}
+.cprog:hover .ctrack{height:7px}
+.cfill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--accent);border-radius:3px}
+#cSpeed{font-size:13px;font-weight:700;min-width:46px}
+.playerwrap:fullscreen{display:flex;flex-direction:column;border-radius:0}
+.playerwrap:fullscreen .playerbox{flex:1;aspect-ratio:auto}
 .playerbox iframe,#player{position:absolute;inset:0;width:100%;height:100%;border:0}
 .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px;background-color:#000;background-size:cover;background-position:center}
 .overlay p{max-width:540px;margin:0}
@@ -127,7 +140,17 @@ kbd{background:#2a2a2a;border:1px solid #444;border-bottom-width:2px;border-radi
       <div class="titlebar" id="titlebar"></div>
       <div class="watch">
         <div>
-          <div class="playerbox" id="playerbox"><div id="player"></div></div>
+          <div class="playerwrap" id="playerwrap">
+            <div class="playerbox" id="playerbox"><div id="player"></div></div>
+            <div class="cbar" id="cbar" hidden>
+              <button id="cPlay" title="Play / pause (Space)">▶</button>
+              <span class="ctime" id="cTime">0:00 / 0:00</span>
+              <div class="cprog" id="cProg" title="This chapter only"><div class="ctrack"><div class="cfill" id="cFill"></div></div></div>
+              <button id="cSpeed" title="Playback speed">1×</button>
+              <button id="cMute" title="Mute / unmute">🔊</button>
+              <button id="cFs" title="Full screen">⛶</button>
+            </div>
+          </div>
           <div id="playerNote"></div>
           <div class="now" id="now"></div>
         </div>
@@ -341,13 +364,14 @@ function render(){
   const v = cur();
   $('#emptyView').hidden = !!v; $('#watchView').hidden = !v;
   if(!v){ renderEmpty(); return; }
-  renderTitlebar(); renderPlaylist(); renderNow(); renderPlayerNote();
+  renderTitlebar(); renderPlaylist(); renderNow(); renderPlayerNote(); renderBar();
 }
 
 function renderTitlebar(){
   const v = cur(); const p = progressOf(v);
+  const left = chapters(v).filter(c => !v.done[c.start] && c.len != null).reduce((a, c) => a + c.len, 0);
   $('#titlebar').innerHTML = `<h2 id="vtitle" title="Click to rename">${esc(v.title)}</h2>
-    <span class="muted">${p.done}/${p.total} done${v.duration ? ' · ' + fmtLen(v.duration) : ''}</span>
+    <span class="muted">${p.done}/${p.total} done${left ? ' · ' + fmtLen(left) + ' left' : (p.done === p.total ? ' ✅' : '')}</span>
     <button id="tbEdit">✂️ Edit chapters</button>
     <button id="tbShare" title="Copy a link that loads this video with all its chapters">🔗 Share</button>
     <a class="btn" id="tbYt" href="${watchUrl(v.ytId)}" target="_blank" rel="noopener">Open on YouTube</a>
@@ -370,14 +394,14 @@ function renderPlaylist(){
     <div class="pl-list">` + chs.map(c => {
       const done = !!v.done[c.start];
       const watched = done ? 100 : ((c.idx === active && c.len) ? Math.min(100, Math.max(0, ((v.lastTime || 0) - c.start) / c.len * 100)) : 0);
-      return `<div class="ch ${c.idx === active ? 'active' : ''} ${done ? 'done' : ''}" data-i="${c.idx}">
+      return `<div class="ch ${c.idx === active ? 'active' : ''} ${done ? 'done' : ''}" data-i="${c.idx}" title="Starts at ${fmt(c.start)} in the full lecture">
         <div class="num">${c.idx === active ? '▶' : c.idx + 1}</div>
         <div class="thumb"><img src="${thumb(v.ytId)}" alt="" loading="lazy" onerror="this.remove()">
           <span class="tag">${c.idx + 1}</span>
           <span class="badge">${c.len != null ? fmt(c.len) : fmt(c.start) + '+'}</span>
           <div class="prog"><i style="width:${watched}%"></i></div></div>
         <div class="info"><div class="t">${esc(c.title)}</div>
-          <div class="s">${fmt(c.start)} – ${c.end != null ? fmt(c.end) : 'end'}${v.notes[c.start] ? ' · 📝' : ''}</div></div>
+          <div class="s">Part ${c.idx + 1} of ${chs.length}${v.notes[c.start] ? ' · 📝 notes' : ''}</div></div>
         <button class="donebtn" title="Mark as done" data-done="${c.idx}">✓</button>
       </div>`;
     }).join('') + `</div>`;
@@ -392,9 +416,10 @@ function renderNow(){
   const v = cur(); if(!v) return;
   const chs = chapters(v); const c = curChapter(v); const i = c.idx;
   const done = !!v.done[c.start];
-  $('#now').innerHTML = `<div class="now-top">
+  if(!$('#nowTop')) $('#now').innerHTML = '<div id="nowTop"></div><div class="notes" id="nowNotes"></div>';
+  $('#nowTop').innerHTML = `<div class="now-top">
       <div style="flex:1;min-width:180px"><h3>${i + 1}. ${esc(c.title)}</h3>
-      <div class="meta">${fmt(c.start)} – ${c.end != null ? fmt(c.end) : 'end'}${c.len != null ? ' · ' + fmt(c.len) + ' long' : ''}</div></div>
+      <div class="meta">Part ${i + 1} of ${chs.length}${c.len != null ? ' · ' + fmt(c.len) + ' long' : ''}</div></div>
       <button id="nPrev" ${i === 0 ? 'disabled' : ''}>⏮ Prev</button>
       <button id="nRestart" title="Restart this chapter">↺ Restart</button>
       <button id="nDone" class="${done ? '' : 'primary'}">${done ? '✓ Done' : 'Mark done'}</button>
@@ -402,19 +427,27 @@ function renderNow(){
     </div>
     <div class="row" style="margin-top:10px;justify-content:space-between">
       <label class="chk" style="margin:0"><input type="checkbox" id="autoNext" ${store.settings.autoNext ? 'checked' : ''}> Auto-play next chapter</label>
-      <span class="muted" style="font-size:12px">Shortcuts: <kbd>Shift</kbd>+<kbd>N</kbd> next · <kbd>Shift</kbd>+<kbd>P</kbd> prev · <kbd>Shift</kbd>+<kbd>D</kbd> done</span>
-    </div>
-    <div class="notes"><label style="margin-top:12px">📝 My notes for this chapter (auto-saved)</label>
-    <textarea id="notes" placeholder="Key points, doubts, code to try...">${esc(v.notes[c.start] || '')}</textarea></div>`;
+      <span class="muted" style="font-size:12px">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd><kbd>→</kbd> 5s · <kbd>Shift</kbd>+<kbd>N</kbd>/<kbd>P</kbd> next/prev · <kbd>Shift</kbd>+<kbd>D</kbd> done</span>
+    </div>`;
   $('#nPrev').onclick = () => playChapter(i - 1, true, true);
   $('#nRestart').onclick = () => playChapter(i, true, true);
   $('#nDone').onclick = () => toggleDone(i);
   $('#nNext').onclick = () => playChapter(i + 1, true, true);
   $('#autoNext').onchange = e => { store.settings.autoNext = e.target.checked; save(); };
+  // the notes box is only rebuilt when the chapter changes, so typing is never interrupted
+  const ta = $('#notes'), key = v.id + ':' + c.start;
+  if(ta && ta.dataset.key === key) return;
+  if(ta && document.activeElement === ta && ta.dataset.vid === v.id){
+    ta.onblur = () => { ta.onblur = null; renderNow(); };  // still typing about the previous chapter: switch when you click away
+    return;
+  }
+  if(ta){ const ov = store.videos.find(x => x.id === ta.dataset.vid); if(ov) saveNote(ov, +ta.dataset.start, ta.value); }
+  $('#nowNotes').innerHTML = `<label style="margin-top:12px">📝 My notes for ${i + 1}. ${esc(c.title)} (auto-saved)</label>
+    <textarea id="notes" data-key="${esc(key)}" data-vid="${esc(v.id)}" data-start="${c.start}" placeholder="Key points, doubts, code to try...">${esc(v.notes[c.start] || '')}</textarea>`;
   let nt;
-  $('#notes').oninput = e => { clearTimeout(nt); const val = e.target.value; nt = setTimeout(() => {
-    if(val.trim()) v.notes[c.start] = val; else delete v.notes[c.start]; save(); renderPlaylist(); }, 500); };
+  $('#notes').oninput = e => { clearTimeout(nt); const val = e.target.value; nt = setTimeout(() => { saveNote(v, c.start, val); renderPlaylist(); }, 500); };
 }
+function saveNote(v, start, val){ if(val.trim()) v.notes[start] = val; else delete v.notes[start]; save(); }
 
 function renderPlayerNote(){
   const n = $('#playerNote');
@@ -438,7 +471,7 @@ function playChapter(i, autoplay = true, fromStart = false){
   const sameChapter = curChapter(v).idx === i;
   v.lastChapter = i;
   const start = (!fromStart && sameChapter && v.lastTime > c.start && (c.end == null || v.lastTime < c.end - 2)) ? v.lastTime : c.start;
-  v.lastTime = start; save();
+  v.lastTime = start; heldAt = null; save();
   renderPlaylist(); renderNow();
   loadIntoPlayer(v, start, c.end, autoplay);
 }
@@ -595,21 +628,29 @@ function loadIntoPlayer(v, start, end, autoplay){
   hideOverlay();
   if(ytMode === 'plain'){ plainEmbed(v, start, end, autoplay); return; }
   if(ytMode === 'loading'){ pending = {v, start, end, autoplay}; return; }
-  if(!player){ createPlayer(v, start, end, autoplay); return; }
+  if(!player){ createPlayer(v, start, autoplay); return; }
   if(!playerReady){ pending = {v, start, end, autoplay}; return; }
-  const opts = {videoId: v.ytId, startSeconds: Math.floor(start)};
-  if(end != null) opts.endSeconds = Math.ceil(end);
-  try{ autoplay ? player.loadVideoById(opts) : player.cueVideoById(opts); }catch(e){}
+  try{
+    const data = player.getVideoData ? player.getVideoData() : null;
+    const st = player.getPlayerState();
+    if(data && data.video_id === v.ytId && [0, 1, 2, 3].includes(st)){
+      // same video already playing: just jump inside it, so YouTube doesn't start new ads
+      player.seekTo(start, true);
+      if(autoplay) player.playVideo(); else player.pauseVideo();
+    } else {
+      const opts = {videoId: v.ytId, startSeconds: Math.floor(start)};
+      autoplay ? player.loadVideoById(opts) : player.cueVideoById(opts);
+    }
+  }catch(e){}
 }
 function resetPlayerBox(){
   try{ if(player && player.destroy) player.destroy(); }catch(e){}
   player = null; playerReady = false;
   $('#playerbox').innerHTML = '<div id="player"></div>';
 }
-function createPlayer(v, start, end, autoplay){
+function createPlayer(v, start, autoplay){
   resetPlayerBox();
-  const vars = {start: Math.floor(start), rel: 0, playsinline: 1, autoplay: autoplay ? 1 : 0};
-  if(end != null) vars.end = Math.ceil(end);
+  const vars = {start: Math.floor(start), rel: 0, playsinline: 1, autoplay: autoplay ? 1 : 0, controls: 0, disablekb: 1, fs: 0, iv_load_policy: 3};
   player = new YT.Player('player', {videoId: v.ytId, width: '100%', height: '100%', playerVars: vars,
     events: {onReady, onStateChange, onError}});
 }
@@ -618,16 +659,16 @@ function plainEmbed(v, start, end, autoplay){
   $('#playerbox').innerHTML = `<iframe src="${src}" title="YouTube player" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
 }
 function onReady(){
-  playerReady = true;
+  playerReady = true; applySpeed();
   if(pending){ const p = pending; pending = null; loadIntoPlayer(p.v, p.start, p.end, p.autoplay); }
 }
 function onStateChange(e){
   if(e.data !== YT.PlayerState.ENDED) return;
   const v = cur(); if(!v) return;
-  const chs = chapters(v); const c = curChapter(v); const i = c.idx;
-  if(!v.done[c.start]){ v.done[c.start] = true; save(); renderLibrary(); renderTitlebar(); }
-  if(store.settings.autoNext && i < chs.length - 1){ toast(`✓ Chapter ${i + 1} done. Next up!`); playChapter(i + 1, true, true); }
-  else { renderPlaylist(); renderNow(); if(i === chs.length - 1) toast('🎉 That was the last chapter!'); }
+  const c = curChapter(v);
+  if(!v.done[c.start]){ v.done[c.start] = true; save(); }
+  renderLibrary(); renderTitlebar(); renderPlaylist(); renderNow();
+  if(c.idx === chapters(v).length - 1) toast('🎉 That was the last chapter!');
 }
 function onError(e){
   const v = cur(); if(!v) return;
@@ -657,34 +698,113 @@ function showOverlay(kind, v, t, code){
 }
 function hideOverlay(){ const o = $('#overlay'); if(o) o.remove(); }
 
-// every second: remember position, learn length & title, auto-tick finished chapters
-let lastSave = 0;
+// 4 times a second: follow the video, tick finished chapters, move on or stop at chapter ends
+let lastSave = 0, heldAt = null;
 setInterval(() => {
+  renderBar();
   const v = cur(); if(ytMode !== 'api' || !v || !player || !playerReady) return;
   let st, data; try{ st = player.getPlayerState(); data = player.getVideoData ? player.getVideoData() : null; }catch(e){ return; }
-  const sameVid = !!(data && data.video_id === v.ytId);
-  if(!sameVid) return;
+  if(!(data && data.video_id === v.ytId)) return;
   try{
     const d = player.getDuration();
-    if(d > 0 && (!v.duration || Math.abs(v.duration - d) > 2)){ v.duration = Math.round(d); save(); renderTitlebar(); renderPlaylist(); renderNow(); }
+    const lastStart = v.chapters.length ? v.chapters[v.chapters.length - 1].start : 0;
+    if((st === 1 || st === 2) && d > lastStart && (!v.duration || Math.abs(v.duration - d) > 2)){ v.duration = Math.round(d); save(); renderTitlebar(); renderPlaylist(); renderNow(); }
     if(data.title && !v.titleSet){ v.title = data.title; v.titleSet = true; save(); renderLibrary(); renderTitlebar(); }
   }catch(e){}
   if(st !== 1) return;
+  applySpeed();
   const t = playerTime(); if(t == null) return;
   v.lastTime = t;
-  const c = curChapter(v);
-  if(c.end != null && t >= c.end - 1.5 && !v.done[c.start]){ v.done[c.start] = true; save(); renderLibrary(); renderTitlebar(); renderPlaylist(); renderNow(); }
+  const chs = chapters(v); const c = curChapter(v);
+  if(c.end != null && t >= c.end - 0.25 && t < c.end + 2.5){
+    // reached the end of this chapter
+    v.done[c.start] = true;
+    if(c.idx < chs.length - 1 && (store.settings.autoNext || heldAt === c.start)){
+      heldAt = null; v.lastChapter = c.idx + 1;
+      if(store.settings.autoNext) toast(`✓ Chapter ${c.idx + 1} done. Next up!`);
+    } else if(heldAt !== c.start){
+      heldAt = c.start; try{ player.pauseVideo(); }catch(e){}
+      toast(c.idx === chs.length - 1 ? '🎉 That was the last chapter!' : `✓ Chapter ${c.idx + 1} done. Press play or Next to continue`);
+    }
+    save(); renderLibrary(); renderTitlebar(); renderPlaylist(); renderNow(); return;
+  }
+  if(t < c.start - 1.5 || (c.end != null && t >= c.end + 2.5)){
+    // jumped around with YouTube's own controls: follow along
+    const ni = chs.findIndex(x => t >= x.start && (x.end == null || t < x.end));
+    if(ni >= 0 && ni !== c.idx){ heldAt = null; v.lastChapter = ni; save(); renderPlaylist(); renderNow(); }
+  }
   if(Date.now() - lastSave > 4000){ lastSave = Date.now(); save(); renderPlaylist(); }
-}, 1000);
+}, 250);
 window.addEventListener('beforeunload', save);
+
+// ================= chapter-only control bar =================
+const SPEEDS = [1, 1.25, 1.5, 1.75, 2, 0.75];
+let scrubbing = false;
+function playerState(){ try{ return player && playerReady ? player.getPlayerState() : -1; }catch(e){ return -1; } }
+function chapterLen(v, c){ return c.len != null ? c.len : Math.max(0, (v.duration || 0) - c.start); }
+function renderBar(){
+  const bar = $('#cbar'), v = cur();
+  bar.hidden = !(v && ytMode === 'api'); if(bar.hidden) return;
+  const c = curChapter(v), len = chapterLen(v, c), st = playerState();
+  let t = playerTime(); if(t == null || st === 5 || st === -1) t = resumePoint(v).start;
+  const rel = Math.min(Math.max(t - c.start, 0), len);
+  if(!scrubbing){ $('#cFill').style.width = (len ? rel / len * 100 : 0) + '%'; $('#cTime').textContent = `${fmt(rel)} / ${len ? fmt(len) : '--:--'}`; }
+  $('#cPlay').textContent = st === 1 || st === 3 ? '⏸' : '▶';
+  $('#cSpeed').textContent = (store.settings.speed || 1) + '×';
+  let muted = false; try{ muted = !!(player && playerReady && player.isMuted()); }catch(e){}
+  $('#cMute').textContent = muted ? '🔇' : '🔊';
+}
+function applySpeed(){
+  try{ const want = store.settings.speed || 1; if(player && playerReady && player.getPlaybackRate() !== want) player.setPlaybackRate(want); }catch(e){}
+}
+function togglePlay(){
+  const v = cur(); if(!v) return; const st = playerState();
+  if(st === 1 || st === 3) player.pauseVideo();
+  else if(st === 2) player.playVideo();
+  else playChapter(curChapter(v).idx, true, st === 0);
+  setTimeout(renderBar, 80);
+}
+function seekInChapter(target){
+  const v = cur(); const c = curChapter(v); const len = chapterLen(v, c);
+  target = Math.min(Math.max(target, c.start), c.start + Math.max(0, len - 0.5));
+  heldAt = null; v.lastTime = target;
+  if([1, 2, 3].includes(playerState())) player.seekTo(target, true);
+  else loadIntoPlayer(v, target, c.end, true);
+  renderBar();
+}
+function scrubTo(e, commit){
+  const v = cur(); if(!v) return; const c = curChapter(v), len = chapterLen(v, c); if(!len) return;
+  const r = $('#cProg').getBoundingClientRect(); const f = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1);
+  $('#cFill').style.width = f * 100 + '%'; $('#cTime').textContent = `${fmt(f * len)} / ${fmt(len)}`;
+  if(commit) seekInChapter(c.start + f * len);
+}
+$('#cPlay').onclick = togglePlay;
+$('#cProg').onpointerdown = e => { scrubbing = true; $('#cProg').setPointerCapture(e.pointerId); scrubTo(e, false); };
+$('#cProg').onpointermove = e => { if(scrubbing) scrubTo(e, false); };
+$('#cProg').onpointerup = e => { if(!scrubbing) return; scrubbing = false; scrubTo(e, true); };
+$('#cSpeed').onclick = () => {
+  const n = SPEEDS[(SPEEDS.indexOf(store.settings.speed || 1) + 1) % SPEEDS.length];
+  store.settings.speed = n; save(); applySpeed(); renderBar(); toast(`Speed ${n}×`);
+};
+$('#cMute').onclick = () => { try{ player.isMuted() ? player.unMute() : player.mute(); }catch(e){} setTimeout(renderBar, 80); };
+$('#cFs').onclick = () => { try{ document.fullscreenElement ? document.exitFullscreen() : $('#playerwrap').requestFullscreen(); }catch(e){} };
 
 // keyboard shortcuts
 document.addEventListener('keydown', e => {
-  if(!e.shiftKey || /INPUT|TEXTAREA/.test(document.activeElement.tagName) || !cur() || $('#modalBg').classList.contains('show')) return;
+  const tag = document.activeElement.tagName;
+  if(/INPUT|TEXTAREA|SELECT/.test(tag) || !cur() || $('#modalBg').classList.contains('show')) return;
   const i = curChapter(cur()).idx;
-  if(e.key === 'N'){ e.preventDefault(); playChapter(i + 1, true, true); }
-  if(e.key === 'P'){ e.preventDefault(); playChapter(i - 1, true, true); }
-  if(e.key === 'D'){ e.preventDefault(); toggleDone(i); }
+  if(e.shiftKey){
+    if(e.key === 'N'){ e.preventDefault(); playChapter(i + 1, true, true); }
+    if(e.key === 'P'){ e.preventDefault(); playChapter(i - 1, true, true); }
+    if(e.key === 'D'){ e.preventDefault(); toggleDone(i); }
+    return;
+  }
+  if(e.key === ' ' || e.key === 'k'){ e.preventDefault(); togglePlay(); }
+  if((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && ytMode === 'api'){
+    const t = playerTime(); if(t == null) return;
+    e.preventDefault(); seekInChapter(t + (e.key === 'ArrowRight' ? 5 : -5));
+  }
 });
 
 // load the YouTube player API (not on double-clicked files: YouTube rejects those)

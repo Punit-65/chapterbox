@@ -138,6 +138,8 @@ a.bmk{cursor:grab}
 .notes-tools{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap}
 .modal.wide{max-width:920px}
 .plan-sum{background:var(--panel2);border-radius:10px;padding:10px 12px;margin-top:12px;font-size:13px}
+.plan-warn{margin-top:8px;color:var(--warn)}
+.plan-warn button{margin-left:6px}
 .plan-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
 .plan-table th,.plan-table td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
 .plan-table th{background:var(--panel2)}
@@ -332,6 +334,11 @@ function parseChapters(text){
   return dedup;
 }
 function chaptersToText(chs){ return chs.map(c => `${fmt(c.start)} ${c.title}`).join('\n'); }
+function splitEven(duration, maxSec){
+  const n = Math.max(1, Math.ceil(duration / (Math.max(60, maxSec) * 1.1))), step = duration / n, out = [];
+  for(let i = 0; i < n; i++) out.push({start: Math.round(i * step), title: `Part ${i + 1} of ${n}`});
+  return out;
+}
 function autoSplit(duration, minutes){
   const step = Math.max(1, minutes) * 60, out = [];
   for(let t = 0, i = 1; t < duration - 30; t += step, i++) out.push({start:t, title:`Part ${i}`});
@@ -932,7 +939,7 @@ function helpModal(){
     <ul style="padding-left:18px">
       <li>Each chapter plays <b>only its part</b> of the YouTube video and stops at its end, like a separate video. When it finishes, it gets a ✓ and the next one starts (if auto-play is on).</li>
       <li><b>🏠 Home</b> shows Continue watching, your daily goal, 🔥 streak, the last 7 days, today's plan and all your playlists.</li>
-      <li><b>📅 Plan</b> (above the video or on a playlist card): pick minutes a day or a finish date and your study days. You get a day-by-day table with exact times, and Home shows today's part.</li>
+      <li><b>📅 Plan</b> (above the video or on a playlist card): pick minutes a day or a finish date and your study days. You get a day-by-day table with exact times, and Home shows today's part. Long lectures without chapters can be split into parts that fit your day.</li>
       <li><b>📚 Playlists</b>: + Add → Playlist. The <b>📥 Grab chapters</b> bookmark brings every lecture with its chapters. Paste a link to add one without chapters. <b>🎞 No chapters</b> / <b>✂️ Use chapters</b> switches any time.</li>
       <li><b>📝 Notes</b> are saved per chapter. ⏱ Insert time adds the moment you're at, and double-clicking a time jumps there. ⋯ → Download notes saves them as a file.</li>
       <li><b>⭐ Revise</b> marks chapters to rewatch. Filter them in the chapter list or find them on Home.</li>
@@ -1130,10 +1137,13 @@ function planTable(o, p){
   const pl = computePlan(o, p);
   if(!pl.days.length) return '<p>🎉 Nothing left to plan. Everything is done!</p>';
   const end = pl.days[pl.days.length - 1].date;
+  const long = new Set(remainingItems(o).filter(x => !x.est && chapters(x.v).length === 1 && x.len > pl.budget * 1.1).map(x => x.v)).size;
+  const longNote = long ? `<div class="plan-warn">⚠️ ${long === 1 ? '1 lecture is' : long + ' lectures are'} longer than ${fmtDur(pl.budget)} and ${long === 1 ? 'plays' : 'play'} whole, so ${long === 1 ? 'that day runs' : 'those days run'} long.
+      <button class="small" id="pSplit">✂️ Split ${long === 1 ? 'it' : 'them'} into ~${fmtDur(pl.budget)} parts</button></div>` : '';
   const weekStart = d => { const x = new Date(d); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
   const ranges = items => { const out = []; for(const x of items){ const r = out[out.length - 1]; if(r && r.v === x.v && r.to.idx + 1 === x.c.idx){ r.to = x.c; r.n++; } else out.push({v: x.v, li: x.li, from: x.c, to: x.c, n: 1}); } return out; };
   let html = `<div class="plan-sum">${p.mode === 'date' ? `To finish by <b>${fmtDay(parseDay(p.date))}</b> you need about <b>${fmt(pl.budget)}</b> a day.` : `At <b>${fmt(pl.budget)}</b> a day you'll finish on <b>${fmtDay(end)}</b>.`}
-    ${pl.days.length} study days · ${fmt(pl.total)} in total${pl.est ? ' · some lengths are estimates (30 min) until those videos are opened' : ''}${p.mode === 'date' && pl.days.length > pl.avail ? ` · <span style="color:var(--warn)">needs ${pl.days.length - pl.avail} extra day${pl.days.length - pl.avail > 1 ? 's' : ''}, because chapters aren't cut in half</span>` : ''}</div>
+    ${pl.days.length} study days · ${fmt(pl.total)} in total${pl.est ? ' · some lengths are estimates (30 min) until those videos are opened' : ''}${p.mode === 'date' && pl.days.length > pl.avail ? ` · <span style="color:var(--warn)">needs ${pl.days.length - pl.avail} extra day${pl.days.length - pl.avail > 1 ? 's' : ''}, because chapters aren't cut in half</span>` : ''}${longNote}</div>
     <table class="plan-table"><tr><th>Day</th><th>Date</th><th>What to watch</th><th>Time</th></tr>`;
   let wk = null, shown = 0;
   for(const day of pl.days){
@@ -1143,6 +1153,27 @@ function planTable(o, p){
     html += `<tr><td>${DAYS[day.date.getDay()]}${dayKey(day.date) === dayKey() ? ' <b>(today)</b>' : ''}</td><td>${fmtDay(day.date)}</td><td>${ranges(day.items).map(r => `${o.order ? `<span class="lnum">L${r.li + 1}</span> ` : ''}${r.n > 1 ? `${r.from.idx + 1}. ${esc(r.from.title)} → ${r.to.idx + 1}. ${esc(r.to.title)} <span class="muted">(${r.n} chapters)</span>` : `${r.from.idx + 1}. ${esc(r.from.title)}`}`).join('<br>')}</td><td class="t">${fmt(day.secs)}</td></tr>`;
   }
   return html + '</table>';
+}
+// cut lectures that play whole and are longer than a study day into equal parts; parts already watched get ticked
+function splitLong(o, budget){
+  const hit = [];
+  for(const v of ownerVideos(o)){
+    const chs = chapters(v);
+    if(chs.length !== 1 || v.done[chs[0].key] || !v.duration || v.duration <= budget * 1.1) continue;
+    let t = v.lastTime || 0;
+    try{ if(v === cur() && player.getVideoData().video_id === v.ytId) t = playerTime() ?? t; }catch(e){}
+    if(v.chapters.length < 2) v.chapters = splitEven(v.duration, budget);
+    hit.push([v, t]);
+  }
+  if(!hit.length) return 0;
+  delete o.whole; o.planToday = null;
+  for(const [v, t] of hit){
+    const chs = chapters(v), ci = chs.findIndex(c => t >= c.start && (c.end == null || t < c.end));
+    for(const c of chs) if(c.end != null && c.end <= t + 1) v.done[c.key] = true;
+    v.lastChapter = Math.max(0, ci);
+  }
+  heldAt = null;
+  return hit.length;
 }
 function planModal(o){
   const p0 = o.plan || {mode: 'minutes', minutes: store.settings.goal || 60, date: dayKey(new Date(Date.now() + 30 * 864e5)), days: [1, 2, 3, 4, 5, 6, 0]};
@@ -1157,7 +1188,15 @@ function planModal(o){
     <div id="planPreview"></div>
     <div class="actions">${o.plan ? '<button class="danger" id="pDel">Remove plan</button>' : ''}<button onclick="closeModal()">Cancel</button><button class="primary" id="pSave">Save plan</button></div>`, true);
   const read = () => ({mode: $('#modal').querySelector('input[name=pm]:checked').value, minutes: Math.min(600, Math.max(5, Math.round(+$('#pMin').value || 60))), date: $('#pDate').value || dayKey(), days: [...$('#modal').querySelectorAll('.daychips input:checked')].map(x => +x.value)});
-  const draw = () => { $('#planPreview').innerHTML = planTable(o, read()); };
+  // redraw only when the settings really changed, so leaving a box (change event) never swaps a button out mid-click
+  let drawn = '';
+  const draw = force => {
+    const p = read(), k = JSON.stringify(p);
+    if(force !== true && k === drawn) return;
+    drawn = k; $('#planPreview').innerHTML = planTable(o, p);
+    const sb = $('#pSplit');
+    if(sb) sb.onclick = () => { const n = splitLong(o, computePlan(o, read()).budget); if(n){ save(); render(); toast(`✂️ Split ${n} lecture${n > 1 ? 's' : ''} into parts. Plan updated`); } draw(true); };
+  };
   $('#pMin').onfocus = () => { $('#modal').querySelector('input[value=minutes]').checked = true; draw(); };
   $('#pDate').onfocus = () => { $('#modal').querySelector('input[value=date]').checked = true; draw(); };
   $('#modal').querySelectorAll('input').forEach(x => { x.addEventListener('input', draw); x.addEventListener('change', draw); });

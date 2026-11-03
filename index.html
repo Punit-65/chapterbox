@@ -70,6 +70,19 @@ main{padding:16px;min-width:0}
 .cprog:hover .ctrack{height:7px}
 .cfill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--accent);border-radius:3px}
 #cSpeed{font-size:13px;font-weight:700;min-width:46px}
+.course{margin-bottom:10px;border:1px solid var(--line);border-radius:10px;padding:4px;background:#141414}
+.course-head{padding:8px;cursor:pointer;border-radius:8px}
+.course-head:hover{background:var(--panel)}
+.course-head b{font-size:13px}
+.caret{color:var(--muted);display:inline-block;width:12px}
+.lnum{color:var(--accent);font-weight:800;font-size:11px}
+.crumb{width:100%;font-size:12px;color:var(--muted)}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.pl-way{background:#121212;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0}
+.pl-way ol{margin:8px 0;padding-left:20px}
+.pl-way li{margin:6px 0}
+a.bmk{cursor:grab}
 .playerwrap:fullscreen{display:flex;flex-direction:column;border-radius:0}
 .playerwrap:fullscreen .playerbox{flex:1;aspect-ratio:auto}
 .playerbox iframe,#player{position:absolute;inset:0;width:100%;height:100%;border:0}
@@ -116,7 +129,7 @@ main{padding:16px;min-width:0}
 .notes textarea{min-height:90px;margin-top:6px}
 kbd{background:#2a2a2a;border:1px solid #444;border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:11px}
 @media (max-width:1100px){.watch{grid-template-columns:1fr}.playlist{position:static;max-height:none}}
-@media (max-width:760px){.layout{grid-template-columns:1fr}aside{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto}aside h3{display:none}.lib-item{flex:none;width:240px}header .hide-sm{display:none}}
+@media (max-width:760px){.layout{grid-template-columns:1fr}aside{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto}aside h3{display:none}.lib-item{flex:none;width:240px}.course{flex:none;width:270px}header .hide-sm{display:none}}
 </style>
 </head>
 <body>
@@ -124,7 +137,7 @@ kbd{background:#2a2a2a;border:1px solid #444;border-bottom-width:2px;border-radi
   <div class="logo">Chapter<span>Box</span></div>
   <span class="muted hide-sm">turn long lectures into bite-size videos</span>
   <div class="spacer"></div>
-  <button class="primary" id="addBtn">+ Add video</button>
+  <button class="primary" id="addBtn">+ Add</button>
   <button id="exportBtn" title="Download a backup of everything">Export</button>
   <button id="importBtn" title="Restore from a backup file">Import</button>
   <button id="helpBtn" title="Help">?</button>
@@ -170,9 +183,9 @@ let store = loadStore();
 function loadStore(){
   try{
     const s = JSON.parse(localStorage.getItem(KEY));
-    if(s && Array.isArray(s.videos)){ s.settings = Object.assign({autoNext:true}, s.settings); return s; }
+    if(s && Array.isArray(s.videos)){ s.settings = Object.assign({autoNext:true}, s.settings); s.courses = Array.isArray(s.courses) ? s.courses : []; return s; }
   }catch(e){}
-  return {videos:[], settings:{autoNext:true}, currentId:null};
+  return {videos:[], courses:[], settings:{autoNext:true}, currentId:null};
 }
 let saveWarned = false;
 function save(){
@@ -292,33 +305,132 @@ async function copyLink(text, okMsg){
   setTimeout(() => { const t = $('#linkBox'); t.focus(); t.select(); }, 40);
 }
 
-// ================= share links: #add=... carries a video + its chapters =================
-function shareLink(v){
-  const data = {y: v.ytId, t: v.title, d: v.duration || 0, c: v.chapters.map(c => [c.start, c.title])};
-  const bytes = new TextEncoder().encode(JSON.stringify(data));
-  let bin = ''; bytes.forEach(x => bin += String.fromCharCode(x));
-  return location.origin + location.pathname + '#add=' + btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+// ================= share links & playlists =================
+// #addz= carries compressed {p: {id, t}, v: [{y, t, d, c: [[start, title], ...]}]}; old #add= links carry one video
+const b64u = bytes => { let bin = ''; for(let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]); return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const unb64u = str => { str = str.replace(/-/g, '+').replace(/_/g, '/'); while(str.length % 4) str += '='; return Uint8Array.from(atob(str), ch => ch.charCodeAt(0)); };
+async function packZ(obj){ return b64u(new Uint8Array(await new Response(new Blob([JSON.stringify(obj)]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer())); }
+async function unpackZ(str){ return JSON.parse(await new Response(new Blob([unb64u(str)]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text()); }
+const courseOf = v => v && v.course ? store.courses.find(c => c.id === v.course) || null : null;
+function courseVideos(c){ return c.order.map(y => store.videos.find(v => v.ytId === y && v.course === c.id)).filter(Boolean); }
+function nextLecture(v){ const c = courseOf(v); if(!c) return null; const l = courseVideos(c); return l[l.indexOf(v) + 1] || null; }
+async function shareLink(v){
+  const one = x => ({y: x.ytId, t: x.title, d: x.duration || 0, c: x.chapters.map(c => [c.start, c.title])});
+  const c = courseOf(v);
+  const data = c ? {p: {id: c.id, t: c.title}, v: courseVideos(c).map(one)} : {v: [one(v)]};
+  return location.origin + location.pathname + '#addz=' + await packZ(data);
 }
-function readShareHash(){
-  const m = location.hash.match(/^#add=([\w-]+)$/); if(!m) return false;
+function cleanChapters(c){
+  return (Array.isArray(c) ? c : []).filter(x => Array.isArray(x) && typeof x[0] === 'number')
+    .map(x => ({start: Math.max(0, Math.floor(x[0])), title: String(x[1] || '').slice(0, 200)}))
+    .sort((p, q) => p.start - q.start).filter((x, i, a) => i === 0 || x.start !== a[i - 1].start);
+}
+function importLectures(list, p, autoSplitMin){
+  let course = null;
+  if(p && p.id){
+    course = store.courses.find(c => c.id === String(p.id));
+    if(!course){ course = {id: String(p.id).slice(0, 100), title: String(p.t || 'Playlist').slice(0, 200), order: []}; store.courses.push(course); }
+    else if(p.t) course.title = String(p.t).slice(0, 200);
+  }
+  const vids = [];
+  list.forEach((d, i) => {
+    if(!d || !/^[\w-]{11}$/.test(d.y)) return;
+    const c = cleanChapters(d.c);
+    let v = store.videos.find(x => x.ytId === d.y);
+    if(v){ if(c.length) v.chapters = c; if(d.d) v.duration = d.d; if(d.t && !v.titleSet){ v.title = String(d.t).slice(0, 200); v.titleSet = true; } }
+    else {
+      v = {id: 'v' + Date.now().toString(36) + i, ytId: d.y, title: String(d.t || 'Untitled video').slice(0, 200), titleSet: !!d.t,
+        duration: d.d || null, chapters: c, done: {}, notes: {}, lastChapter: 0, lastTime: 0, added: Date.now()};
+      store.videos.push(v);
+    }
+    if(!v.chapters.length && autoSplitMin) v.autoSplit = autoSplitMin;
+    if(course) v.course = course.id;
+    vids.push(v);
+  });
+  if(course) course.order = vids.map(v => v.ytId).concat(course.order.filter(y => !vids.some(v => v.ytId === y)));
+  const target = vids.find(v => progressOf(v).done < progressOf(v).total) || vids[0];
+  if(target) store.currentId = target.id;
+  save();
+  const n = vids.reduce((a, v) => a + chapters(v).length, 0);
+  toast(course ? `Added "${course.title}": ${vids.length} lectures, ${n} chapters` : vids.length ? `Added "${vids[0].title}" with ${n} chapters` : 'Nothing to add');
+  return vids.length > 0;
+}
+async function readShareHash(){
+  const m = location.hash.match(/^#(addz|add)=([\w-]+)$/); if(!m) return false;
   history.replaceState(null, '', location.pathname + location.search);
   try{
-    let b64 = m[1].replace(/-/g, '+').replace(/_/g, '/'); while(b64.length % 4) b64 += '=';
-    const d = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b64), ch => ch.charCodeAt(0))));
-    if(!/^[\w-]{11}$/.test(d.y) || !Array.isArray(d.c)) throw 0;
-    const chs = d.c.filter(x => Array.isArray(x) && typeof x[0] === 'number')
-      .map(x => ({start: Math.max(0, Math.floor(x[0])), title: String(x[1] || '').slice(0, 200)}))
-      .sort((p, q) => p.start - q.start);
-    let v = store.videos.find(x => x.ytId === d.y);
-    if(v){ if(chs.length) v.chapters = chs; if(d.d) v.duration = d.d; toast('Chapters updated from the link'); }
-    else {
-      v = {id: 'v' + Date.now().toString(36), ytId: d.y, title: String(d.t || 'Untitled video').slice(0, 200), titleSet: !!d.t,
-        duration: d.d || null, chapters: chs, done: {}, notes: {}, lastChapter: 0, lastTime: 0, added: Date.now()};
-      store.videos.push(v); toast(`Added "${v.title}" with ${chapters(v).length} chapters`);
-    }
-    store.currentId = v.id; save(); return true;
+    const d = m[1] === 'addz' ? await unpackZ(m[2]) : JSON.parse(new TextDecoder().decode(unb64u(m[2])));
+    return importLectures(Array.isArray(d.v) ? d.v : [d], d.p);
   }catch(e){ toast('That ChapterBox link looks broken'); return false; }
 }
+function playlistId(str){
+  str = (str || '').trim();
+  try{ const u = new URL(/^https?:\/\//.test(str) ? str : 'https://' + str); const l = u.searchParams.get('list'); if(l) return l; }catch(e){}
+  return /^(PL|UU|OL|FL)[\w-]{10,}$/.test(str) ? str : null;
+}
+function playlistIdsViaApi(list){
+  return new Promise((resolve, reject) => {
+    const holder = document.createElement('div'); holder.style.cssText = 'position:fixed;left:-9999px;top:0;width:320px;height:180px';
+    const inner = document.createElement('div'); holder.appendChild(inner); document.body.appendChild(holder);
+    let p = null; const done = (ids, err) => { clearTimeout(tm); try{ p.destroy(); }catch(e){} holder.remove(); ids ? resolve(ids) : reject(err); };
+    const tm = setTimeout(() => done(null, new Error('timeout')), 20000);
+    p = new YT.Player(inner, {width: 320, height: 180, playerVars: {listType: 'playlist', list, autoplay: 0, controls: 0},
+      events: {onReady: () => { let n = 30; const tick = () => { const l = p.getPlaylist && p.getPlaylist(); if(l && l.length) done(l); else if(n-- > 0) setTimeout(tick, 500); else done(null, new Error('empty')); }; tick(); },
+        onError: () => done(null, new Error('error'))}});
+  });
+}
+async function oembedTitle(url){
+  try{ const r = await fetch('https://www.youtube.com/oembed?format=json&url=' + encodeURIComponent(url)); return r.ok ? (await r.json()).title : null; }catch(e){ return null; }
+}
+
+// The "Grab chapters" bookmark. It runs on youtube.com (never on this page), reads the chapters YouTube
+// already shows for each lecture, and opens ChapterBox with them. No comments inside: it becomes a bookmark.
+async function grabber(APP){
+  const u = new URL(location.href);
+  const list = u.searchParams.get('list'), vid = u.searchParams.get('v');
+  if(!/(^|\.)youtube\.com$/.test(u.hostname) || (!list && !vid)){ alert('Open a YouTube video or playlist first, then click this bookmark.'); return; }
+  const box = document.createElement('div');
+  box.style.cssText = 'position:fixed;z-index:2147483647;top:14px;right:14px;max-width:340px;background:#ff4e45;color:#fff;font:600 14px/1.4 system-ui,sans-serif;padding:12px 16px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.45)';
+  const say = t => { box.textContent = 'ChapterBox: ' + t; };
+  document.body.appendChild(box); say('starting…');
+  const grab = (html, name) => { const i = html.indexOf(name + ' = '); if(i < 0) return null; const a = html.indexOf('{', i); const b = html.indexOf(';<\/script>', a); try{ return JSON.parse(html.slice(a, b)); }catch(e){ return null; } };
+  const find = (o, key, out) => { out = out || []; if(o && typeof o === 'object'){ if(o[key]) out.push(o[key]); for(const k in o) find(o[k], key, out); } return out; };
+  const txt = t => !t ? '' : typeof t === 'string' ? t : (t.content || t.simpleText || (t.runs || []).map(r => r.text).join(''));
+  const page = async path => (await fetch(path, {credentials: 'include'})).text();
+  try{
+    let items = [], ptitle = '';
+    if(list && !/^RD/.test(list)){
+      say('reading the playlist…');
+      const pd = grab(await page('/playlist?list=' + encodeURIComponent(list)), 'ytInitialData');
+      ptitle = (pd && pd.header && pd.header.pageHeaderRenderer && pd.header.pageHeaderRenderer.pageTitle) || txt(pd && pd.metadata && pd.metadata.playlistMetadataRenderer && pd.metadata.playlistMetadataRenderer.title) || 'Playlist';
+      items = find(pd, 'lockupViewModel').filter(l => l.contentType === 'LOCKUP_CONTENT_TYPE_VIDEO').map(l => ({y: l.contentId, t: txt(l.metadata && l.metadata.lockupMetadataViewModel && l.metadata.lockupMetadataViewModel.title)}));
+      if(!items.length) items = find(pd, 'playlistVideoRenderer').map(v => ({y: v.videoId, t: txt(v.title)}));
+      const seen = {}; items = items.filter(x => x.y && !seen[x.y] && (seen[x.y] = 1));
+    }
+    if(!items.length && vid) items = [{y: vid, t: ''}];
+    if(!items.length) throw new Error('no videos found on this page');
+    let n = 0; const queue = items.slice();
+    const one = async it => {
+      const html = await page('/watch?v=' + it.y);
+      const wd = grab(html, 'ytInitialData'); const seen = {};
+      it.c = find(wd, 'chapterRenderer').map(c => [Math.round(c.timeRangeStartMillis / 1000), txt(c.title)]).filter(c => !seen[c[0]] && (seen[c[0]] = 1)).sort((a, b) => a[0] - b[0]);
+      const len = html.match(/"lengthSeconds":"(\d+)"/); it.d = len ? +len[1] : 0;
+      if(!it.t){ const tm = html.match(/"videoDetails":\{"videoId":"[^"]*","title":"((?:[^"\\]|\\.)*)"/); try{ it.t = tm ? JSON.parse('"' + tm[1] + '"') : ''; }catch(e){ it.t = ''; } }
+      n++; say('getting chapters ' + n + '/' + items.length + '…');
+    };
+    await Promise.all([0, 1, 2].map(async () => { while(queue.length){ const it = queue.shift(); try{ await one(it); }catch(e){ it.c = it.c || []; } } }));
+    const data = list && items.length > 1 ? {p: {id: list, t: ptitle}, v: items} : {v: items};
+    const z = new Uint8Array(await new Response(new Blob([JSON.stringify(data)]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer());
+    let bin = ''; for(let i = 0; i < z.length; i++) bin += String.fromCharCode(z[i]);
+    const url = APP + '#addz=' + btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const total = items.reduce((a, x) => a + (x.c ? x.c.length : 0), 0);
+    say('got ' + items.length + (items.length > 1 ? ' lectures' : ' video') + ' with ' + total + ' chapters. Opening ChapterBox…');
+    if(window.__chapterboxTest) return url;
+    const w = window.open(url, '_blank'); if(!w) location.href = url;
+    setTimeout(() => box.remove(), 5000);
+  }catch(e){ say('something went wrong: ' + e.message); setTimeout(() => box.remove(), 8000); }
+}
+function bookmarkletHref(){ return 'javascript:' + encodeURIComponent('void((' + grabber.toString() + ')(' + JSON.stringify(location.origin + location.pathname) + '))'); }
 
 function renderBanner(){
   const b = $('#banner');
@@ -334,28 +446,41 @@ function renderBanner(){
 // ================= library & views =================
 function renderLibrary(){
   const lib = $('#library');
-  if(!store.videos.length){ lib.innerHTML = `<h3>Your videos</h3><p class="muted" style="padding:4px">Nothing yet. Hit <b>+ Add video</b>.</p>`; return; }
-  const vids = [...store.videos].sort((a,b) => (b.opened||0) - (a.opened||0));
-  lib.innerHTML = `<h3>Your videos (${vids.length})</h3>` + vids.map(v => {
-    const p = progressOf(v), pct = Math.round(p.done / p.total * 100);
+  if(!store.videos.length){ lib.innerHTML = `<h3>Your videos</h3><p class="muted" style="padding:4px">Nothing yet. Hit <b>+ Add</b>.</p>`; return; }
+  const item = (v, label) => { const p = progressOf(v), pct = Math.round(p.done / p.total * 100);
     return `<div class="lib-item ${v.id === store.currentId ? 'active' : ''}" data-id="${v.id}">
       <div class="lib-thumb"><img src="${thumb(v.ytId)}" alt="" loading="lazy" onerror="this.remove()"></div>
-      <div style="min-width:0;flex:1"><div class="lib-title">${esc(v.title)}</div>
+      <div style="min-width:0;flex:1"><div class="lib-title">${label ? `<span class="lnum">${label}</span> ` : ''}${esc(v.title)}</div>
       <div class="muted" style="font-size:12px;margin-top:3px">${p.done}/${p.total} chapters${pct === 100 ? ' ✅' : ''}</div>
-      <div class="bar ${pct === 100 ? 'green' : ''}"><i style="width:${pct}%"></i></div></div></div>`;
-  }).join('');
+      <div class="bar ${pct === 100 ? 'green' : ''}"><i style="width:${pct}%"></i></div></div></div>`; };
+  const coll = store.settings.collapsed || {};
+  const groups = store.courses.map(c => ({c, vids: courseVideos(c)})).filter(g => g.vids.length)
+    .sort((a, b) => Math.max(...b.vids.map(v => v.opened || 0)) - Math.max(...a.vids.map(v => v.opened || 0)));
+  let html = '';
+  for(const {c, vids} of groups){
+    const tot = vids.reduce((a, v) => a + progressOf(v).total, 0), dn = vids.reduce((a, v) => a + progressOf(v).done, 0), open = !coll[c.id];
+    html += `<div class="course"><div class="course-head" data-course="${esc(c.id)}"><span class="caret">${open ? '▾' : '▸'}</span> <b>📚 ${esc(c.title)}</b>
+      <div class="muted" style="font-size:12px;margin-top:2px">${vids.length} lectures · ${dn}/${tot} chapters</div>
+      <div class="bar ${dn === tot ? 'green' : ''}"><i style="width:${tot ? dn / tot * 100 : 0}%"></i></div></div>
+      ${open ? vids.map((v, i) => item(v, 'L' + (i + 1))).join('') : ''}</div>`;
+  }
+  const loose = store.videos.filter(v => !groups.some(g => g.vids.includes(v))).sort((a, b) => (b.opened || 0) - (a.opened || 0));
+  if(loose.length) html += `<h3>${groups.length ? 'Single videos' : 'Your videos'} (${loose.length})</h3>` + loose.map(v => item(v)).join('');
+  lib.innerHTML = (groups.length ? `<h3>Playlists (${groups.length})</h3>` : '') + html;
   lib.querySelectorAll('.lib-item').forEach(el => el.onclick = () => openVideo(el.dataset.id));
+  lib.querySelectorAll('.course-head').forEach(el => el.onclick = () => { store.settings.collapsed = Object.assign({}, store.settings.collapsed, {[el.dataset.course]: open0(el)}); save(); renderLibrary(); });
 }
+function open0(el){ return !(store.settings.collapsed || {})[el.dataset.course]; }
 
 function renderEmpty(){
   $('#emptyView').innerHTML = `<h1>Split any long lecture into chapter videos 🎬</h1>
     <p class="muted">Everything is saved in this browser, on your computer.</p>
     <ol class="steps">
-      <li>Click <b>+ Add video</b> and paste a YouTube link.</li>
+      <li>Click <b>+ Add</b> and paste a YouTube link, or add a <b>whole playlist</b> with every lecture's chapters.</li>
       <li>Paste the timestamps from the video description (like <code>54:00 Problem 8</code>), or auto-split every N minutes.</li>
       <li>Every chapter becomes its own "video" that plays only that part. Tick them off as you finish them ✅</li>
     </ol>
-    <button class="primary" id="emptyAdd">+ Add your first video</button>`;
+    <button class="primary" id="emptyAdd">+ Add a video or playlist</button>`;
   $('#emptyAdd').onclick = addVideoModal;
 }
 
@@ -370,16 +495,19 @@ function render(){
 function renderTitlebar(){
   const v = cur(); const p = progressOf(v);
   const left = chapters(v).filter(c => !v.done[c.start] && c.len != null).reduce((a, c) => a + c.len, 0);
-  $('#titlebar').innerHTML = `<h2 id="vtitle" title="Click to rename">${esc(v.title)}</h2>
+  const course = courseOf(v), nx = nextLecture(v), lnum = course ? courseVideos(course).indexOf(v) + 1 : 0;
+  $('#titlebar').innerHTML = `${course ? `<div class="crumb">📚 ${esc(course.title)} · Lecture ${lnum} of ${courseVideos(course).length}</div>` : ''}<h2 id="vtitle" title="Click to rename">${esc(v.title)}</h2>
     <span class="muted">${p.done}/${p.total} done${left ? ' · ' + fmtLen(left) + ' left' : (p.done === p.total ? ' ✅' : '')}</span>
     <button id="tbEdit">✂️ Edit chapters</button>
-    <button id="tbShare" title="Copy a link that loads this video with all its chapters">🔗 Share</button>
+    ${nx ? '<button id="tbNextLec" title="Open the next lecture of this playlist">Next lecture ⏭</button>' : ''}
+    <button id="tbShare" title="${course ? 'Copy a link that adds this whole playlist with every chapter' : 'Copy a link that loads this video with all its chapters'}">🔗 Share${course ? ' playlist' : ''}</button>
     <a class="btn" id="tbYt" href="${watchUrl(v.ytId)}" target="_blank" rel="noopener">Open on YouTube</a>
     <button class="ghost" id="tbReset">Reset progress</button>
     <button class="ghost danger" id="tbDelete">Delete</button>`;
   $('#vtitle').onclick = renameModal;
   $('#tbEdit').onclick = editChaptersModal;
-  $('#tbShare').onclick = () => copyLink(shareLink(v), 'Link copied! Whoever opens it gets this video split into the same chapters');
+  $('#tbShare').onclick = async () => copyLink(await shareLink(v), course ? 'Playlist link copied! It adds every lecture with its chapters' : 'Link copied! Whoever opens it gets this video split into the same chapters');
+  if(nx) $('#tbNextLec').onclick = () => openVideo(nx.id);
   $('#tbYt').onclick = function(){ this.href = watchUrl(v.ytId, playerTime() ?? resumePoint(v).start); };
   $('#tbReset').onclick = resetProgress;
   $('#tbDelete').onclick = deleteVideo;
@@ -459,7 +587,7 @@ function renderPlayerNote(){
 // ================= actions =================
 function openVideo(id){
   const v = store.videos.find(x => x.id === id); if(!v) return;
-  store.currentId = id; v.opened = Date.now(); save(); render();
+  store.currentId = id; v.opened = Date.now(); advancing = null; save(); render();
   const r = resumePoint(v);
   loadIntoPlayer(v, r.start, r.end, false);
 }
@@ -489,15 +617,24 @@ function resetProgress(){
   });
 }
 function deleteVideo(){
-  const v = cur();
-  confirmModal('Delete this video?', `"${esc(v.title)}" and its notes will be removed from ChapterBox.`, 'Delete', () => {
-    store.videos = store.videos.filter(x => x.id !== v.id);
+  const v = cur(), course = courseOf(v);
+  openModal(`<h2>Delete?</h2><p class="muted">"${esc(v.title)}" and its notes will be removed from ChapterBox.</p>
+    <div class="actions"><button onclick="closeModal()">Cancel</button>
+    ${course ? `<button class="danger-fill" id="delAll">Delete whole playlist (${courseVideos(course).length})</button>` : ''}
+    <button class="danger-fill" id="delOne">Delete this ${course ? 'lecture' : 'video'}</button></div>`);
+  const finish = ids => {
+    closeModal();
+    store.videos = store.videos.filter(x => !ids.includes(x.id));
+    store.courses.forEach(c => { c.order = c.order.filter(y => store.videos.some(x => x.ytId === y && x.course === c.id)); });
+    store.courses = store.courses.filter(c => c.order.length);
     store.currentId = store.videos[0]?.id || null; save();
     try{ if(player && player.stopVideo) player.stopVideo(); }catch(e){}
     if(ytMode === 'plain') $('#playerbox').innerHTML = '<div id="player"></div>';
     if(store.currentId) openVideo(store.currentId); else render();
     toast('Deleted');
-  });
+  };
+  $('#delOne').onclick = () => finish([v.id]);
+  if(course) $('#delAll').onclick = () => finish(courseVideos(course).map(x => x.id));
 }
 
 // ================= modals =================
@@ -510,8 +647,10 @@ function renameModal(){
   $('#rName').onkeydown = e => { if(e.key === 'Enter') go(); };
 }
 
-function addVideoModal(){
-  openModal(`<h2>Add a YouTube video</h2><p class="muted" style="margin:0">Long lectures, courses, one-shots... anything.</p>
+function addVideoModal(tab){
+  if(tab === 'playlist') return addPlaylistModal();
+  openModal(`<div class="tabs"><button class="on">🎬 Video</button><button id="toPl">📚 Playlist</button></div>
+    <h2>Add a YouTube video</h2><p class="muted" style="margin:0">Long lectures, courses, one-shots... anything.</p>
     <label>YouTube link</label><input id="mUrl" placeholder="https://www.youtube.com/watch?v=...">
     <label>Name (optional, taken from YouTube if empty)</label><input id="mTitle" placeholder="e.g. C Programming L2: If Else">
     <label>Chapters / timestamps (optional)</label>
@@ -521,8 +660,10 @@ function addVideoModal(){
     <div class="row"><input id="mEvery" type="number" min="1" placeholder="minutes, e.g. 20" style="width:150px">
     <input id="mLen" placeholder="video length, e.g. 2:55:23" style="width:200px"></div>
     <div class="actions"><button onclick="closeModal()">Cancel</button><button class="primary" id="mSave">Add video</button></div>`);
+  $('#toPl').onclick = () => addPlaylistModal();
   $('#mSave').onclick = () => {
     const url = $('#mUrl').value, id = ytId(url);
+    if(!id && playlistId(url)){ addPlaylistModal(url); return; }
     if(!id){ toast("That doesn't look like a YouTube link"); $('#mUrl').focus(); return; }
     const existing = store.videos.find(v => v.ytId === id);
     if(existing){ closeModal(); openVideo(existing.id); toast('Already in your library, so I opened it'); return; }
@@ -577,6 +718,46 @@ function editChaptersModal(){
   };
 }
 
+function addPlaylistModal(prefill){
+  openModal(`<div class="tabs"><button id="toVid">🎬 Video</button><button class="on">📚 Playlist</button></div>
+    <h2>Add a whole playlist</h2><p class="muted" style="margin:0">Every lecture becomes its own item, grouped as a course, each split into its chapters.</p>
+    <div class="pl-way"><b>⭐ Best: every lecture with its chapters, in one click</b>
+      <ol>
+        <li>Drag this button onto your bookmarks bar (press <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>B</kbd> if the bar is hidden):<br>
+          <a class="btn primary bmk" id="bmk" href="#" style="margin-top:6px">📥 Grab chapters</a>
+          <button class="small" id="bmkCopy" style="margin-left:6px">or copy it</button></li>
+        <li>Open the playlist on YouTube, or any lecture that's playing from it.</li>
+        <li>Click <b>📥 Grab chapters</b> in your bookmarks bar. ChapterBox opens with every lecture split into its chapters.</li>
+      </ol>
+      <div class="hint">On a single YouTube video it grabs just that video. It reads the chapters YouTube already shows and works for the first 100 lectures of a playlist. Can't drag? Click <b>or copy it</b>, right-click your bookmarks bar → <b>Add page…</b>, name it "Grab chapters" and paste into the URL box.</div>
+    </div>
+    <div class="pl-way"><b>Quick: paste the playlist link</b> <span class="muted">(lectures come in without chapters)</span>
+      <label>Playlist link</label><input id="plUrl" placeholder="https://www.youtube.com/playlist?list=..." value="${esc(prefill || '')}">
+      <label>Split each lecture every N minutes (optional, done when you first play it)</label>
+      <input id="plEvery" type="number" min="1" placeholder="e.g. 15" style="width:150px">
+      <div class="actions"><button onclick="closeModal()">Cancel</button><button class="primary" id="plGo">Add lectures</button></div>
+    </div>`);
+  $('#toVid').onclick = () => addVideoModal();
+  const href = bookmarkletHref();
+  $('#bmk').href = href;
+  $('#bmk').onclick = e => { e.preventDefault(); toast('Drag me onto your bookmarks bar 🙂'); };
+  $('#bmkCopy').onclick = () => copyLink(href, 'Copied! Now add it as a bookmark called "Grab chapters"');
+  $('#plGo').onclick = async () => {
+    const list = playlistId($('#plUrl').value);
+    if(!list){ toast("That doesn't look like a playlist link"); $('#plUrl').focus(); return; }
+    if(ytMode !== 'api'){ toast("YouTube's player isn't loaded here, so playlists can't be read"); return; }
+    const btn = $('#plGo'); btn.disabled = true; btn.textContent = 'Reading playlist…';
+    try{
+      const ids = await playlistIdsViaApi(list);
+      btn.textContent = `Getting ${ids.length} titles…`;
+      const [ptitle, ...titles] = await Promise.all([oembedTitle('https://www.youtube.com/playlist?list=' + list), ...ids.map(id => oembedTitle('https://www.youtube.com/watch?v=' + id))]);
+      closeModal();
+      importLectures(ids.map((y, i) => ({y, t: titles[i] || `Lecture ${i + 1}`, d: 0, c: []})), {id: list, t: ptitle || 'Playlist'}, +$('#plEvery').value || 0);
+      openVideo(store.currentId);
+    }catch(e){ btn.disabled = false; btn.textContent = 'Add lectures'; toast("Couldn't read that playlist. Is it public?"); }
+  };
+}
+
 function helpModal(){
   openModal(`<h2>How ChapterBox works</h2>
     <ul style="padding-left:18px">
@@ -586,6 +767,8 @@ function helpModal(){
     </ul>
     <h3 style="font-size:15px;margin-bottom:4px">Where your stuff is saved</h3>
     <p class="muted" style="margin-top:0">Your videos, ✓ marks and notes are saved in <b>this browser on this device</b>, not on GitHub, so nobody else can see them. Opening the link on your phone or in another browser starts empty: use Export there and Import here, or the other way round.</p>
+    <h3 style="font-size:15px;margin-bottom:4px">📚 Playlists</h3>
+    <p class="muted" style="margin-top:0"><b>+ Add → Playlist</b> brings in a whole YouTube playlist as a course. With the <b>📥 Grab chapters</b> bookmark, every lecture arrives already split into its chapters. When a lecture's last chapter ends, the next lecture starts by itself (if auto-play is on).</p>
     <h3 style="font-size:15px;margin-bottom:4px">🔗 Share links</h3>
     <p class="muted" style="margin-top:0">The Share button copies a link that adds the video with all its chapters (not your ✓ marks or notes). It's great for sending a lecture split to friends, or for moving it to your phone.</p>
     <div class="actions"><button class="primary" onclick="closeModal()">Got it</button></div>`);
@@ -611,13 +794,14 @@ $('#importFile').onchange = async e => {
       if(i >= 0){ store.videos[i] = v; updated++; } else { store.videos.push(v); added++; }
     }
     if(data.settings) store.settings = Object.assign(store.settings, data.settings);
+    for(const c of Array.isArray(data.courses) ? data.courses : []){ if(!c || !c.id || !Array.isArray(c.order)) continue; const i = store.courses.findIndex(x => x.id === c.id); if(i >= 0) store.courses[i] = c; else store.courses.push(c); }
     if(!cur() && store.videos[0]) store.currentId = store.videos[0].id;
     save(); if(cur()) openVideo(store.currentId); else render();
     toast(`Imported: ${added} new, ${updated} updated`);
   }catch(err){ toast("That file isn't a ChapterBox backup"); }
   e.target.value = '';
 };
-$('#addBtn').onclick = addVideoModal;
+$('#addBtn').onclick = () => addVideoModal();
 $('#helpBtn').onclick = helpModal;
 
 // ================= YouTube player =================
@@ -668,7 +852,14 @@ function onStateChange(e){
   const c = curChapter(v);
   if(!v.done[c.start]){ v.done[c.start] = true; save(); }
   renderLibrary(); renderTitlebar(); renderPlaylist(); renderNow();
-  if(c.idx === chapters(v).length - 1) toast('🎉 That was the last chapter!');
+  if(c.idx === chapters(v).length - 1){ if(store.settings.autoNext && nextLecture(v)) goNextLecture(v); else toast('🎉 That was the last chapter!'); }
+}
+let advancing = null;
+function goNextLecture(v){
+  const nx = nextLecture(v); if(!nx || advancing === v.id) return;
+  advancing = v.id; try{ player.pauseVideo(); }catch(e){}
+  toast(`🎉 Lecture done! Next: ${nx.title.slice(0, 50)}`);
+  setTimeout(() => { if(cur() === v){ openVideo(nx.id); playChapter(curChapter(nx).idx, true); } }, 1500);
 }
 function onError(e){
   const v = cur(); if(!v) return;
@@ -718,7 +909,11 @@ setInterval(() => {
   try{
     const d = player.getDuration();
     const lastStart = v.chapters.length ? v.chapters[v.chapters.length - 1].start : 0;
-    if((st === 1 || st === 2) && d > lastStart && (!v.duration || Math.abs(v.duration - d) > 2)){ v.duration = Math.round(d); save(); renderTitlebar(); renderPlaylist(); renderNow(); }
+    if((st === 1 || st === 2) && d > lastStart && (!v.duration || Math.abs(v.duration - d) > 2)){
+      v.duration = Math.round(d);
+      if(!v.chapters.length && v.autoSplit){ v.chapters = autoSplit(v.duration, v.autoSplit); delete v.autoSplit; v.lastChapter = 0; save(); render(); }
+      else { save(); renderTitlebar(); renderPlaylist(); renderNow(); }
+    }
     if(data.title && !v.titleSet){ v.title = data.title; v.titleSet = true; save(); renderLibrary(); renderTitlebar(); }
   }catch(e){}
   if(st !== 1) return;
@@ -732,6 +927,8 @@ setInterval(() => {
     if(c.idx < chs.length - 1 && (store.settings.autoNext || heldAt === c.start)){
       heldAt = null; v.lastChapter = c.idx + 1;
       if(store.settings.autoNext) toast(`✓ Chapter ${c.idx + 1} done. Next up!`);
+    } else if(c.idx === chs.length - 1 && store.settings.autoNext && nextLecture(v) && heldAt !== c.start){
+      heldAt = c.start; goNextLecture(v);
     } else if(heldAt !== c.start){
       heldAt = c.start; try{ player.pauseVideo(); }catch(e){}
       toast(c.idx === chs.length - 1 ? '🎉 That was the last chapter!' : `✓ Chapter ${c.idx + 1} done. Press play or Next to continue`);
@@ -842,12 +1039,11 @@ function loadYouTubeApi(){
 }
 
 // start
-readShareHash();
-window.addEventListener('hashchange', () => { if(readShareHash()) openVideo(store.currentId); });
+window.addEventListener('hashchange', async () => { if(await readShareHash()) openVideo(store.currentId); });
 renderBanner();
 render();
-if(cur()) openVideo(store.currentId);
 loadYouTubeApi();
+readShareHash().then(() => { if(cur()) openVideo(store.currentId); else render(); });
 </script>
 </body>
 </html>

@@ -199,7 +199,7 @@ a.bmk{cursor:grab}
 .notes textarea{min-height:90px;margin-top:6px}
 kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:11px}
 @media (max-width:1100px){.watch{grid-template-columns:1fr}.playlist{position:static;max-height:none}}
-@media (max-width:760px){header{flex-wrap:wrap}.search{order:9;flex-basis:100%;max-width:none;margin:4px 0 0}.features{grid-template-columns:1fr}.layout{grid-template-columns:1fr}aside{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto}aside h3{display:none}.lib-item{flex:none;width:240px}.course{flex:none;width:270px}header .hide-sm{display:none}}
+@media (max-width:760px){header{flex-wrap:wrap}.search{order:9;flex-basis:100%;max-width:none;margin:4px 0 0}.features{grid-template-columns:1fr}.layout{grid-template-columns:1fr}aside{position:static;max-height:none;border-right:0;border-top:1px solid var(--line);order:2;display:flex;gap:6px;overflow-x:auto}aside h3{display:none}.lib-item{flex:none;width:240px}.course{flex:none;width:270px}header .hide-sm{display:none}.keyhint{display:none}}
 </style>
 </head>
 <body>
@@ -418,7 +418,7 @@ function importLectures(list, p, autoSplitMin){
       if(!course && store.settings.importWhole) v.whole = true;
       store.videos.push(v);
     }
-    if(!v.chapters.length && autoSplitMin) v.autoSplit = autoSplitMin;
+    if(!v.chapters.length && autoSplitMin){ if(v.duration) v.chapters = autoSplit(v.duration, autoSplitMin); else v.autoSplit = autoSplitMin; }
     if(course) v.course = course.id;
     vids.push(v);
   });
@@ -452,6 +452,28 @@ function playlistIdsViaApi(list){
     p = new YT.Player(inner, {width: 320, height: 180, playerVars: {listType: 'playlist', list, autoplay: 0, controls: 0},
       events: {onReady: () => { let n = 30; const tick = () => { const l = p.getPlaylist && p.getPlaylist(); if(l && l.length) done(l); else if(n-- > 0) setTimeout(tick, 500); else done(null, new Error('empty')); }; tick(); },
         onError: () => done(null, new Error('error'))}});
+  });
+}
+function durationsViaApi(ids, onp){
+  return new Promise(resolve => {
+    const out = ids.map(() => 0);
+    if(!ids.length){ resolve(out); return; }
+    const holder = document.createElement('div'); holder.style.cssText = 'position:fixed;left:-9999px;top:0;width:320px;height:180px';
+    const inner = document.createElement('div'); holder.appendChild(inner); document.body.appendChild(holder);
+    let p = null, i = 0, since = Date.now(), over = false;
+    const finish = () => { if(over) return; over = true; clearTimeout(all); try{ p.destroy(); }catch(e){} holder.remove(); resolve(out); };
+    const all = setTimeout(finish, 15000 + ids.length * 1500);
+    const next = () => { i++; since = Date.now(); if(onp) onp(i, ids.length); if(i >= ids.length) finish(); else p.cueVideoById({videoId: ids[i]}); };
+    const poll = () => {
+      if(over) return;
+      try{ const d = p.getDuration(), data = p.getVideoData();
+        if(data && data.video_id === ids[i] && d > 0){ out[i] = Math.round(d); next(); }
+        else if(Date.now() - since > 4000) next();
+      }catch(e){ if(Date.now() - since > 4000) next(); }
+      setTimeout(poll, 100);
+    };
+    p = new YT.Player(inner, {width: 320, height: 180, videoId: ids[0], playerVars: {autoplay: 0, controls: 0},
+      events: {onReady: poll, onError: () => { since = 0; }}});
   });
 }
 async function oembedTitle(url){
@@ -526,16 +548,16 @@ function renderLibrary(){
     return `<div class="lib-item ${v.id === store.currentId && view === 'watch' ? 'active' : ''}" data-id="${v.id}">
       <div class="lib-thumb"><img src="${thumb(v.ytId)}" alt="" loading="lazy" onerror="this.remove()"></div>
       <div style="min-width:0;flex:1"><div class="lib-title">${label ? `<span class="lnum">${label}</span> ` : ''}${esc(v.title)}</div>
-      <div class="muted" style="font-size:12px;margin-top:3px">${p.done}/${p.total} chapters${pct === 100 ? ' ✅' : ''}</div>
+      <div class="muted" style="font-size:12px;margin-top:3px">${p.total === 1 ? `${v.duration ? fmt(v.duration) + ' · ' : ''}${p.done ? 'watched ✅' : 'full video'}` : `${p.done}/${p.total} chapters${pct === 100 ? ' ✅' : ''}`}</div>
       <div class="bar ${pct === 100 ? 'green' : ''}"><i style="width:${pct}%"></i></div></div></div>`; };
   const coll = store.settings.collapsed || {};
   const groups = store.courses.map(c => ({c, vids: courseVideos(c)})).filter(g => g.vids.length)
     .sort((a, b) => Math.max(...b.vids.map(v => v.opened || 0)) - Math.max(...a.vids.map(v => v.opened || 0)));
   let html = '';
   for(const {c, vids} of groups){
-    const tot = vids.reduce((a, v) => a + progressOf(v).total, 0), dn = vids.reduce((a, v) => a + progressOf(v).done, 0), open = !coll[c.id];
+    const tot = vids.reduce((a, v) => a + progressOf(v).total, 0), dn = vids.reduce((a, v) => a + progressOf(v).done, 0), open = !coll[c.id], len = vids.every(v => v.duration) ? vids.reduce((a, v) => a + v.duration, 0) : 0;
     html += `<div class="course"><div class="course-head" data-course="${esc(c.id)}"><span class="caret">${open ? '▾' : '▸'}</span> <b>📚 ${esc(c.title)}</b>
-      <div class="muted" style="font-size:12px;margin-top:2px">${vids.length} lectures · ${dn}/${tot} chapters</div>
+      <div class="muted" style="font-size:12px;margin-top:2px">${vids.length} lectures · ${dn}/${tot} ${tot === vids.length ? 'watched' : 'chapters'}${len ? ' · ' + fmtDur(len) : ''}</div>
       <div class="bar ${dn === tot ? 'green' : ''}"><i style="width:${tot ? dn / tot * 100 : 0}%"></i></div></div>
       ${open ? vids.map((v, i) => item(v, 'L' + (i + 1))).join('') : ''}</div>`;
   }
@@ -671,7 +693,7 @@ function renderNow(){
     </div>
     <div class="row" style="margin-top:10px;justify-content:space-between">
       <label class="chk" style="margin:0"><input type="checkbox" id="autoNext" ${store.settings.autoNext ? 'checked' : ''}> Auto-play next chapter</label>
-      <span class="muted" style="font-size:12px">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd><kbd>→</kbd> 5s · <kbd>Shift</kbd>+<kbd>N</kbd>/<kbd>P</kbd> next/prev · <kbd>?</kbd> all keys</span>
+      <span class="muted keyhint" style="font-size:12px">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd><kbd>→</kbd> 5s · <kbd>Shift</kbd>+<kbd>N</kbd>/<kbd>P</kbd> next/prev · <kbd>?</kbd> all keys</span>
     </div>`;
   $('#nPrev').onclick = () => playChapter(i - 1, true, true);
   $('#nRestart').onclick = () => playChapter(i, true, true);
@@ -876,7 +898,7 @@ function addPlaylistModal(prefill){
     </div>
     <div class="pl-way"><b>📋 Add a playlist without chapters</b> <span class="muted">(paste its link; each video plays whole)</span>
       <label>Playlist link</label><input id="plUrl" placeholder="https://www.youtube.com/playlist?list=..." value="${esc(prefill || '')}">
-      <label>Split each lecture every N minutes (optional, done when you first play it)</label>
+      <label>Split each lecture every N minutes (optional)</label>
       <input id="plEvery" type="number" min="1" placeholder="e.g. 15" style="width:150px">
       <div class="actions"><button onclick="closeModal()">Cancel</button><button class="primary" id="plGo">Add playlist</button></div>
       <div class="hint">You can switch chapters on or off for any playlist later with the 🎞 / ✂️ button above the video.</div>
@@ -894,10 +916,12 @@ function addPlaylistModal(prefill){
     const btn = $('#plGo'); btn.disabled = true; btn.textContent = 'Reading playlist…';
     try{
       const ids = await playlistIdsViaApi(list);
-      btn.textContent = `Getting ${ids.length} titles…`;
-      const [ptitle, ...titles] = await Promise.all([oembedTitle('https://www.youtube.com/playlist?list=' + list), ...ids.map(id => oembedTitle('https://www.youtube.com/watch?v=' + id))]);
+      btn.textContent = `Getting ${ids.length} titles and lengths…`;
+      const [[ptitle, ...titles], durs] = await Promise.all([
+        Promise.all([oembedTitle('https://www.youtube.com/playlist?list=' + list), ...ids.map(id => oembedTitle('https://www.youtube.com/watch?v=' + id))]),
+        durationsViaApi(ids, (i, n) => { btn.textContent = `Getting lengths ${i}/${n}…`; })]);
       closeModal();
-      importLectures(ids.map((y, i) => ({y, t: titles[i] || `Lecture ${i + 1}`, d: 0, c: []})), {id: list, t: ptitle || 'Playlist'}, +$('#plEvery').value || 0);
+      importLectures(ids.map((y, i) => ({y, t: titles[i] || `Lecture ${i + 1}`, d: durs[i] || 0, c: []})), {id: list, t: ptitle || 'Playlist'}, +$('#plEvery').value || 0);
       openVideo(store.currentId);
     }catch(e){ btn.disabled = false; btn.textContent = 'Add playlist'; toast("Couldn't read that playlist. Is it public?"); }
   };
@@ -1109,7 +1133,7 @@ function planTable(o, p){
   const weekStart = d => { const x = new Date(d); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
   const ranges = items => { const out = []; for(const x of items){ const r = out[out.length - 1]; if(r && r.v === x.v && r.to.idx + 1 === x.c.idx){ r.to = x.c; r.n++; } else out.push({v: x.v, li: x.li, from: x.c, to: x.c, n: 1}); } return out; };
   let html = `<div class="plan-sum">${p.mode === 'date' ? `To finish by <b>${fmtDay(parseDay(p.date))}</b> you need about <b>${fmt(pl.budget)}</b> a day.` : `At <b>${fmt(pl.budget)}</b> a day you'll finish on <b>${fmtDay(end)}</b>.`}
-    ${pl.days.length} study days · ${fmt(pl.total)} in total${pl.est ? ' · some lengths are estimates (30 min) until those videos are played' : ''}${p.mode === 'date' && pl.days.length > pl.avail ? ` · <span style="color:var(--warn)">needs ${pl.days.length - pl.avail} extra day${pl.days.length - pl.avail > 1 ? 's' : ''}, because chapters aren't cut in half</span>` : ''}</div>
+    ${pl.days.length} study days · ${fmt(pl.total)} in total${pl.est ? ' · some lengths are estimates (30 min) until those videos are opened' : ''}${p.mode === 'date' && pl.days.length > pl.avail ? ` · <span style="color:var(--warn)">needs ${pl.days.length - pl.avail} extra day${pl.days.length - pl.avail > 1 ? 's' : ''}, because chapters aren't cut in half</span>` : ''}</div>
     <table class="plan-table"><tr><th>Day</th><th>Date</th><th>What to watch</th><th>Time</th></tr>`;
   let wk = null, shown = 0;
   for(const day of pl.days){
@@ -1307,11 +1331,12 @@ setInterval(() => {
   try{
     const d = player.getDuration();
     const lastStart = v.chapters.length ? v.chapters[v.chapters.length - 1].start : 0;
-    if((st === 1 || st === 2) && d > lastStart && (!v.duration || Math.abs(v.duration - d) > 2)){
+    // learn the length as soon as the video is cued (state 5, before any ad) or while it plays
+    if((st === 1 || st === 2 || st === 5) && d > lastStart && (!v.duration || Math.abs(v.duration - d) > 2)){
       v.duration = Math.round(d);
-      if(!v.chapters.length && v.autoSplit){ v.chapters = autoSplit(v.duration, v.autoSplit); delete v.autoSplit; v.lastChapter = 0; save(); render(); }
-      else { save(); renderTitlebar(); renderPlaylist(); renderNow(); }
+      if(!(v.autoSplit && !v.chapters.length)){ save(); renderLibrary(); renderTitlebar(); renderPlaylist(); renderNow(); }
     }
+    if(v.autoSplit && !v.chapters.length && v.duration){ v.chapters = autoSplit(v.duration, v.autoSplit); delete v.autoSplit; v.lastChapter = 0; save(); render(); }
     if(data.title && !v.titleSet){ v.title = data.title; v.titleSet = true; save(); renderLibrary(); renderTitlebar(); }
   }catch(e){}
   if(st !== 1) return;

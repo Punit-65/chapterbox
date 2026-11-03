@@ -7,26 +7,31 @@
 <title>ChapterBox — split long lectures into chapter videos</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4e45'/><path d='M40 30v40l32-20z' fill='white'/></svg>">
 <style>
-:root{--bg:#0f0f0f;--panel:#181818;--panel2:#222;--line:#2f2f2f;--text:#f1f1f1;--muted:#a3a3a3;--accent:#ff4e45;--good:#2ecc71;--active:#263238;--warn:#ffb74d}
+:root{--bg:#0f0f0f;--panel:#181818;--panel2:#222;--line:#2f2f2f;--text:#f1f1f1;--muted:#a3a3a3;--accent:#ff4e45;--good:#2ecc71;--active:#263238;--warn:#ffb74d;--input:#121212;--hover:#2d2d2d;--card:#141414;--track:#333;--chip:#262626}
+[data-theme="light"]{--bg:#f6f7f9;--panel:#fff;--panel2:#eef0f3;--line:#dfe2e7;--text:#16181d;--muted:#5f6670;--active:#e7f0ff;--warn:#b26a00;--input:#fff;--hover:#eceef2;--card:#fafbfc;--track:#dde1e6;--chip:#eceef2}
+[data-theme="light"] .setup{background:#eef3ff;border-color:#c9d6f5}
+[data-theme="light"] .setup.warn{background:#fff5e6;border-color:#f1d4a6}
+[data-theme="light"] .toast{background:#16181d;color:#fff}
+[data-theme="light"] .ch.done .t{color:#1e8e4f}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 button,a.btn{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:7px 12px;border-radius:8px;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
-button:hover,a.btn:hover{background:#2d2d2d}
+button:hover,a.btn:hover{background:var(--hover)}
 button:disabled{opacity:.45;cursor:default}
 button.primary,a.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
 button.primary:hover,a.btn.primary:hover{filter:brightness(1.08)}
 button.danger{color:#ff8a80}
 button.danger-fill{background:#c62828;border-color:#c62828;color:#fff;font-weight:600}
 button.small{padding:4px 9px;font-size:12px}
-input,textarea{font:inherit;background:#121212;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+input,textarea{font:inherit;background:var(--input);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
 input:focus,textarea:focus{outline:2px solid #3d6bff55;border-color:#3d6bff}
 textarea{resize:vertical}
 label{display:block;font-size:12px;color:var(--muted);margin:12px 0 4px}
-code{background:#262626;padding:1px 6px;border-radius:5px;font-size:12px}
+code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:12px}
 .muted{color:var(--muted)}
 header{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:10}
-.logo{font-weight:800;font-size:18px;letter-spacing:-.3px;margin-right:6px}
+.logo{font-weight:800;font-size:18px;letter-spacing:-.3px;margin-right:6px;cursor:pointer}
 .logo span{color:var(--accent)}
 .spacer{flex:1}
 .layout{display:grid;grid-template-columns:270px 1fr;min-height:calc(100vh - 55px)}
@@ -38,7 +43,7 @@ aside h3{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(
 .lib-thumb{width:96px;flex:none;aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:linear-gradient(135deg,#4a1f1d,#1d2b3d)}
 .lib-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .lib-title{font-weight:600;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.bar{height:4px;background:#333;border-radius:4px;overflow:hidden;margin-top:6px}
+.bar{height:4px;background:var(--track);border-radius:4px;overflow:hidden;margin-top:6px}
 .bar>i{display:block;height:100%;background:var(--accent)}
 .bar.green>i{background:var(--good)}
 main{padding:16px;min-width:0}
@@ -70,7 +75,7 @@ main{padding:16px;min-width:0}
 .cprog:hover .ctrack{height:7px}
 .cfill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--accent);border-radius:3px}
 #cSpeed{font-size:13px;font-weight:700;min-width:46px}
-.course{margin-bottom:10px;border:1px solid var(--line);border-radius:10px;padding:4px;background:#141414}
+.course{margin-bottom:10px;border:1px solid var(--line);border-radius:10px;padding:4px;background:var(--card)}
 .course-head{padding:8px;cursor:pointer;border-radius:8px}
 .course-head:hover{background:var(--panel)}
 .course-head b{font-size:13px}
@@ -79,10 +84,75 @@ main{padding:16px;min-width:0}
 .crumb{width:100%;font-size:12px;color:var(--muted)}
 .tabs{display:flex;gap:6px;margin-bottom:12px}
 .tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
-.pl-way{background:#121212;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0}
+.pl-way{background:var(--input);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0}
 .pl-way ol{margin:8px 0;padding-left:20px}
 .pl-way li{margin:6px 0}
 a.bmk{cursor:grab}
+#homeBtn.on{background:var(--active)}
+.search{position:relative;flex:1;max-width:440px;margin-left:6px}
+.search input{border-radius:999px;padding:7px 14px}
+.sres{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;max-height:60vh;overflow:auto;z-index:40;box-shadow:0 12px 32px rgba(0,0,0,.4)}
+.sres[hidden]{display:none}
+.sres .r{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--line);font-size:13px}
+.sres .r:hover,.sres .r.sel{background:var(--hover)}
+.sres .r small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.menu.pop{position:absolute;z-index:80;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px;display:flex;flex-direction:column;min-width:210px;box-shadow:0 12px 32px rgba(0,0,0,.4)}
+.menu.pop button{background:transparent;border:0;justify-content:flex-start;padding:8px 10px;width:100%}
+.menu.pop button:hover{background:var(--hover)}
+.home{max-width:1100px}
+.hello h1{margin:0 0 4px;font-size:26px}
+.hello p{margin:0}
+.cont{display:flex;gap:16px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin:16px 0;cursor:pointer}
+.cont:hover{border-color:var(--accent)}
+.cont img{width:220px;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:#000;flex:none}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:12px 0}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat .big{font-size:24px;font-weight:800}
+.stat .big small{font-size:13px;color:var(--muted);font-weight:600}
+#goalCard{cursor:pointer}
+.week{display:flex;gap:8px;align-items:flex-end;height:130px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.week .d{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;font-size:11px;color:var(--muted)}
+.week .b{width:100%;max-width:40px;background:var(--accent);border-radius:6px 6px 2px 2px}
+.week .d.today{color:var(--text);font-weight:700}
+.sec-h{display:flex;align-items:center;justify-content:space-between;margin:24px 0 10px}
+.sec-h h2{margin:0;font-size:18px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.card .ct{position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,#4a1f1d,#1d2b3d)}
+.card .ct img{width:100%;height:100%;object-fit:cover;display:block}
+.card .ct .badge{position:absolute;right:8px;bottom:8px;background:#000c;color:#fff;font-size:11px;font-weight:700;padding:2px 6px;border-radius:5px}
+.card .cb{padding:12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.card .cb b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.plan-today{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.pt-item{display:flex;gap:6px;align-items:center;padding:5px 0;font-size:13px;cursor:pointer;border-bottom:1px dashed var(--line)}
+.pt-item:last-of-type{border-bottom:0}
+.pt-item:hover{color:var(--accent)}
+.pt-item.done{color:var(--muted);text-decoration:line-through}
+.chips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.chips button{padding:3px 10px;font-size:12px;border-radius:999px}
+.chips button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.starbtn{position:absolute;right:6px;top:6px;width:24px;height:24px;border:0;background:transparent;padding:0;font-size:14px;opacity:.35;justify-content:center}
+.ch:hover .starbtn,.starbtn.on{opacity:1}
+.ch.hide{display:none}
+#nStar.on{border-color:#e6b800}
+.notes-tools{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.modal.wide{max-width:920px}
+.plan-sum{background:var(--panel2);border-radius:10px;padding:10px 12px;margin-top:12px;font-size:13px}
+.plan-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+.plan-table th,.plan-table td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.plan-table th{background:var(--panel2)}
+.plan-table tr.wk td{background:var(--panel2);font-weight:700}
+.plan-table td.t{white-space:nowrap;font-variant-numeric:tabular-nums}
+.daychips{display:flex;gap:6px;flex-wrap:wrap}
+.daychips label{margin:0;display:flex;gap:4px;align-items:center;color:var(--text);font-size:13px;background:var(--panel2);padding:4px 8px;border-radius:8px;border:1px solid var(--line);cursor:pointer}
+.daychips input{width:auto}
+.hero{text-align:center;max-width:740px;margin:36px auto 8px}
+.hero h1{font-size:30px;margin:0 0 8px}
+.hero .row{justify-content:center}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:940px;margin:26px auto}
+.features div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.features span{color:var(--muted);font-size:13px}
+@media (max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.cont{flex-direction:column;align-items:stretch}.cont img{width:100%}.features{grid-template-columns:1fr 1fr}}
 .playerwrap:fullscreen{display:flex;flex-direction:column;border-radius:0}
 .playerwrap:fullscreen .playerbox{flex:1;aspect-ratio:auto}
 .playerbox iframe,#player{position:absolute;inset:0;width:100%;height:100%;border:0}
@@ -100,7 +170,7 @@ a.bmk{cursor:grab}
 .pl-head b{font-size:15px}
 .pl-list{overflow:auto;padding:6px}
 .ch{display:flex;gap:10px;padding:6px;border-radius:10px;cursor:pointer;align-items:flex-start;position:relative}
-.ch:hover{background:#262626}
+.ch:hover{background:var(--hover)}
 .ch.active{background:var(--active)}
 .ch .num{width:20px;text-align:center;color:var(--muted);font-size:12px;padding-top:24px;flex:none}
 .thumb{position:relative;width:132px;flex:none;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:linear-gradient(135deg,#4a1f1d,#1d2b3d)}
@@ -127,20 +197,20 @@ a.bmk{cursor:grab}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#fff;color:#111;padding:10px 16px;border-radius:10px;font-weight:600;opacity:0;transition:.25s;z-index:60;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%)}
 .notes textarea{min-height:90px;margin-top:6px}
-kbd{background:#2a2a2a;border:1px solid #444;border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:11px}
+kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:11px}
 @media (max-width:1100px){.watch{grid-template-columns:1fr}.playlist{position:static;max-height:none}}
-@media (max-width:760px){.layout{grid-template-columns:1fr}aside{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto}aside h3{display:none}.lib-item{flex:none;width:240px}.course{flex:none;width:270px}header .hide-sm{display:none}}
+@media (max-width:760px){header{flex-wrap:wrap}.search{order:9;flex-basis:100%;max-width:none;margin:4px 0 0}.features{grid-template-columns:1fr}.layout{grid-template-columns:1fr}aside{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto}aside h3{display:none}.lib-item{flex:none;width:240px}.course{flex:none;width:270px}header .hide-sm{display:none}}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo">Chapter<span>Box</span></div>
-  <span class="muted hide-sm">turn long lectures into bite-size videos</span>
+  <div class="logo" id="logo" title="Home">Chapter<span>Box</span></div>
+  <button id="homeBtn" title="Home">🏠 Home</button>
+  <div class="search"><input id="q" type="search" placeholder="🔍 Search chapters &amp; notes   ( / )" autocomplete="off"><div class="sres" id="sres" hidden></div></div>
   <div class="spacer"></div>
   <button class="primary" id="addBtn">+ Add</button>
-  <button id="exportBtn" title="Download a backup of everything">Export</button>
-  <button id="importBtn" title="Restore from a backup file">Import</button>
-  <button id="helpBtn" title="Help">?</button>
+  <button id="themeBtn" title="Light theme">☀️</button>
+  <button id="menuBtn" title="More">⋯</button>
   <input type="file" id="importFile" accept="application/json,.json" hidden>
 </header>
 
@@ -148,7 +218,8 @@ kbd{background:#2a2a2a;border:1px solid #444;border-bottom-width:2px;border-radi
   <aside id="library"></aside>
   <main>
     <div id="banner"></div>
-    <div id="emptyView" class="empty"></div>
+    <div id="emptyView"></div>
+    <div id="homeView" hidden></div>
     <div id="watchView" hidden>
       <div class="titlebar" id="titlebar"></div>
       <div class="watch">
@@ -183,9 +254,9 @@ let store = loadStore();
 function loadStore(){
   try{
     const s = JSON.parse(localStorage.getItem(KEY));
-    if(s && Array.isArray(s.videos)){ s.settings = Object.assign({autoNext:true}, s.settings); s.courses = Array.isArray(s.courses) ? s.courses : []; return s; }
+    if(s && Array.isArray(s.videos)){ s.settings = Object.assign({autoNext:true}, s.settings); s.courses = Array.isArray(s.courses) ? s.courses : []; s.stats = s.stats && typeof s.stats === 'object' ? s.stats : {}; return s; }
   }catch(e){}
-  return {videos:[], courses:[], settings:{autoNext:true}, currentId:null};
+  return {videos:[], courses:[], stats:{}, settings:{autoNext:true}, currentId:null};
 }
 let saveWarned = false;
 function save(){
@@ -268,15 +339,18 @@ function autoSplit(duration, minutes){
 }
 
 // chapters with computed end times
+// a video (or a whole playlist) can be played whole, without its chapters; done/notes keys: chapter start, or 'w' for whole
+function isWhole(v){ const c = v.course ? store.courses.find(x => x.id === v.course) : null; return c ? !!c.whole : !!v.whole; }
 function chapters(v){
-  const list = (v.chapters && v.chapters.length) ? v.chapters : [{start:0, title:'Full video'}];
-  return list.map((c,i) => {
-    const end = i < list.length - 1 ? list[i+1].start : (v.duration || null);
-    return {...c, idx:i, end, len: end != null ? end - c.start : null};
+  const has = !!(v.chapters && v.chapters.length), whole = !has || isWhole(v);
+  const list = whole ? [{start: 0, title: has ? 'Whole video' : 'Full video'}] : v.chapters;
+  return list.map((c, i) => {
+    const end = i < list.length - 1 ? list[i + 1].start : (v.duration || null);
+    return {...c, idx: i, key: whole ? (has ? 'w' : 0) : c.start, end, len: end != null ? end - c.start : null};
   });
 }
 const cur = () => store.videos.find(v => v.id === store.currentId) || null;
-function progressOf(v){ const chs = chapters(v); const d = chs.filter(c => v.done[c.start]).length; return {done:d, total:chs.length}; }
+function progressOf(v){ const chs = chapters(v); const d = chs.filter(c => v.done[c.key]).length; return {done:d, total:chs.length}; }
 function curChapter(v){ const chs = chapters(v); return chs[Math.min(Math.max(v.lastChapter ?? 0, 0), chs.length - 1)]; }
 function resumePoint(v){
   const c = curChapter(v);
@@ -288,7 +362,7 @@ function resumePoint(v){
 // ================= toast & modals =================
 let toastT;
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2400); }
-function openModal(html){ $('#modal').innerHTML = html; $('#modalBg').classList.add('show'); const f = $('#modal').querySelector('input,textarea'); if(f) setTimeout(() => f.focus(), 30); }
+function openModal(html, wide){ $('#modal').classList.toggle('wide', !!wide); $('#modal').innerHTML = html; $('#modalBg').classList.add('show'); const f = $('#modal').querySelector('input,textarea'); if(f) setTimeout(() => f.focus(), 30); }
 function closeModal(){ $('#modalBg').classList.remove('show'); }
 $('#modalBg').addEventListener('mousedown', e => { if(e.target.id === 'modalBg') closeModal(); });
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
@@ -329,7 +403,7 @@ function importLectures(list, p, autoSplitMin){
   let course = null;
   if(p && p.id){
     course = store.courses.find(c => c.id === String(p.id));
-    if(!course){ course = {id: String(p.id).slice(0, 100), title: String(p.t || 'Playlist').slice(0, 200), order: []}; store.courses.push(course); }
+    if(!course){ course = {id: String(p.id).slice(0, 100), title: String(p.t || 'Playlist').slice(0, 200), order: []}; if(store.settings.importWhole) course.whole = true; store.courses.push(course); }
     else if(p.t) course.title = String(p.t).slice(0, 200);
   }
   const vids = [];
@@ -341,6 +415,7 @@ function importLectures(list, p, autoSplitMin){
     else {
       v = {id: 'v' + Date.now().toString(36) + i, ytId: d.y, title: String(d.t || 'Untitled video').slice(0, 200), titleSet: !!d.t,
         duration: d.d || null, chapters: c, done: {}, notes: {}, lastChapter: 0, lastTime: 0, added: Date.now()};
+      if(!course && store.settings.importWhole) v.whole = true;
       store.videos.push(v);
     }
     if(!v.chapters.length && autoSplitMin) v.autoSplit = autoSplitMin;
@@ -448,7 +523,7 @@ function renderLibrary(){
   const lib = $('#library');
   if(!store.videos.length){ lib.innerHTML = `<h3>Your videos</h3><p class="muted" style="padding:4px">Nothing yet. Hit <b>+ Add</b>.</p>`; return; }
   const item = (v, label) => { const p = progressOf(v), pct = Math.round(p.done / p.total * 100);
-    return `<div class="lib-item ${v.id === store.currentId ? 'active' : ''}" data-id="${v.id}">
+    return `<div class="lib-item ${v.id === store.currentId && view === 'watch' ? 'active' : ''}" data-id="${v.id}">
       <div class="lib-thumb"><img src="${thumb(v.ytId)}" alt="" loading="lazy" onerror="this.remove()"></div>
       <div style="min-width:0;flex:1"><div class="lib-title">${label ? `<span class="lnum">${label}</span> ` : ''}${esc(v.title)}</div>
       <div class="muted" style="font-size:12px;margin-top:3px">${p.done}/${p.total} chapters${pct === 100 ? ' ✅' : ''}</div>
@@ -473,109 +548,169 @@ function renderLibrary(){
 function open0(el){ return !(store.settings.collapsed || {})[el.dataset.course]; }
 
 function renderEmpty(){
-  $('#emptyView').innerHTML = `<h1>Split any long lecture into chapter videos 🎬</h1>
-    <p class="muted">Everything is saved in this browser, on your computer.</p>
-    <ol class="steps">
-      <li>Click <b>+ Add</b> and paste a YouTube link, or add a <b>whole playlist</b> with every lecture's chapters.</li>
-      <li>Paste the timestamps from the video description (like <code>54:00 Problem 8</code>), or auto-split every N minutes.</li>
-      <li>Every chapter becomes its own "video" that plays only that part. Tick them off as you finish them ✅</li>
-    </ol>
-    <button class="primary" id="emptyAdd">+ Add a video or playlist</button>`;
-  $('#emptyAdd').onclick = addVideoModal;
+  $('#emptyView').innerHTML = `<div class="hero"><h1>Turn long lectures into bite-size chapter videos 🎬</h1>
+    <p class="muted">Add a YouTube lecture or a whole playlist. Every chapter plays like its own short video, and your progress, notes and study plan are saved in this browser.</p>
+    <div class="row" style="margin-top:14px"><button class="primary" id="emptyAdd">+ Add a video</button><button id="emptyPl">📚 Add a playlist</button></div></div>
+    <div class="features">
+      <div><b>✂️ Chapter videos</b><span>Each chapter shows its own time, like 0:00 / 3:03, then stops or moves on by itself.</span></div>
+      <div><b>📚 Whole playlists</b><span>Grab a full course with every lecture's chapters in one click, or keep the videos whole.</span></div>
+      <div><b>📅 Study planner</b><span>Pick a finish date or minutes a day and get a day-by-day plan with exact times.</span></div>
+      <div><b>📝 Notes &amp; ⭐ revise</b><span>Notes for every chapter with clickable timestamps, plus a revise list.</span></div>
+      <div><b>🔥 Goals &amp; streaks</b><span>A daily study goal, your streak and a 7-day chart on Home.</span></div>
+      <div><b>🔍 Search</b><span>Find any chapter or note across all your lectures. Press / to search.</span></div>
+    </div>`;
+  $('#emptyAdd').onclick = () => addVideoModal();
+  $('#emptyPl').onclick = () => addPlaylistModal();
 }
 
+let view = 'home';
 function render(){
   renderLibrary();
-  const v = cur();
-  $('#emptyView').hidden = !!v; $('#watchView').hidden = !v;
-  if(!v){ renderEmpty(); return; }
+  const v = cur(), any = store.videos.length > 0, watch = view === 'watch' && !!v;
+  $('#emptyView').hidden = any; $('#homeView').hidden = !any || watch; $('#watchView').hidden = !watch;
+  $('#homeBtn').classList.toggle('on', any && !watch);
+  if(!any){ renderEmpty(); return; }
+  if(!watch){ renderHome(); return; }
   renderTitlebar(); renderPlaylist(); renderNow(); renderPlayerNote(); renderBar();
+}
+function showHome(){
+  view = 'home';
+  try{ if([1, 3].includes(playerState())) player.pauseVideo(); }catch(e){}
+  render(); window.scrollTo(0, 0);
 }
 
 function renderTitlebar(){
   const v = cur(); const p = progressOf(v);
-  const left = chapters(v).filter(c => !v.done[c.start] && c.len != null).reduce((a, c) => a + c.len, 0);
-  const course = courseOf(v), nx = nextLecture(v), lnum = course ? courseVideos(course).indexOf(v) + 1 : 0;
+  const left = chapters(v).filter(c => !v.done[c.key] && c.len != null).reduce((a, c) => a + c.len, 0);
+  const course = courseOf(v), o = ownerOf(v), nx = nextLecture(v), lnum = course ? courseVideos(course).indexOf(v) + 1 : 0, whole = isWhole(v);
+  const hasCh = ownerVideos(o).some(x => x.chapters && x.chapters.length);
   $('#titlebar').innerHTML = `${course ? `<div class="crumb">📚 ${esc(course.title)} · Lecture ${lnum} of ${courseVideos(course).length}</div>` : ''}<h2 id="vtitle" title="Click to rename">${esc(v.title)}</h2>
     <span class="muted">${p.done}/${p.total} done${left ? ' · ' + fmtLen(left) + ' left' : (p.done === p.total ? ' ✅' : '')}</span>
     <button id="tbEdit">✂️ Edit chapters</button>
+    ${hasCh ? `<button id="tbWhole" title="${whole ? 'Split the video' + (course ? 's of this playlist' : '') + ' into chapters again' : 'Play ' + (course ? 'every video of this playlist' : 'this video') + ' whole, without chapters'}">${whole ? '✂️ Use chapters' : '🎞 No chapters'}</button>` : ''}
+    <button id="tbPlan" title="Make a day-by-day study plan">📅 ${o.plan ? 'Plan' : 'Make a plan'}</button>
     ${nx ? '<button id="tbNextLec" title="Open the next lecture of this playlist">Next lecture ⏭</button>' : ''}
-    <button id="tbShare" title="${course ? 'Copy a link that adds this whole playlist with every chapter' : 'Copy a link that loads this video with all its chapters'}">🔗 Share${course ? ' playlist' : ''}</button>
-    <a class="btn" id="tbYt" href="${watchUrl(v.ytId)}" target="_blank" rel="noopener">Open on YouTube</a>
-    <button class="ghost" id="tbReset">Reset progress</button>
-    <button class="ghost danger" id="tbDelete">Delete</button>`;
+    <button id="tbMore" title="Share, notes, rename, delete…">⋯</button>`;
   $('#vtitle').onclick = renameModal;
   $('#tbEdit').onclick = editChaptersModal;
-  $('#tbShare').onclick = async () => copyLink(await shareLink(v), course ? 'Playlist link copied! It adds every lecture with its chapters' : 'Link copied! Whoever opens it gets this video split into the same chapters');
+  if(hasCh) $('#tbWhole').onclick = () => toggleWhole(v);
+  $('#tbPlan').onclick = () => planModal(o);
   if(nx) $('#tbNextLec').onclick = () => openVideo(nx.id);
-  $('#tbYt').onclick = function(){ this.href = watchUrl(v.ytId, playerTime() ?? resumePoint(v).start); };
-  $('#tbReset').onclick = resetProgress;
-  $('#tbDelete').onclick = deleteVideo;
+  $('#tbMore').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [
+    [course ? '🔗 Share this playlist' : '🔗 Share this video', async () => copyLink(await shareLink(v), course ? 'Playlist link copied! It adds every lecture with its chapters' : 'Link copied! Whoever opens it gets this video split into the same chapters')],
+    [course ? '📝 Download playlist notes' : '📝 Download notes', () => downloadNotes(o)],
+    ['▶ Open on YouTube', () => window.open(watchUrl(v.ytId, playerTime() ?? resumePoint(v).start), '_blank', 'noopener')],
+    ['✏️ Rename', renameModal],
+    ['↺ Reset progress', resetProgress],
+    ['🗑 Delete', deleteVideo]]); };
+}
+function toggleWhole(v){
+  const o = ownerOf(v); o.whole = !o.whole;
+  const t = playerTime() ?? resumePoint(v).start;
+  const ci = chapters(v).findIndex(c => t >= c.start && (c.end == null || t < c.end));
+  v.lastChapter = Math.max(0, ci); heldAt = null; save(); render();
+  const playing = [1, 3].includes(playerState()), c = curChapter(v);
+  loadIntoPlayer(v, t, c.end, playing);
+  toast(o.whole ? '🎞 Playing whole videos, no chapters' : '✂️ Chapters are back');
 }
 
+let lastActiveShown = null;
 function renderPlaylist(){
   const v = cur(); if(!v) return;
   const chs = chapters(v); const p = progressOf(v);
-  const active = curChapter(v).idx;
-  $('#playlist').innerHTML = `<div class="pl-head"><b>Chapters</b> <span class="muted">· ${p.done}/${p.total} watched</span>
-      <div class="bar ${p.done === p.total ? 'green' : ''}"><i style="width:${p.done / p.total * 100}%"></i></div></div>
+  const active = curChapter(v).idx, f = store.settings.filter || 'all', stars = v.stars || {};
+  const old = $('#playlist .pl-list'), keep = old ? old.scrollTop : 0;
+  $('#playlist').innerHTML = `<div class="pl-head"><b>${chs.length === 1 && v.chapters.length ? 'Whole video' : 'Chapters'}</b> <span class="muted">· ${p.done}/${p.total} watched</span>
+      <div class="bar ${p.done === p.total ? 'green' : ''}"><i style="width:${p.done / p.total * 100}%"></i></div>
+      ${chs.length > 1 ? `<div class="chips">${[['all', 'All'], ['todo', 'To do'], ['star', '⭐ Revise']].map(([k, l]) => `<button data-f="${k}" class="${f === k ? 'on' : ''}">${l}</button>`).join('')}</div>` : ''}</div>
     <div class="pl-list">` + chs.map(c => {
-      const done = !!v.done[c.start];
+      const done = !!v.done[c.key], star = !!stars[c.key];
+      const hide = chs.length > 1 && ((f === 'todo' && done) || (f === 'star' && !star));
       const watched = done ? 100 : ((c.idx === active && c.len) ? Math.min(100, Math.max(0, ((v.lastTime || 0) - c.start) / c.len * 100)) : 0);
-      return `<div class="ch ${c.idx === active ? 'active' : ''} ${done ? 'done' : ''}" data-i="${c.idx}" title="Starts at ${fmt(c.start)} in the full lecture">
+      return `<div class="ch ${c.idx === active ? 'active' : ''} ${done ? 'done' : ''} ${hide ? 'hide' : ''}" data-i="${c.idx}" title="Starts at ${fmt(c.start)} in the full lecture">
         <div class="num">${c.idx === active ? '▶' : c.idx + 1}</div>
         <div class="thumb"><img src="${thumb(v.ytId)}" alt="" loading="lazy" onerror="this.remove()">
           <span class="tag">${c.idx + 1}</span>
           <span class="badge">${c.len != null ? fmt(c.len) : fmt(c.start) + '+'}</span>
           <div class="prog"><i style="width:${watched}%"></i></div></div>
         <div class="info"><div class="t">${esc(c.title)}</div>
-          <div class="s">Part ${c.idx + 1} of ${chs.length}${v.notes[c.start] ? ' · 📝 notes' : ''}</div></div>
+          <div class="s">Part ${c.idx + 1} of ${chs.length}${v.notes[c.key] ? ' · 📝 notes' : ''}</div></div>
+        <button class="starbtn ${star ? 'on' : ''}" title="Mark to revise" data-star="${c.idx}">${star ? '⭐' : '☆'}</button>
         <button class="donebtn" title="Mark as done" data-done="${c.idx}">✓</button>
       </div>`;
     }).join('') + `</div>`;
+  $('#playlist').querySelectorAll('.chips button').forEach(b => b.onclick = () => { store.settings.filter = b.dataset.f; save(); renderPlaylist(); });
   $('#playlist').querySelectorAll('.ch').forEach(el => el.onclick = e => {
     if(e.target.dataset.done != null){ toggleDone(+e.target.dataset.done); return; }
+    if(e.target.dataset.star != null){ toggleStar(+e.target.dataset.star); return; }
     playChapter(+el.dataset.i, true);
   });
-  const a = $('#playlist .ch.active'); if(a) a.scrollIntoView({block:'nearest'});
+  // keep the list where you scrolled it; only bring the playing chapter into view when it changes
+  const list = $('#playlist .pl-list'); list.scrollTop = keep;
+  const id = v.id + ':' + active;
+  if(lastActiveShown !== id){
+    lastActiveShown = id;
+    const a = $('#playlist .ch.active');
+    if(a){ const lr = list.getBoundingClientRect(), ar = a.getBoundingClientRect(); if(ar.top < lr.top || ar.bottom > lr.bottom) list.scrollTop += ar.top - lr.top - 8; }
+  }
 }
 
 function renderNow(){
   const v = cur(); if(!v) return;
   const chs = chapters(v); const c = curChapter(v); const i = c.idx;
-  const done = !!v.done[c.start];
+  const done = !!v.done[c.key], star = !!(v.stars || {})[c.key];
   if(!$('#nowTop')) $('#now').innerHTML = '<div id="nowTop"></div><div class="notes" id="nowNotes"></div>';
   $('#nowTop').innerHTML = `<div class="now-top">
       <div style="flex:1;min-width:180px"><h3>${i + 1}. ${esc(c.title)}</h3>
       <div class="meta">Part ${i + 1} of ${chs.length}${c.len != null ? ' · ' + fmt(c.len) + ' long' : ''}</div></div>
       <button id="nPrev" ${i === 0 ? 'disabled' : ''}>⏮ Prev</button>
       <button id="nRestart" title="Restart this chapter">↺ Restart</button>
+      <button id="nStar" class="${star ? 'on' : ''}" title="Mark to revise later (Shift+S)">${star ? '⭐ Revise' : '☆ Revise'}</button>
       <button id="nDone" class="${done ? '' : 'primary'}">${done ? '✓ Done' : 'Mark done'}</button>
       <button id="nNext" ${i === chs.length - 1 ? 'disabled' : ''}>Next ⏭</button>
     </div>
     <div class="row" style="margin-top:10px;justify-content:space-between">
       <label class="chk" style="margin:0"><input type="checkbox" id="autoNext" ${store.settings.autoNext ? 'checked' : ''}> Auto-play next chapter</label>
-      <span class="muted" style="font-size:12px">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd><kbd>→</kbd> 5s · <kbd>Shift</kbd>+<kbd>N</kbd>/<kbd>P</kbd> next/prev · <kbd>Shift</kbd>+<kbd>D</kbd> done</span>
+      <span class="muted" style="font-size:12px">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd><kbd>→</kbd> 5s · <kbd>Shift</kbd>+<kbd>N</kbd>/<kbd>P</kbd> next/prev · <kbd>?</kbd> all keys</span>
     </div>`;
   $('#nPrev').onclick = () => playChapter(i - 1, true, true);
   $('#nRestart').onclick = () => playChapter(i, true, true);
+  $('#nStar').onclick = () => toggleStar(i);
   $('#nDone').onclick = () => toggleDone(i);
   $('#nNext').onclick = () => playChapter(i + 1, true, true);
   $('#autoNext').onchange = e => { store.settings.autoNext = e.target.checked; save(); };
   // the notes box is only rebuilt when the chapter changes, so typing is never interrupted
-  const ta = $('#notes'), key = v.id + ':' + c.start;
+  const ta = $('#notes'), key = v.id + ':' + c.key;
   if(ta && ta.dataset.key === key) return;
   if(ta && document.activeElement === ta && ta.dataset.vid === v.id){
     ta.onblur = () => { ta.onblur = null; renderNow(); };  // still typing about the previous chapter: switch when you click away
     return;
   }
-  if(ta){ const ov = store.videos.find(x => x.id === ta.dataset.vid); if(ov) saveNote(ov, +ta.dataset.start, ta.value); }
+  if(ta){ const ov = store.videos.find(x => x.id === ta.dataset.vid); if(ov) saveNote(ov, ta.dataset.k, ta.value); }
   $('#nowNotes').innerHTML = `<label style="margin-top:12px">📝 My notes for ${i + 1}. ${esc(c.title)} (auto-saved)</label>
-    <textarea id="notes" data-key="${esc(key)}" data-vid="${esc(v.id)}" data-start="${c.start}" placeholder="Key points, doubts, code to try...">${esc(v.notes[c.start] || '')}</textarea>`;
-  let nt;
-  $('#notes').oninput = e => { clearTimeout(nt); const val = e.target.value; nt = setTimeout(() => { saveNote(v, c.start, val); renderPlaylist(); }, 500); };
+    <textarea id="notes" data-key="${esc(key)}" data-vid="${esc(v.id)}" data-k="${esc(c.key)}" placeholder="Key points, doubts, code to try...">${esc(v.notes[c.key] || '')}</textarea>
+    <div class="notes-tools"><button class="small" id="nTime" title="Insert the current time of this chapter">⏱ Insert time</button>
+    <span class="muted" style="font-size:12px">Double-click a time like [2:15] in your notes to jump there.</span></div>`;
+  const box = $('#notes'); let nt;
+  box.oninput = e => { clearTimeout(nt); const val = e.target.value; nt = setTimeout(() => { saveNote(v, c.key, val); renderPlaylist(); }, 500); };
+  box.ondblclick = () => {
+    const pos = box.selectionStart, re = /\[?(\d{1,2}:\d{2}(?::\d{2})?)\]?/g; let m;
+    while((m = re.exec(box.value))){ if(pos >= m.index && pos <= m.index + m[0].length){ jumpInChapter(v, c, toSec(m[1])); return; } }
+  };
+  $('#nTime').onclick = () => {
+    const t = playerTime(), rel = t == null ? 0 : Math.max(0, t - c.start);
+    const ins = `[${fmt(rel)}] `, a = box.selectionStart ?? box.value.length, b = box.selectionEnd ?? a;
+    box.value = box.value.slice(0, a) + ins + box.value.slice(b); box.focus(); box.setSelectionRange(a + ins.length, a + ins.length);
+    box.dispatchEvent(new Event('input'));
+  };
 }
-function saveNote(v, start, val){ if(val.trim()) v.notes[start] = val; else delete v.notes[start]; save(); }
+function saveNote(v, key, val){ if(val.trim()) v.notes[key] = val; else delete v.notes[key]; save(); }
+function jumpInChapter(v, c, rel){
+  if(cur() !== v) return;
+  if(curChapter(v).idx !== c.idx){ v.lastChapter = c.idx; renderPlaylist(); renderNow(); }
+  seekInChapter(c.start + rel);
+  if(playerState() === 2) player.playVideo();
+}
 
 function renderPlayerNote(){
   const n = $('#playerNote');
@@ -587,7 +722,7 @@ function renderPlayerNote(){
 // ================= actions =================
 function openVideo(id){
   const v = store.videos.find(x => x.id === id); if(!v) return;
-  store.currentId = id; v.opened = Date.now(); advancing = null; save(); render();
+  store.currentId = id; v.opened = Date.now(); advancing = null; view = 'watch'; save(); render();
   const r = resumePoint(v);
   loadIntoPlayer(v, r.start, r.end, false);
 }
@@ -604,11 +739,18 @@ function playChapter(i, autoplay = true, fromStart = false){
   loadIntoPlayer(v, start, c.end, autoplay);
 }
 
+function markDone(v, key){ if(v.done[key]) return; v.done[key] = true; statDay().c++; }
 function toggleDone(i){
   const v = cur(); const c = chapters(v)[i]; if(!c) return;
-  if(v.done[c.start]) delete v.done[c.start]; else v.done[c.start] = true;
+  if(v.done[c.key]) delete v.done[c.key]; else markDone(v, c.key);
   save(); renderLibrary(); renderTitlebar(); renderPlaylist(); renderNow();
-  const p = progressOf(v); if(p.done === p.total && v.done[c.start]) toast('🎉 Whole video finished! Nice work');
+  const p = progressOf(v); if(p.done === p.total && v.done[c.key]) toast('🎉 Whole video finished! Nice work');
+}
+function toggleStar(i){
+  const v = cur(); const c = chapters(v)[i]; if(!c) return;
+  v.stars = v.stars || {};
+  if(v.stars[c.key]) delete v.stars[c.key]; else v.stars[c.key] = true;
+  save(); renderPlaylist(); renderNow(); toast(v.stars[c.key] ? '⭐ Added to your revise list' : 'Removed from your revise list');
 }
 function resetProgress(){
   const v = cur();
@@ -730,14 +872,17 @@ function addPlaylistModal(prefill){
         <li>Click <b>📥 Grab chapters</b> in your bookmarks bar. ChapterBox opens with every lecture split into its chapters.</li>
       </ol>
       <div class="hint">On a single YouTube video it grabs just that video. It reads the chapters YouTube already shows and works for the first 100 lectures of a playlist. Can't drag? Click <b>or copy it</b>, right-click your bookmarks bar → <b>Add page…</b>, name it "Grab chapters" and paste into the URL box.</div>
+      <label class="chk" style="margin-top:10px"><input type="checkbox" id="impWhole" ${store.settings.importWhole ? 'checked' : ''}> Keep each video whole when grabbing (no chapter splitting)</label>
     </div>
-    <div class="pl-way"><b>Quick: paste the playlist link</b> <span class="muted">(lectures come in without chapters)</span>
+    <div class="pl-way"><b>📋 Add a playlist without chapters</b> <span class="muted">(paste its link; each video plays whole)</span>
       <label>Playlist link</label><input id="plUrl" placeholder="https://www.youtube.com/playlist?list=..." value="${esc(prefill || '')}">
       <label>Split each lecture every N minutes (optional, done when you first play it)</label>
       <input id="plEvery" type="number" min="1" placeholder="e.g. 15" style="width:150px">
-      <div class="actions"><button onclick="closeModal()">Cancel</button><button class="primary" id="plGo">Add lectures</button></div>
+      <div class="actions"><button onclick="closeModal()">Cancel</button><button class="primary" id="plGo">Add playlist</button></div>
+      <div class="hint">You can switch chapters on or off for any playlist later with the 🎞 / ✂️ button above the video.</div>
     </div>`);
   $('#toVid').onclick = () => addVideoModal();
+  $('#impWhole').onchange = e => { store.settings.importWhole = e.target.checked; save(); };
   const href = bookmarkletHref();
   $('#bmk').href = href;
   $('#bmk').onclick = e => { e.preventDefault(); toast('Drag me onto your bookmarks bar 🙂'); };
@@ -754,7 +899,7 @@ function addPlaylistModal(prefill){
       closeModal();
       importLectures(ids.map((y, i) => ({y, t: titles[i] || `Lecture ${i + 1}`, d: 0, c: []})), {id: list, t: ptitle || 'Playlist'}, +$('#plEvery').value || 0);
       openVideo(store.currentId);
-    }catch(e){ btn.disabled = false; btn.textContent = 'Add lectures'; toast("Couldn't read that playlist. Is it public?"); }
+    }catch(e){ btn.disabled = false; btn.textContent = 'Add playlist'; toast("Couldn't read that playlist. Is it public?"); }
   };
 }
 
@@ -762,27 +907,30 @@ function helpModal(){
   openModal(`<h2>How ChapterBox works</h2>
     <ul style="padding-left:18px">
       <li>Each chapter plays <b>only its part</b> of the YouTube video and stops at its end, like a separate video. When it finishes, it gets a ✓ and the next one starts (if auto-play is on).</li>
-      <li>Your chapters, ✓ marks, notes and where you stopped are saved in this browser automatically.</li>
-      <li><b>Export</b> downloads a backup file and <b>Import</b> restores it, even on another computer. Do an Export now and then, because clearing your browser's site data wipes ChapterBox.</li>
+      <li><b>🏠 Home</b> shows Continue watching, your daily goal, 🔥 streak, the last 7 days, today's plan and all your playlists.</li>
+      <li><b>📅 Plan</b> (above the video or on a playlist card): pick minutes a day or a finish date and your study days. You get a day-by-day table with exact times, and Home shows today's part.</li>
+      <li><b>📚 Playlists</b>: + Add → Playlist. The <b>📥 Grab chapters</b> bookmark brings every lecture with its chapters. Paste a link to add one without chapters. <b>🎞 No chapters</b> / <b>✂️ Use chapters</b> switches any time.</li>
+      <li><b>📝 Notes</b> are saved per chapter. ⏱ Insert time adds the moment you're at, and double-clicking a time jumps there. ⋯ → Download notes saves them as a file.</li>
+      <li><b>⭐ Revise</b> marks chapters to rewatch. Filter them in the chapter list or find them on Home.</li>
+      <li>Everything is saved in <b>this browser on this device</b>, not on GitHub. Use ⋯ → Export / Import to move it, and 🔗 Share to send a lecture or playlist split to friends.</li>
     </ul>
-    <h3 style="font-size:15px;margin-bottom:4px">Where your stuff is saved</h3>
-    <p class="muted" style="margin-top:0">Your videos, ✓ marks and notes are saved in <b>this browser on this device</b>, not on GitHub, so nobody else can see them. Opening the link on your phone or in another browser starts empty: use Export there and Import here, or the other way round.</p>
-    <h3 style="font-size:15px;margin-bottom:4px">📚 Playlists</h3>
-    <p class="muted" style="margin-top:0"><b>+ Add → Playlist</b> brings in a whole YouTube playlist as a course. With the <b>📥 Grab chapters</b> bookmark, every lecture arrives already split into its chapters. When a lecture's last chapter ends, the next lecture starts by itself (if auto-play is on).</p>
-    <h3 style="font-size:15px;margin-bottom:4px">🔗 Share links</h3>
-    <p class="muted" style="margin-top:0">The Share button copies a link that adds the video with all its chapters (not your ✓ marks or notes). It's great for sending a lecture split to friends, or for moving it to your phone.</p>
+    <h3 style="font-size:15px;margin-bottom:6px">⌨️ Keyboard shortcuts</h3>
+    <div class="muted" style="font-size:13px;line-height:2">
+      <kbd>Space</kbd> / <kbd>K</kbd> play/pause · <kbd>←</kbd> <kbd>→</kbd> 5 seconds · <kbd>F</kbd> full screen · <kbd>M</kbd> mute<br>
+      <kbd>Shift</kbd>+<kbd>N</kbd> next chapter · <kbd>Shift</kbd>+<kbd>P</kbd> previous · <kbd>Shift</kbd>+<kbd>D</kbd> mark done · <kbd>Shift</kbd>+<kbd>S</kbd> revise<br>
+      <kbd>/</kbd> search · <kbd>?</kbd> this help · <kbd>Esc</kbd> close
+    </div>
     <div class="actions"><button class="primary" onclick="closeModal()">Got it</button></div>`);
 }
 
 // ================= export / import =================
-$('#exportBtn').onclick = () => {
+function exportBackup(){
   const blob = new Blob([JSON.stringify(store, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `chapterbox-backup-${new Date().toISOString().slice(0,10)}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast('Backup downloaded');
-};
-$('#importBtn').onclick = () => $('#importFile').click();
+}
 $('#importFile').onchange = async e => {
   const f = e.target.files[0]; if(!f) return;
   try{
@@ -794,15 +942,263 @@ $('#importFile').onchange = async e => {
       if(i >= 0){ store.videos[i] = v; updated++; } else { store.videos.push(v); added++; }
     }
     if(data.settings) store.settings = Object.assign(store.settings, data.settings);
+    for(const [k, x] of Object.entries(data.stats && typeof data.stats === 'object' ? data.stats : {})){ const m = store.stats[k] || {s: 0, c: 0}; store.stats[k] = {s: Math.max(m.s || 0, (x && x.s) || 0), c: Math.max(m.c || 0, (x && x.c) || 0)}; }
     for(const c of Array.isArray(data.courses) ? data.courses : []){ if(!c || !c.id || !Array.isArray(c.order)) continue; const i = store.courses.findIndex(x => x.id === c.id); if(i >= 0) store.courses[i] = c; else store.courses.push(c); }
     if(!cur() && store.videos[0]) store.currentId = store.videos[0].id;
-    save(); if(cur()) openVideo(store.currentId); else render();
+    save(); view = 'home'; render();
     toast(`Imported: ${added} new, ${updated} updated`);
   }catch(err){ toast("That file isn't a ChapterBox backup"); }
   e.target.value = '';
 };
 $('#addBtn').onclick = () => addVideoModal();
-$('#helpBtn').onclick = helpModal;
+$('#homeBtn').onclick = showHome;
+$('#logo').onclick = showHome;
+$('#themeBtn').onclick = () => { store.settings.theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; save(); applyTheme(); };
+$('#menuBtn').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [['⬇️ Export backup', exportBackup], ['⬆️ Import backup', () => $('#importFile').click()], ['❓ Help & shortcuts', helpModal]]); };
+function applyTheme(){
+  const t = store.settings.theme === 'light' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = t;
+  $('#themeBtn').textContent = t === 'light' ? '🌙' : '☀️'; $('#themeBtn').title = t === 'light' ? 'Dark theme' : 'Light theme';
+}
+function popMenu(anchor, items){
+  closeMenus();
+  const m = document.createElement('div'); m.className = 'menu pop';
+  for(const [label, fn] of items){ const b = document.createElement('button'); b.textContent = label; b.onclick = () => { closeMenus(); fn(); }; m.appendChild(b); }
+  document.body.appendChild(m);
+  const r = anchor.getBoundingClientRect();
+  m.style.top = (r.bottom + window.scrollY + 6) + 'px';
+  m.style.left = (Math.max(8, Math.min(r.right - m.offsetWidth, document.documentElement.clientWidth - m.offsetWidth - 8)) + window.scrollX) + 'px';
+  setTimeout(() => document.addEventListener('click', closeMenus, {once: true}), 0);
+}
+function closeMenus(){ document.querySelectorAll('.menu.pop').forEach(m => m.remove()); }
+
+// ================= home dashboard =================
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+function dayKey(d = new Date()){ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function parseDay(k){ const [y, m, d] = String(k).split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); }
+function fmtDay(d){ return d.toLocaleDateString('en-IN', {day: 'numeric', month: 'short'}); }
+function fmtDur(sec){ sec = Math.round(sec || 0); const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60); return h ? `${h}h ${m}m` : `${m}m`; }
+function statDay(){ const k = dayKey(); return store.stats[k] || (store.stats[k] = {s: 0, c: 0}); }
+const ownerOf = v => courseOf(v) || v;
+const ownerVideos = o => o.order ? courseVideos(o) : [o];
+const ownerKey = o => (o.order ? 'c:' : 'v:') + o.id;
+const findOwner = k => k.startsWith('c:') ? store.courses.find(c => c.id === k.slice(2)) : store.videos.find(v => v.id === k.slice(2));
+function ownerProgress(o){ let d = 0, t = 0, left = 0; for(const v of ownerVideos(o)) for(const c of chapters(v)){ t++; if(v.done[c.key]) d++; else left += chapterLen(v, c); } return {done: d, total: t, left}; }
+function continueTarget(o){
+  const vids = ownerVideos(o), open = vids.filter(v => progressOf(v).done < progressOf(v).total);
+  return open.filter(v => v.opened).sort((a, b) => b.opened - a.opened)[0] || open[0] || vids[0];
+}
+function resumeIdx(v){
+  const chs = chapters(v), c = curChapter(v); if(!v.done[c.key]) return c.idx;
+  const n = chs.find(x => !v.done[x.key] && x.idx > c.idx) || chs.find(x => !v.done[x.key]); return n ? n.idx : c.idx;
+}
+function goWatch(v, idx){ openVideo(v.id); playChapter(idx ?? resumeIdx(v), true); }
+function streak(){
+  const ok = k => ((store.stats[k] || {}).s || 0) >= 60;
+  const d = new Date(); if(!ok(dayKey(d))) d.setDate(d.getDate() - 1);
+  let n = 0; while(ok(dayKey(d)) && n < 3650){ n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function renderHome(){
+  const el = $('#homeView'), today = statDay(), goal = (store.settings.goal || 60) * 60;
+  const recent = o => Math.max(0, ...ownerVideos(o).map(v => v.opened || v.added || 0));
+  const owners = [...store.courses.filter(c => courseVideos(c).length), ...store.videos.filter(v => !courseOf(v))].sort((a, b) => recent(b) - recent(a));
+  const last = store.videos.find(v => v.id === store.currentId) || owners.length && continueTarget(owners[0]) || null;
+  const lc = last ? chapters(last)[resumeIdx(last)] : null;
+  const total = Object.values(store.stats).reduce((a, x) => a + ((x && x.s) || 0), 0);
+  const week = [...Array(7)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() - 6 + i); return {d, s: (store.stats[dayKey(d)] || {}).s || 0}; });
+  const top = Math.max(goal, ...week.map(x => x.s), 1);
+  const stars = []; for(const v of store.videos) for(const c of chapters(v)) if((v.stars || {})[c.key]) stars.push({v, c});
+  const courses = owners.filter(o => o.order), singles = owners.filter(o => !o.order), plans = owners.filter(o => o.plan);
+  el.innerHTML = `<div class="home">
+    <div class="hello"><h1>${['Good morning', 'Good afternoon', 'Good evening'][new Date().getHours() < 12 ? 0 : new Date().getHours() < 17 ? 1 : 2]}! 👋</h1>
+      <p class="muted">${today.s >= goal ? "Today's goal is done. Nice work! 🎉" : `${fmtDur(goal - today.s)} more to reach today's goal.`}</p></div>
+    ${last && lc ? `<div class="cont" id="contCard"><img src="${thumb(last.ytId)}" alt="" onerror="this.remove()"><div style="flex:1;min-width:0">
+      <div class="muted" style="font-size:12px">Continue watching${courseOf(last) ? ' · 📚 ' + esc(courseOf(last).title) : ''}</div>
+      <h3 style="margin:4px 0">${esc(last.title)}</h3><div>${lc.idx + 1}. ${esc(lc.title)} <span class="muted">${lc.len != null ? '· ' + fmt(lc.len) : ''}</span></div>
+      <div class="bar"><i style="width:${progressOf(last).done / progressOf(last).total * 100}%"></i></div></div>
+      <button class="primary">▶ Continue</button></div>` : ''}
+    <div class="stats">
+      <div class="stat" id="goalCard" title="Click to change your daily goal"><div class="big">${Math.floor(today.s / 60)}<small> / ${goal / 60} min</small></div>
+        <div class="muted">today's goal (click to change)</div><div class="bar ${today.s >= goal ? 'green' : ''}"><i style="width:${Math.min(100, today.s / goal * 100)}%"></i></div></div>
+      <div class="stat"><div class="big">🔥 ${streak()}</div><div class="muted">day streak (1+ min a day)</div></div>
+      <div class="stat"><div class="big">${today.c}</div><div class="muted">chapters done today</div></div>
+      <div class="stat"><div class="big">${fmtDur(total)}</div><div class="muted">studied in total</div></div>
+    </div>
+    <div class="week">${week.map(x => `<div class="d ${dayKey(x.d) === dayKey() ? 'today' : ''}" title="${fmtDur(x.s)} studied"><span>${Math.round(x.s / 60)}m</span><div class="b" style="height:${Math.max(3, Math.round(x.s / top * 72))}px"></div>${DAYS[x.d.getDay()]}</div>`).join('')}</div>
+    ${plans.length ? `<div class="sec-h"><h2>📅 Today's plan</h2></div>` + plans.map(todayCard).join('') : ''}
+    ${courses.length ? `<div class="sec-h"><h2>📚 Your playlists</h2></div><div class="cards">${courses.map(ownerCard).join('')}</div>` : ''}
+    ${singles.length ? `<div class="sec-h"><h2>🎬 Videos</h2></div><div class="cards">${singles.map(ownerCard).join('')}</div>` : ''}
+    ${stars.length ? `<div class="sec-h"><h2>⭐ To revise (${stars.length})</h2></div><div class="plan-today">${stars.slice(0, 20).map(x => `<div class="pt-item" data-sv="${x.v.id}" data-si="${x.c.idx}">⭐ ${esc(x.c.title)} <span class="muted">· ${esc(x.v.title.slice(0, 50))}${x.c.len != null ? ' · ' + fmt(x.c.len) : ''}</span></div>`).join('')}</div>` : ''}
+  </div>`;
+  if($('#contCard')) $('#contCard').onclick = () => goWatch(last);
+  $('#goalCard').onclick = goalModal;
+  el.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { const o = findOwner(b.dataset.open); if(o) goWatch(continueTarget(o)); });
+  el.querySelectorAll('[data-plan]').forEach(b => b.onclick = () => { const o = findOwner(b.dataset.plan); if(o) planModal(o); });
+  el.querySelectorAll('[data-sv]').forEach(r => r.onclick = () => { const v = store.videos.find(x => x.id === r.dataset.sv); if(v){ openVideo(v.id); playChapter(+r.dataset.si, false); } });
+  el.querySelectorAll('[data-tv]').forEach(r => r.onclick = () => { const v = store.videos.find(x => x.id === r.dataset.tv); if(v) goWatch(v, +r.dataset.ti); });
+}
+function ownerCard(o){
+  const pr = ownerProgress(o), t = continueTarget(o), pct = pr.total ? Math.round(pr.done / pr.total * 100) : 0;
+  return `<div class="card"><div class="ct"><img src="${thumb(t.ytId)}" alt="" loading="lazy" onerror="this.remove()"><span class="badge">${o.order ? ownerVideos(o).length + ' lectures' : pr.total > 1 ? pr.total + ' chapters' : 'video'}</span></div>
+    <div class="cb"><b>${o.order ? '📚 ' : ''}${esc(o.title)}</b>
+    <div class="muted" style="font-size:12px">${pr.done}/${pr.total} ${pr.total === 1 ? 'part' : 'chapters'} · ${pct}%${pr.left ? ' · ' + fmtDur(pr.left) + ' left' : ''}${o.whole && o.order ? ' · 🎞 no chapters' : ''}</div>
+    <div class="bar ${pct === 100 ? 'green' : ''}"><i style="width:${pct}%"></i></div>
+    <div class="row" style="margin-top:8px"><button class="primary small" data-open="${esc(ownerKey(o))}">▶ ${pr.done ? 'Continue' : 'Start'}</button><button class="small" data-plan="${esc(ownerKey(o))}">📅 ${o.plan ? 'Plan' : 'Make a plan'}</button></div></div></div>`;
+}
+function goalModal(){
+  openModal(`<h2>🎯 Daily goal</h2><p class="muted">How many minutes do you want to study every day?</p>
+    <input id="goalIn" type="number" min="5" max="600" value="${store.settings.goal || 60}" style="width:140px"> <span class="muted">minutes</span>
+    <div class="actions"><button onclick="closeModal()">Cancel</button><button class="primary" id="goalSave">Save</button></div>`);
+  const go = () => { const n = Math.round(+$('#goalIn').value); if(n >= 5){ store.settings.goal = Math.min(600, n); save(); closeModal(); render(); } else toast('Pick at least 5 minutes'); };
+  $('#goalSave').onclick = go; $('#goalIn').onkeydown = e => { if(e.key === 'Enter') go(); };
+}
+
+// ================= study planner =================
+function remainingItems(o){
+  const out = [];
+  ownerVideos(o).forEach((v, li) => chapters(v).forEach(c => { if(!v.done[c.key]){ const len = chapterLen(v, c); out.push({v, c, li, len: len || 1800, est: !len}); } }));
+  return out;
+}
+function computePlan(o, p){
+  p = p || o.plan; if(!p) return null;
+  const items = remainingItems(o), total = items.reduce((a, x) => a + x.len, 0);
+  const wd = p.days && p.days.length ? p.days : [0, 1, 2, 3, 4, 5, 6];
+  const today = parseDay(dayKey());
+  let budget, avail = null;
+  if(p.mode === 'date'){
+    const end = parseDay(p.date); avail = 0;
+    for(const d = new Date(today); d <= end; d.setDate(d.getDate() + 1)) if(wd.includes(d.getDay())) avail++;
+    budget = Math.max(300, Math.ceil(total / Math.max(1, avail)));
+  } else budget = Math.max(5, +p.minutes || 60) * 60;
+  const days = []; let i = 0; const d = new Date(today);
+  while(i < items.length && days.length < 3650){
+    if(wd.includes(d.getDay())){
+      const list = []; let used = 0;
+      while(i < items.length && (!list.length || used + items[i].len <= budget * 1.1)){ list.push(items[i]); used += items[i].len; i++; }
+      days.push({date: new Date(d), items: list, secs: used});
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  return {budget, total, days, avail, est: items.some(x => x.est)};
+}
+function todayPlan(o){
+  if(!o.plan) return [];
+  const k = dayKey();
+  if(!o.planToday || o.planToday.date !== k){
+    const pl = computePlan(o), first = pl && pl.days[0];
+    o.planToday = {date: k, items: first && dayKey(first.date) === k ? first.items.map(x => [x.v.id, x.c.key]) : []};
+    save();
+  }
+  return o.planToday.items.map(([vid, key]) => { const v = store.videos.find(x => x.id === vid); const c = v && chapters(v).find(x => String(x.key) === String(key)); return c ? {v, c, done: !!v.done[c.key]} : null; }).filter(Boolean);
+}
+function todayCard(o){
+  const items = todayPlan(o), done = items.filter(x => x.done).length, secs = items.reduce((a, x) => a + (chapterLen(x.v, x.c) || 0), 0);
+  const next = items.find(x => !x.done), pl = computePlan(o), upcoming = !items.length && pl && pl.days[0] ? pl.days[0].date : null;
+  return `<div class="plan-today"><div class="row" style="justify-content:space-between"><b>${o.order ? '📚 ' : '🎬 '}${esc(o.title)}</b>
+    ${items.length ? `<span class="muted">${done}/${items.length} chapters · ${fmt(secs)}</span>` : ''}</div>
+    ${items.length ? items.map(x => `<div class="pt-item ${x.done ? 'done' : ''}" data-tv="${x.v.id}" data-ti="${x.c.idx}">${x.done ? '✅' : '⬜'} ${o.order ? `<span class="lnum">L${courseVideos(o).indexOf(x.v) + 1}</span>` : ''} ${x.c.idx + 1}. ${esc(x.c.title)} <span class="muted">· ${fmt(chapterLen(x.v, x.c) || 0)}</span></div>`).join('')
+      : `<div class="muted" style="margin-top:6px">${pl && !pl.days.length ? 'Everything is done. 🎉' : `Rest day 😌${upcoming ? ' Next study day: ' + DAYS[upcoming.getDay()] + ', ' + fmtDay(upcoming) : ''}`}</div>`}
+    ${next ? `<button class="primary small" style="margin-top:8px" data-tv="${next.v.id}" data-ti="${next.c.idx}">▶ ${done ? 'Keep going' : "Start today's plan"}</button>` : items.length ? "<div style=\"margin-top:6px\">🎉 Today's plan is done!</div>" : ''}</div>`;
+}
+function planTable(o, p){
+  if(!p.days.length) return '<p class="muted">Pick at least one study day.</p>';
+  const pl = computePlan(o, p);
+  if(!pl.days.length) return '<p>🎉 Nothing left to plan. Everything is done!</p>';
+  const end = pl.days[pl.days.length - 1].date;
+  const weekStart = d => { const x = new Date(d); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+  const ranges = items => { const out = []; for(const x of items){ const r = out[out.length - 1]; if(r && r.v === x.v && r.to.idx + 1 === x.c.idx){ r.to = x.c; r.n++; } else out.push({v: x.v, li: x.li, from: x.c, to: x.c, n: 1}); } return out; };
+  let html = `<div class="plan-sum">${p.mode === 'date' ? `To finish by <b>${fmtDay(parseDay(p.date))}</b> you need about <b>${fmt(pl.budget)}</b> a day.` : `At <b>${fmt(pl.budget)}</b> a day you'll finish on <b>${fmtDay(end)}</b>.`}
+    ${pl.days.length} study days · ${fmt(pl.total)} in total${pl.est ? ' · some lengths are estimates (30 min) until those videos are played' : ''}${p.mode === 'date' && pl.days.length > pl.avail ? ` · <span style="color:var(--warn)">needs ${pl.days.length - pl.avail} extra day${pl.days.length - pl.avail > 1 ? 's' : ''}, because chapters aren't cut in half</span>` : ''}</div>
+    <table class="plan-table"><tr><th>Day</th><th>Date</th><th>What to watch</th><th>Time</th></tr>`;
+  let wk = null, shown = 0;
+  for(const day of pl.days){
+    if(shown++ >= 70){ html += `<tr><td colspan="4" class="muted">…and ${pl.days.length - 70} more days</td></tr>`; break; }
+    const ws = dayKey(weekStart(day.date));
+    if(ws !== wk){ wk = ws; const w = pl.days.filter(x => dayKey(weekStart(x.date)) === ws); html += `<tr class="wk"><td colspan="3">Week of ${fmtDay(weekStart(day.date))} · ${w.length} study day${w.length > 1 ? 's' : ''}</td><td class="t">${fmt(w.reduce((a, x) => a + x.secs, 0))}</td></tr>`; }
+    html += `<tr><td>${DAYS[day.date.getDay()]}${dayKey(day.date) === dayKey() ? ' <b>(today)</b>' : ''}</td><td>${fmtDay(day.date)}</td><td>${ranges(day.items).map(r => `${o.order ? `<span class="lnum">L${r.li + 1}</span> ` : ''}${r.n > 1 ? `${r.from.idx + 1}. ${esc(r.from.title)} → ${r.to.idx + 1}. ${esc(r.to.title)} <span class="muted">(${r.n} chapters)</span>` : `${r.from.idx + 1}. ${esc(r.from.title)}`}`).join('<br>')}</td><td class="t">${fmt(day.secs)}</td></tr>`;
+  }
+  return html + '</table>';
+}
+function planModal(o){
+  const p0 = o.plan || {mode: 'minutes', minutes: store.settings.goal || 60, date: dayKey(new Date(Date.now() + 30 * 864e5)), days: [1, 2, 3, 4, 5, 6, 0]};
+  const pr = ownerProgress(o), n = pr.total - pr.done;
+  openModal(`<h2>📅 Study plan</h2><p class="muted" style="margin:0">${o.order ? '📚 ' : ''}${esc(o.title)} · ${fmt(pr.left)} left in ${n} ${n === 1 ? 'part' : 'chapters'}</p>
+    <div class="row" style="margin-top:12px;gap:18px">
+      <label class="chk" style="margin:0"><input type="radio" name="pm" value="minutes" ${p0.mode !== 'date' ? 'checked' : ''}> Study <input id="pMin" type="number" min="5" max="600" value="${p0.minutes || 60}" style="width:80px"> minutes a day</label>
+      <label class="chk" style="margin:0"><input type="radio" name="pm" value="date" ${p0.mode === 'date' ? 'checked' : ''}> Finish by <input id="pDate" type="date" value="${p0.date}" min="${dayKey()}" style="width:165px"></label>
+    </div>
+    <label>Study days</label>
+    <div class="daychips">${[1, 2, 3, 4, 5, 6, 0].map(d => `<label><input type="checkbox" value="${d}" ${(p0.days || []).includes(d) ? 'checked' : ''}> ${DAYS[d]}</label>`).join('')}</div>
+    <div id="planPreview"></div>
+    <div class="actions">${o.plan ? '<button class="danger" id="pDel">Remove plan</button>' : ''}<button onclick="closeModal()">Cancel</button><button class="primary" id="pSave">Save plan</button></div>`, true);
+  const read = () => ({mode: $('#modal').querySelector('input[name=pm]:checked').value, minutes: Math.min(600, Math.max(5, Math.round(+$('#pMin').value || 60))), date: $('#pDate').value || dayKey(), days: [...$('#modal').querySelectorAll('.daychips input:checked')].map(x => +x.value)});
+  const draw = () => { $('#planPreview').innerHTML = planTable(o, read()); };
+  $('#pMin').onfocus = () => { $('#modal').querySelector('input[value=minutes]').checked = true; draw(); };
+  $('#pDate').onfocus = () => { $('#modal').querySelector('input[value=date]').checked = true; draw(); };
+  $('#modal').querySelectorAll('input').forEach(x => { x.addEventListener('input', draw); x.addEventListener('change', draw); });
+  draw();
+  $('#pSave').onclick = () => { const p = read(); if(!p.days.length){ toast('Pick at least one study day'); return; } o.plan = p; o.planToday = null; save(); closeModal(); render(); toast("📅 Plan saved. Home shows today's part"); };
+  if($('#pDel')) $('#pDel').onclick = () => { delete o.plan; delete o.planToday; save(); closeModal(); render(); toast('Plan removed'); };
+}
+
+// ================= search =================
+let sresults = [], ssel = 0;
+function searchAll(q){
+  q = q.trim().toLowerCase(); if(q.length < 2) return [];
+  const res = [];
+  for(const v of store.videos){
+    const o = courseOf(v), where = (o ? `📚 ${o.title} · L${courseVideos(o).indexOf(v) + 1} · ` : '') + v.title;
+    if(v.title.toLowerCase().includes(q)) res.push({v, i: resumeIdx(v), label: '🎬 ' + v.title, where: o ? '📚 ' + o.title : 'Video'});
+    for(const c of chapters(v)){
+      if(c.title.toLowerCase().includes(q)) res.push({v, i: c.idx, label: `${c.idx + 1}. ${c.title}`, where});
+      const n = v.notes[c.key], at = n ? n.toLowerCase().indexOf(q) : -1;
+      if(at >= 0) res.push({v, i: c.idx, label: '📝 …' + n.slice(Math.max(0, at - 30), at + 60).replace(/\s+/g, ' ') + '…', where: where + ' › ' + c.title});
+      if(res.length >= 60) return res;
+    }
+  }
+  return res;
+}
+function drawSearch(){
+  const box = $('#sres'), q = $('#q').value; sresults = searchAll(q); ssel = 0;
+  if(q.trim().length < 2){ box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML = sresults.length ? sresults.map((r, i) => `<div class="r ${i === ssel ? 'sel' : ''}" data-r="${i}">${esc(r.label)}<small>${esc(r.where)}</small></div>`).join('') : '<div class="r muted">No matches</div>';
+  box.querySelectorAll('[data-r]').forEach(el => el.onmousedown = e => { e.preventDefault(); pickSearch(+el.dataset.r); });
+}
+function pickSearch(i){
+  const r = sresults[i]; if(!r) return;
+  $('#sres').hidden = true; $('#q').value = ''; $('#q').blur();
+  openVideo(r.v.id); playChapter(r.i, false);
+}
+$('#q').oninput = drawSearch;
+$('#q').onfocus = drawSearch;
+$('#q').onblur = () => setTimeout(() => { $('#sres').hidden = true; }, 150);
+$('#q').onkeydown = e => {
+  if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if(!sresults.length) return; ssel = (ssel + (e.key === 'ArrowDown' ? 1 : -1) + sresults.length) % sresults.length; $('#sres').querySelectorAll('[data-r]').forEach((el, i) => el.classList.toggle('sel', i === ssel)); }
+  if(e.key === 'Enter'){ e.preventDefault(); pickSearch(ssel); }
+  if(e.key === 'Escape'){ $('#q').value = ''; $('#sres').hidden = true; $('#q').blur(); }
+};
+
+// ================= notes download =================
+function downloadNotes(o){
+  let md = `# ${o.title}\n\n`, n = 0;
+  ownerVideos(o).forEach((v, i) => {
+    const keys = Object.keys(v.notes || {}).filter(k => (v.notes[k] || '').trim());
+    if(!keys.length) return;
+    md += `## ${o.order ? `L${i + 1} · ` : ''}${v.title}\n\n`;
+    keys.sort((a, b) => (a === 'w' ? -1 : +a) - (b === 'w' ? -1 : +b)).forEach(k => {
+      const ci = v.chapters.findIndex(c => String(c.start) === k);
+      const title = k === 'w' ? 'Whole video' : !v.chapters.length ? 'Full video' : ci >= 0 ? `${ci + 1}. ${v.chapters[ci].title} (${fmt(+k)})` : `At ${fmt(+k)}`;
+      md += `### ${title}\n\n${v.notes[k].trim()}\n\n`; n++;
+    });
+  });
+  if(!n){ toast('No notes yet. Write some in the notes box under the video'); return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([md], {type: 'text/markdown'}));
+  a.download = (o.title.replace(/[^\w\- ]+/g, '').trim().slice(0, 60).replace(/\s+/g, '-') || 'chapterbox') + '-notes.md';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast(`Downloaded ${n} note${n > 1 ? 's' : ''}`);
+}
 
 // ================= YouTube player =================
 let player = null, playerReady = false, pending = null;
@@ -850,7 +1246,7 @@ function onStateChange(e){
   if(e.data !== YT.PlayerState.ENDED) return;
   const v = cur(); if(!v) return;
   const c = curChapter(v);
-  if(!v.done[c.start]){ v.done[c.start] = true; save(); }
+  markDone(v, c.key); save();
   renderLibrary(); renderTitlebar(); renderPlaylist(); renderNow();
   if(c.idx === chapters(v).length - 1){ if(store.settings.autoNext && nextLecture(v)) goNextLecture(v); else toast('🎉 That was the last chapter!'); }
 }
@@ -901,7 +1297,9 @@ function inAd(v){
   }catch(e){}
   return false;
 }
+let lastTick = Date.now();
 setInterval(() => {
+  const nowT = Date.now(), dt = Math.min(1.5, (nowT - lastTick) / 1000); lastTick = nowT;
   renderBar();
   const v = cur(); if(ytMode !== 'api' || !v || !player || !playerReady) return;
   let st, data; try{ st = player.getPlayerState(); data = player.getVideoData ? player.getVideoData() : null; }catch(e){ return; }
@@ -917,13 +1315,13 @@ setInterval(() => {
     if(data.title && !v.titleSet){ v.title = data.title; v.titleSet = true; save(); renderLibrary(); renderTitlebar(); }
   }catch(e){}
   if(st !== 1) return;
-  applySpeed();
+  applySpeed(); statDay().s += dt;
   const t = playerTime(); if(t == null) return;
   v.lastTime = t;
   const chs = chapters(v); const c = curChapter(v);
   if(c.end != null && t >= c.end - 0.25 && t < c.end + 2.5){
     // reached the end of this chapter
-    v.done[c.start] = true;
+    markDone(v, c.key);
     if(c.idx < chs.length - 1 && (store.settings.autoNext || heldAt === c.start)){
       heldAt = null; v.lastChapter = c.idx + 1;
       if(store.settings.autoNext) toast(`✓ Chapter ${c.idx + 1} done. Next up!`);
@@ -1000,12 +1398,16 @@ $('#cFs').onclick = () => { try{ document.fullscreenElement ? document.exitFulls
 // keyboard shortcuts
 document.addEventListener('keydown', e => {
   const tag = document.activeElement.tagName;
-  if(/INPUT|TEXTAREA|SELECT/.test(tag) || !cur() || $('#modalBg').classList.contains('show')) return;
+  if(/INPUT|TEXTAREA|SELECT/.test(tag) || $('#modalBg').classList.contains('show')) return;
+  if(e.key === '/'){ e.preventDefault(); $('#q').focus(); return; }
+  if(e.key === '?'){ e.preventDefault(); helpModal(); return; }
+  if(!cur() || view !== 'watch') return;
   const i = curChapter(cur()).idx;
   if(e.shiftKey){
     if(e.key === 'N'){ e.preventDefault(); playChapter(i + 1, true, true); }
     if(e.key === 'P'){ e.preventDefault(); playChapter(i - 1, true, true); }
     if(e.key === 'D'){ e.preventDefault(); toggleDone(i); }
+    if(e.key === 'S'){ e.preventDefault(); toggleStar(i); }
     return;
   }
   if(e.key === ' ' || e.key === 'k'){ e.preventDefault(); togglePlay(); }
@@ -1013,6 +1415,8 @@ document.addEventListener('keydown', e => {
     const t = playerTime(); if(t == null) return;
     e.preventDefault(); seekInChapter(t + (e.key === 'ArrowRight' ? 5 : -5));
   }
+  if(e.key === 'f'){ e.preventDefault(); $('#cFs').click(); }
+  if(e.key === 'm'){ e.preventDefault(); $('#cMute').click(); }
 });
 
 // load the YouTube player API (not on double-clicked files: YouTube rejects those)
@@ -1039,11 +1443,12 @@ function loadYouTubeApi(){
 }
 
 // start
+applyTheme();
 window.addEventListener('hashchange', async () => { if(await readShareHash()) openVideo(store.currentId); });
 renderBanner();
 render();
 loadYouTubeApi();
-readShareHash().then(() => { if(cur()) openVideo(store.currentId); else render(); });
+readShareHash().then(added => { if(added && cur()) openVideo(store.currentId); else render(); });
 </script>
 </body>
 </html>

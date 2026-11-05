@@ -140,6 +140,46 @@ a.bmk{cursor:grab}
 .plan-sum{background:var(--panel2);border-radius:10px;padding:10px 12px;margin-top:12px;font-size:13px}
 .plan-warn{margin-top:8px;color:var(--warn)}
 .plan-warn button{margin-left:6px}
+.offchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.offchips span{display:inline-flex;gap:4px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:3px 4px 3px 8px;font-size:13px}
+.offchips span.legend{background:none;border:0;padding:0 4px;font-size:12px}
+.offchips button{padding:0 6px;border:0;background:transparent;font-size:12px}
+.plan-table tr.off td{color:var(--muted);font-style:italic}
+.plan-today.off{border-style:dashed}
+.carry{font-size:11px;color:var(--warn);margin-left:4px;white-space:nowrap}
+select{font:inherit;background:var(--input);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 10px;max-width:100%}
+.dbtn{border:0;background:transparent;padding:0 3px 0 0;font-size:10px;line-height:1;cursor:pointer;vertical-align:1px}
+.dots{margin-left:6px;font-size:9px;letter-spacing:1px;white-space:nowrap}
+.coach{background:linear-gradient(135deg,rgba(255,78,69,.07),rgba(90,130,255,.08)),var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:16px 0}
+.coach-h{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.coach-h .muted{font-size:12px;flex:1}
+.tip{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px dashed var(--line);font-size:14px;flex-wrap:wrap}
+.tip > span{font-size:18px;width:24px;text-align:center;flex:none}
+.tip > div:nth-child(2){flex:1;min-width:200px}
+.tip-b{display:flex;gap:6px;flex-wrap:wrap}
+.revbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 14px}
+.rev-row{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px;flex-wrap:wrap}
+.rev-row:last-child{border-bottom:0}
+.rev-row .t{flex:1;min-width:180px;cursor:pointer}
+.rev-row .t:hover{color:var(--accent)}
+.ratebar{position:fixed;left:16px;bottom:16px;z-index:70;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 12px 32px rgba(0,0,0,.45);display:flex;gap:8px;align-items:center;flex-wrap:wrap;max-width:min(470px,calc(100vw - 32px));font-size:13px}
+.ratebar[hidden]{display:none}
+.rate-inline{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--muted)}
+.rate-inline button{padding:2px 7px;font-size:14px}
+.rate-inline button.on{background:var(--active);border-color:var(--accent)}
+.aibox{margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.aiout{margin-top:8px;font-size:14px;line-height:1.55}
+.aiout pre{background:var(--input);padding:8px 10px;border-radius:8px;overflow:auto;font-size:12.5px}
+.aiout ul{padding-left:20px;margin:6px 0}
+.aiout p{margin:6px 0}
+.qq{padding:8px 0;border-bottom:1px dashed var(--line)}
+.qo{display:block;width:100%;text-align:left;margin-top:6px}
+.qo.right{border-color:var(--good);background:rgba(46,204,113,.16)}
+.qo.wrong{border-color:var(--accent);background:rgba(255,78,69,.13)}
+.why{font-size:13px;color:var(--muted);margin-top:6px}
+.qscore{margin-top:8px;font-weight:700}
+#focusBtn.on{background:var(--active);font-variant-numeric:tabular-nums}
+@media (max-width:760px){.ratebar{left:8px;right:8px;bottom:8px;max-width:none}.coach-h .muted{display:none}.coach-h > b{flex:1}}
 .plan-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
 .plan-table th,.plan-table td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
 .plan-table th{background:var(--panel2)}
@@ -211,6 +251,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   <div class="search"><input id="q" type="search" placeholder="🔍 Search chapters &amp; notes   ( / )" autocomplete="off"><div class="sres" id="sres" hidden></div></div>
   <div class="spacer"></div>
   <button class="primary" id="addBtn">+ Add</button>
+  <button id="focusBtn" title="Focus timer (Pomodoro)">🍅</button>
   <button id="themeBtn" title="Light theme">☀️</button>
   <button id="menuBtn" title="More">⋯</button>
   <input type="file" id="importFile" accept="application/json,.json" hidden>
@@ -248,10 +289,12 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 
 <div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
+<div class="ratebar" id="rateBar" hidden></div>
 
 <script>
 // ================= storage =================
 const KEY = 'chapterbox.v1';
+const diffCache = new Map();   // difficulty scores per course, rebuilt after every save
 let store = loadStore();
 function loadStore(){
   try{
@@ -262,6 +305,7 @@ function loadStore(){
 }
 let saveWarned = false;
 function save(){
+  diffCache.clear();
   try{ localStorage.setItem(KEY, JSON.stringify(store)); }
   catch(e){ if(!saveWarned){ toast('Could not save: browser storage is blocked here'); saveWarned = true; } }
 }
@@ -583,10 +627,10 @@ function renderEmpty(){
     <div class="features">
       <div><b>✂️ Chapter videos</b><span>Each chapter shows its own time, like 0:00 / 3:03, then stops or moves on by itself.</span></div>
       <div><b>📚 Whole playlists</b><span>Grab a full course with every lecture's chapters in one click, or keep the videos whole.</span></div>
-      <div><b>📅 Study planner</b><span>Pick a finish date or minutes a day and get a day-by-day plan with exact times.</span></div>
+      <div><b>📅 Study planner</b><span>Pick a finish date or minutes a day and get a day-by-day plan with exact times. Take a day off and it shifts.</span></div>
       <div><b>📝 Notes &amp; ⭐ revise</b><span>Notes for every chapter with clickable timestamps, plus a revise list.</span></div>
       <div><b>🔥 Goals &amp; streaks</b><span>A daily study goal, your streak and a 7-day chart on Home.</span></div>
-      <div><b>🔍 Search</b><span>Find any chapter or note across all your lectures. Press / to search.</span></div>
+      <div><b>🤖 Smart coach</b><span>Rates every chapter 🟢🟡🔴, plans all your courses from easy to hard and warns you when you fall behind.</span></div>
     </div>`;
   $('#emptyAdd').onclick = () => addVideoModal();
   $('#emptyPl').onclick = () => addPlaylistModal();
@@ -663,7 +707,7 @@ function renderPlaylist(){
           <span class="badge">${c.len != null ? fmt(c.len) : fmt(c.start) + '+'}</span>
           <div class="prog"><i style="width:${watched}%"></i></div></div>
         <div class="info"><div class="t">${esc(c.title)}</div>
-          <div class="s">Part ${c.idx + 1} of ${chs.length}${v.notes[c.key] ? ' · 📝 notes' : ''}</div></div>
+          <div class="s">${diffDot(v, c)}Part ${c.idx + 1} of ${chs.length}${v.notes[c.key] ? ' · 📝 notes' : ''}${v.done[c.key] && (v.rev || {})[c.key] ? ' · 🔁' : ''}</div></div>
         <button class="starbtn ${star ? 'on' : ''}" title="Mark to revise" data-star="${c.idx}">${star ? '⭐' : '☆'}</button>
         <button class="donebtn" title="Mark as done" data-done="${c.idx}">✓</button>
       </div>`;
@@ -672,6 +716,7 @@ function renderPlaylist(){
   $('#playlist').querySelectorAll('.ch').forEach(el => el.onclick = e => {
     if(e.target.dataset.done != null){ toggleDone(+e.target.dataset.done); return; }
     if(e.target.dataset.star != null){ toggleStar(+e.target.dataset.star); return; }
+    if(e.target.dataset.diff != null){ cycleDiff(+e.target.dataset.diff); return; }
     playChapter(+el.dataset.i, true);
   });
   // keep the list where you scrolled it; only bring the playing chapter into view when it changes
@@ -691,7 +736,7 @@ function renderNow(){
   if(!$('#nowTop')) $('#now').innerHTML = '<div id="nowTop"></div><div class="notes" id="nowNotes"></div>';
   $('#nowTop').innerHTML = `<div class="now-top">
       <div style="flex:1;min-width:180px"><h3>${i + 1}. ${esc(c.title)}</h3>
-      <div class="meta">Part ${i + 1} of ${chs.length}${c.len != null ? ' · ' + fmt(c.len) + ' long' : ''}</div></div>
+      <div class="meta">Part ${i + 1} of ${chs.length}${c.len != null ? ' · ' + fmt(c.len) + ' long' : ''} · ${diffLabel(v, c)}</div></div>
       <button id="nPrev" ${i === 0 ? 'disabled' : ''}>⏮ Prev</button>
       <button id="nRestart" title="Restart this chapter">↺ Restart</button>
       <button id="nStar" class="${star ? 'on' : ''}" title="Mark to revise later (Shift+S)">${star ? '⭐ Revise' : '☆ Revise'}</button>
@@ -700,6 +745,7 @@ function renderNow(){
     </div>
     <div class="row" style="margin-top:10px;justify-content:space-between">
       <label class="chk" style="margin:0"><input type="checkbox" id="autoNext" ${store.settings.autoNext ? 'checked' : ''}> Auto-play next chapter</label>
+      <span class="rate-inline" title="How hard was this chapter for you? It tunes your plan and reviews">How was it? ${[[1, '😀', 'Easy'], [2, '😐', 'OK'], [3, '😵', 'Hard']].map(([r, e, t]) => `<button class="${(v.rate || {})[c.key] === r ? 'on' : ''}" data-rate="${r}" title="${t}">${e}</button>`).join('')}</span>
       <span class="muted keyhint" style="font-size:12px">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd><kbd>→</kbd> 5s · <kbd>Shift</kbd>+<kbd>N</kbd>/<kbd>P</kbd> next/prev · <kbd>?</kbd> all keys</span>
     </div>`;
   $('#nPrev').onclick = () => playChapter(i - 1, true, true);
@@ -708,6 +754,7 @@ function renderNow(){
   $('#nDone').onclick = () => toggleDone(i);
   $('#nNext').onclick = () => playChapter(i + 1, true, true);
   $('#autoNext').onchange = e => { store.settings.autoNext = e.target.checked; save(); };
+  $('#nowTop').querySelectorAll('[data-rate]').forEach(b => b.onclick = () => setRate(v, c.key, +b.dataset.rate));
   // the notes box is only rebuilt when the chapter changes, so typing is never interrupted
   const ta = $('#notes'), key = v.id + ':' + c.key;
   if(ta && ta.dataset.key === key) return;
@@ -718,8 +765,8 @@ function renderNow(){
   if(ta){ const ov = store.videos.find(x => x.id === ta.dataset.vid); if(ov) saveNote(ov, ta.dataset.k, ta.value); }
   $('#nowNotes').innerHTML = `<label style="margin-top:12px">📝 My notes for ${i + 1}. ${esc(c.title)} (auto-saved)</label>
     <textarea id="notes" data-key="${esc(key)}" data-vid="${esc(v.id)}" data-k="${esc(c.key)}" placeholder="Key points, doubts, code to try...">${esc(v.notes[c.key] || '')}</textarea>
-    <div class="notes-tools"><button class="small" id="nTime" title="Insert the current time of this chapter">⏱ Insert time</button>
-    <span class="muted" style="font-size:12px">Double-click a time like [2:15] in your notes to jump there.</span></div>`;
+    <div class="notes-tools"><button class="small" id="nTime" title="Insert the current time of this chapter">⏱ Insert time</button><button class="small" id="nAI" title="Ask the AI helper about this chapter">🤖 Ask AI</button>
+    <span class="muted" style="font-size:12px">Double-click a time like [2:15] in your notes to jump there.</span></div><div id="aiBox"></div>`;
   const box = $('#notes'); let nt;
   box.oninput = e => { clearTimeout(nt); const val = e.target.value; nt = setTimeout(() => { saveNote(v, c.key, val); renderPlaylist(); }, 500); };
   box.ondblclick = () => {
@@ -732,6 +779,7 @@ function renderNow(){
     box.value = box.value.slice(0, a) + ins + box.value.slice(b); box.focus(); box.setSelectionRange(a + ins.length, a + ins.length);
     box.dispatchEvent(new Event('input'));
   };
+  $('#nAI').onclick = () => aiReady() ? openAIBox(v, c) : aiModal();
 }
 function saveNote(v, key, val){ if(val.trim()) v.notes[key] = val; else delete v.notes[key]; save(); }
 function jumpInChapter(v, c, rel){
@@ -768,7 +816,7 @@ function playChapter(i, autoplay = true, fromStart = false){
   loadIntoPlayer(v, start, c.end, autoplay);
 }
 
-function markDone(v, key){ if(v.done[key]) return; v.done[key] = true; statDay().c++; }
+function markDone(v, key){ if(v.done[key]) return; v.done[key] = true; statDay().c++; afterDone(v, key); }
 function toggleDone(i){
   const v = cur(); const c = chapters(v)[i]; if(!c) return;
   if(v.done[c.key]) delete v.done[c.key]; else markDone(v, c.key);
@@ -942,6 +990,12 @@ function helpModal(){
       <li><b>📅 Plan</b> (above the video or on a playlist card): pick minutes a day or a finish date and your study days. You get a day-by-day table with exact times, and Home shows today's part. Long lectures without chapters can be split into parts that fit your day.</li>
       <li><b>📚 Playlists</b>: + Add → Playlist. The <b>📥 Grab chapters</b> bookmark brings every lecture with its chapters. Paste a link to add one without chapters. <b>🎞 No chapters</b> / <b>✂️ Use chapters</b> switches any time.</li>
       <li><b>📝 Notes</b> are saved per chapter. ⏱ Insert time adds the moment you're at, and double-clicking a time jumps there. ⋯ → Download notes saves them as a file.</li>
+      <li><b>🏖 Days off</b>: on Home, <b>🏖 Day off today</b> skips today for every subject and <b>⏭ Shift to next day</b> skips it for one. Add future days off in 📅 Plan. Plans move ahead to the next study day, unfinished parts carry over on their own (marked ↪), and days off don't break your streak.</li>
+      <li><b>🤖 Smart coach</b> (Home) tells you today's mission across all subjects (easiest first), warns when a plan falls behind with a one-click catch-up, shows reviews due and when you study best. <b>🤖 Plan all my courses</b> shares your daily time across every course.</li>
+      <li><b>🧠 Difficulty</b>: every chapter gets 🟢 easy, 🟡 medium or 🔴 hard from its title, length, place in the course and your own ratings. Click the dot to change it. Plans can go <b>🧠 Smart</b> (ideas first, then practice from easy to hard), <b>🧗 Easy → hard</b> or <b>📚 Course order</b>, and can <b>📈 start light</b> and build up over 2 weeks.</li>
+      <li><b>😀 😐 😵</b> After a chapter, rate it in one tap. Hard ones come back for a <b>🔁 spaced review</b> (after 1, 3, 7, 16 and 35 days). Turn it off in ⋯.</li>
+      <li><b>🍅 Focus timer</b> (top bar): 25, 50 or 90 minutes of focus, then it pauses the video for a break.</li>
+      <li><b>🤖 Ask AI</b> (optional): add your own free Gemini key in ⋯ → AI helper to get explanations, quizzes and AI difficulty ratings. The AI sees chapter titles and your notes, not the video.</li>
       <li><b>⭐ Revise</b> marks chapters to rewatch. Filter them in the chapter list or find them on Home.</li>
       <li>Everything is saved in <b>this browser on this device</b>, not on GitHub. Use ⋯ → Export / Import to move it, and 🔗 Share to send a lecture or playlist split to friends.</li>
     </ul>
@@ -985,7 +1039,8 @@ $('#addBtn').onclick = () => addVideoModal();
 $('#homeBtn').onclick = showHome;
 $('#logo').onclick = showHome;
 $('#themeBtn').onclick = () => { store.settings.theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; save(); applyTheme(); };
-$('#menuBtn').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [['⬇️ Export backup', exportBackup], ['⬆️ Import backup', () => $('#importFile').click()], ['❓ Help & shortcuts', helpModal]]); };
+$('#menuBtn').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [['🤖 Plan all my courses', autoPlanModal], ['🔑 AI helper (optional)', aiModal], [`🔁 Spaced review: ${store.settings.revise === false ? 'off' : 'on'}`, toggleRevise], ['⬇️ Export backup', exportBackup], ['⬆️ Import backup', () => $('#importFile').click()], ['❓ Help & shortcuts', helpModal]]); };
+$('#focusBtn').onclick = focusMenu;
 function applyTheme(){
   const t = store.settings.theme === 'light' ? 'light' : 'dark';
   document.documentElement.dataset.theme = t;
@@ -1025,13 +1080,14 @@ function resumeIdx(v){
 }
 function goWatch(v, idx){ openVideo(v.id); playChapter(idx ?? resumeIdx(v), true); }
 function streak(){
-  const ok = k => ((store.stats[k] || {}).s || 0) >= 60;
+  const ok = k => ((store.stats[k] || {}).s || 0) >= 60, off = k => !!gOffs()[k];
   const d = new Date(); if(!ok(dayKey(d))) d.setDate(d.getDate() - 1);
-  let n = 0; while(ok(dayKey(d)) && n < 3650){ n++; d.setDate(d.getDate() - 1); }
+  let n = 0;
+  for(let guard = 0; guard < 4000; guard++){ const k = dayKey(d); if(ok(k)) n++; else if(!off(k)) break; d.setDate(d.getDate() - 1); }
   return n;
 }
 function renderHome(){
-  const el = $('#homeView'), today = statDay(), goal = (store.settings.goal || 60) * 60;
+  const el = $('#homeView'), today = statDay(), goal = (store.settings.goal || 60) * 60, offToday = !!gOffs()[dayKey()];
   const recent = o => Math.max(0, ...ownerVideos(o).map(v => v.opened || v.added || 0));
   const owners = [...store.courses.filter(c => courseVideos(c).length), ...store.videos.filter(v => !courseOf(v))].sort((a, b) => recent(b) - recent(a));
   const last = store.videos.find(v => v.id === store.currentId) || owners.length && continueTarget(owners[0]) || null;
@@ -1043,7 +1099,8 @@ function renderHome(){
   const courses = owners.filter(o => o.order), singles = owners.filter(o => !o.order), plans = owners.filter(o => o.plan);
   el.innerHTML = `<div class="home">
     <div class="hello"><h1>${['Good morning', 'Good afternoon', 'Good evening'][new Date().getHours() < 12 ? 0 : new Date().getHours() < 17 ? 1 : 2]}! 👋</h1>
-      <p class="muted">${today.s >= goal ? "Today's goal is done. Nice work! 🎉" : `${fmtDur(goal - today.s)} more to reach today's goal.`}</p></div>
+      <p class="muted">${offToday ? '🏖 Day off today. Your plans moved ahead and your streak is safe.' : today.s >= goal ? "Today's goal is done. Nice work! 🎉" : `${fmtDur(goal - today.s)} more to reach today's goal.`}</p></div>
+    ${coachCard()}
     ${last && lc ? `<div class="cont" id="contCard"><img src="${thumb(last.ytId)}" alt="" onerror="this.remove()"><div style="flex:1;min-width:0">
       <div class="muted" style="font-size:12px">Continue watching${courseOf(last) ? ' · 📚 ' + esc(courseOf(last).title) : ''}</div>
       <h3 style="margin:4px 0">${esc(last.title)}</h3><div>${lc.idx + 1}. ${esc(lc.title)} <span class="muted">${lc.len != null ? '· ' + fmt(lc.len) : ''}</span></div>
@@ -1053,11 +1110,12 @@ function renderHome(){
       <div class="stat" id="goalCard" title="Click to change your daily goal"><div class="big">${Math.floor(today.s / 60)}<small> / ${goal / 60} min</small></div>
         <div class="muted">today's goal (click to change)</div><div class="bar ${today.s >= goal ? 'green' : ''}"><i style="width:${Math.min(100, today.s / goal * 100)}%"></i></div></div>
       <div class="stat"><div class="big">🔥 ${streak()}</div><div class="muted">day streak (1+ min a day)</div></div>
-      <div class="stat"><div class="big">${today.c}</div><div class="muted">chapters done today</div></div>
+      <div class="stat"><div class="big">${today.c}${today.f ? `<small> · 🍅 ${today.f}</small>` : ''}</div><div class="muted">chapters done today${today.f ? ' · focus sessions' : ''}</div></div>
       <div class="stat"><div class="big">${fmtDur(total)}</div><div class="muted">studied in total</div></div>
     </div>
     <div class="week">${week.map(x => `<div class="d ${dayKey(x.d) === dayKey() ? 'today' : ''}" title="${fmtDur(x.s)} studied"><span>${Math.round(x.s / 60)}m</span><div class="b" style="height:${Math.max(3, Math.round(x.s / top * 72))}px"></div>${DAYS[x.d.getDay()]}</div>`).join('')}</div>
-    ${plans.length ? `<div class="sec-h"><h2>📅 Today's plan</h2></div>` + plans.map(todayCard).join('') : ''}
+    ${plans.length ? `<div class="sec-h"><h2>📅 Today's plan</h2><button class="small" id="dayOff" title="${offToday ? "Bring today's plans back" : 'No study today for any subject. Every plan moves ahead to the next study day'}">${offToday ? '↩ Undo day off' : '🏖 Day off today'}</button></div>` + plans.map(todayCard).join('') : ''}
+    ${reviewSection()}
     ${courses.length ? `<div class="sec-h"><h2>📚 Your playlists</h2></div><div class="cards">${courses.map(ownerCard).join('')}</div>` : ''}
     ${singles.length ? `<div class="sec-h"><h2>🎬 Videos</h2></div><div class="cards">${singles.map(ownerCard).join('')}</div>` : ''}
     ${stars.length ? `<div class="sec-h"><h2>⭐ To revise (${stars.length})</h2></div><div class="plan-today">${stars.slice(0, 20).map(x => `<div class="pt-item" data-sv="${x.v.id}" data-si="${x.c.idx}">⭐ ${esc(x.c.title)} <span class="muted">· ${esc(x.v.title.slice(0, 50))}${x.c.len != null ? ' · ' + fmt(x.c.len) : ''}</span></div>`).join('')}</div>` : ''}
@@ -1068,6 +1126,20 @@ function renderHome(){
   el.querySelectorAll('[data-plan]').forEach(b => b.onclick = () => { const o = findOwner(b.dataset.plan); if(o) planModal(o); });
   el.querySelectorAll('[data-sv]').forEach(r => r.onclick = () => { const v = store.videos.find(x => x.id === r.dataset.sv); if(v){ openVideo(v.id); playChapter(+r.dataset.si, false); } });
   el.querySelectorAll('[data-tv]').forEach(r => r.onclick = () => { const v = store.videos.find(x => x.id === r.dataset.tv); if(v) goWatch(v, +r.dataset.ti); });
+  if($('#dayOff')) $('#dayOff').onclick = () => {
+    const k = dayKey(), g = store.settings.offDays = Object.assign({}, store.settings.offDays);
+    if(g[k]) delete g[k]; else g[k] = true;
+    planOwners().forEach(todayChanged); save(); render();
+    toast(g[k] ? '🏖 Day off! Every plan moved ahead to the next study day' : "↩ Day off removed. Today's plans are back");
+  };
+  el.querySelectorAll('[data-skip]').forEach(b => b.onclick = () => {
+    const o = findOwner(b.dataset.skip); if(!o || !o.plan) return;
+    const k = dayKey(), s = new Set(o.plan.off || []);
+    if(s.has(k)) s.delete(k); else s.add(k);
+    o.plan.off = [...s]; todayChanged(o); save(); render();
+    toast(s.has(k) ? '⏭ Shifted. This plan moves ahead to the next study day' : "↩ Back on today's plan");
+  });
+  bindCoach(el); bindReviews(el);
 }
 function ownerCard(o){
   const pr = ownerProgress(o), t = continueTarget(o), pct = pr.total ? Math.round(pr.done / pr.total * 100) : 0;
@@ -1091,66 +1163,108 @@ function remainingItems(o){
   ownerVideos(o).forEach((v, li) => chapters(v).forEach(c => { if(!v.done[c.key]){ const len = chapterLen(v, c); out.push({v, c, li, len: len || 1800, est: !len}); } }));
   return out;
 }
-function computePlan(o, p){
+// ================= days off =================
+// store.settings.offDays: days off for every subject; plan.off: days off for one subject.
+// A plan skips those days and everything moves ahead to the next study day.
+function gOffs(){ return store.settings.offDays || {}; }
+function offKind(o, k, p, g){ g = g || gOffs(); p = p || o.plan || {}; return g[k] ? 'all' : (p.off || []).includes(k) ? 'mine' : null; }
+function planOwners(){ return [...store.courses, ...store.videos.filter(v => !courseOf(v))].filter(x => x.plan); }
+// today's part is a snapshot: a day off puts it aside, so Undo brings back exactly the same list
+function todayChanged(x){
+  const k = dayKey();
+  if(offKind(x, k)){ if(x.planToday && x.planToday.date === k && x.planToday.items.length) x.planTodayWas = x.planToday; x.planToday = null; }
+  else { x.planToday = x.planTodayWas && x.planTodayWas.date === k ? x.planTodayWas : null; delete x.planTodayWas; }
+}
+function pruneOffs(){
+  const k = dayKey(), g = gOffs();
+  for(const d of Object.keys(g)) if(d < k) delete g[d];
+  for(const x of planOwners()) if(x.plan.off) x.plan.off = x.plan.off.filter(d => d >= k);
+}
+function computePlan(o, p, g){
   p = p || o.plan; if(!p) return null;
-  const items = remainingItems(o), total = items.reduce((a, x) => a + x.len, 0);
+  const items = orderItems(o, remainingItems(o), p.order || 'course'), total = items.reduce((a, x) => a + x.len, 0);
   const wd = p.days && p.days.length ? p.days : [0, 1, 2, 3, 4, 5, 6];
+  const off = d => offKind(o, dayKey(d), p, g);
+  const rf = j => p.ramp ? Math.min(1, 0.5 + 0.5 * j / 13) : 1;   // start light: 50% on day 1, full time from day 14
   const today = parseDay(dayKey());
   let budget, avail = null;
   if(p.mode === 'date'){
     const end = parseDay(p.date); avail = 0;
-    for(const d = new Date(today); d <= end; d.setDate(d.getDate() + 1)) if(wd.includes(d.getDay())) avail++;
-    budget = Math.max(300, Math.ceil(total / Math.max(1, avail)));
+    for(const d = new Date(today); d <= end; d.setDate(d.getDate() + 1)) if(wd.includes(d.getDay()) && !off(d)) avail++;
+    let w = 0; for(let j = 0; j < Math.max(1, avail); j++) w += rf(j);
+    budget = Math.max(300, Math.ceil(total / w));
   } else budget = Math.max(5, +p.minutes || 60) * 60;
-  const days = []; let i = 0; const d = new Date(today);
+  const days = [], offs = []; let i = 0; const d = new Date(today);
   while(i < items.length && days.length < 3650){
     if(wd.includes(d.getDay())){
-      const list = []; let used = 0;
-      while(i < items.length && (!list.length || used + items[i].len <= budget * 1.1)){ list.push(items[i]); used += items[i].len; i++; }
-      days.push({date: new Date(d), items: list, secs: used});
+      const kind = off(d);
+      if(kind) offs.push({date: new Date(d), kind});
+      else {
+        const cap = budget * rf(days.length), list = []; let used = 0;
+        while(i < items.length && (!list.length || used + items[i].len <= cap * 1.1)){ list.push(items[i]); used += items[i].len; i++; }
+        days.push({date: new Date(d), items: list, secs: used});
+      }
     }
     d.setDate(d.getDate() + 1);
   }
-  return {budget, total, days, avail, est: items.some(x => x.est)};
+  return {budget, total, days, offs, avail, ramp: !!p.ramp, est: items.some(x => x.est)};
 }
 function todayPlan(o){
   if(!o.plan) return [];
   const k = dayKey();
   if(!o.planToday || o.planToday.date !== k){
+    const old = [o.planToday, o.planTodayWas].filter(x => x && x.date < k).flatMap(x => x.items || []);
     const pl = computePlan(o), first = pl && pl.days[0];
     o.planToday = {date: k, items: first && dayKey(first.date) === k ? first.items.map(x => [x.v.id, x.c.key]) : []};
+    // parts an earlier day planned that you didn't finish come first today; remember them to show the shift
+    const left = old.filter(([vid, key]) => { const v = store.videos.find(x => x.id === vid); return v && !v.done[key]; }).map(([vid, key]) => vid + ':' + key);
+    if(left.length) o.planToday.carried = left;
+    if(o.planTodayWas && o.planTodayWas.date !== k) delete o.planTodayWas;
     save();
   }
-  return o.planToday.items.map(([vid, key]) => { const v = store.videos.find(x => x.id === vid); const c = v && chapters(v).find(x => String(x.key) === String(key)); return c ? {v, c, done: !!v.done[c.key]} : null; }).filter(Boolean);
+  const carried = new Set(o.planToday.carried || []);
+  return o.planToday.items.map(([vid, key]) => { const v = store.videos.find(x => x.id === vid); const c = v && chapters(v).find(x => String(x.key) === String(key)); return c ? {v, c, done: !!v.done[c.key], carried: carried.has(vid + ':' + key)} : null; }).filter(Boolean);
 }
 function todayCard(o){
+  const k = dayKey(), kind = offKind(o, k), key = esc(ownerKey(o)), title = `<b>${o.order ? '📚 ' : '🎬 '}${esc(o.title)}</b>`;
+  if(kind){
+    const nx = (computePlan(o) || {days: []}).days[0];
+    return `<div class="plan-today off"><div class="row" style="justify-content:space-between">${title}${kind === 'mine' ? `<button class="small" data-skip="${key}" title="Put this back on today's plan">↩ Undo</button>` : ''}</div>
+      <div class="muted" style="margin-top:6px">${kind === 'all' ? '🏖 Day off.' : '⏭ Shifted to the next day.'} ${nx ? `Next study day: <b>${DAYS[nx.date.getDay()]}, ${fmtDay(nx.date)}</b> · ${nx.items.length} chapter${nx.items.length > 1 ? 's' : ''} · ${fmt(nx.secs)}` : 'Everything is done. 🎉'}</div></div>`;
+  }
   const items = todayPlan(o), done = items.filter(x => x.done).length, secs = items.reduce((a, x) => a + (chapterLen(x.v, x.c) || 0), 0);
   const next = items.find(x => !x.done), pl = computePlan(o), upcoming = !items.length && pl && pl.days[0] ? pl.days[0].date : null;
-  return `<div class="plan-today"><div class="row" style="justify-content:space-between"><b>${o.order ? '📚 ' : '🎬 '}${esc(o.title)}</b>
-    ${items.length ? `<span class="muted">${done}/${items.length} chapters · ${fmt(secs)}</span>` : ''}</div>
-    ${items.length ? items.map(x => `<div class="pt-item ${x.done ? 'done' : ''}" data-tv="${x.v.id}" data-ti="${x.c.idx}">${x.done ? '✅' : '⬜'} ${o.order ? `<span class="lnum">L${courseVideos(o).indexOf(x.v) + 1}</span>` : ''} ${x.c.idx + 1}. ${esc(x.c.title)} <span class="muted">· ${fmt(chapterLen(x.v, x.c) || 0)}</span></div>`).join('')
+  return `<div class="plan-today"><div class="row" style="justify-content:space-between">${title}
+    <div class="row" style="gap:8px">${items.length ? `<span class="muted">${done}/${items.length} chapters · ${fmt(secs)}</span>` : ''}${next ? `<button class="small" data-skip="${key}" title="Take today off for this one only. Its plan moves ahead to the next study day">⏭ Shift to next day</button>` : ''}</div></div>
+    ${items.length ? items.map(x => `<div class="pt-item ${x.done ? 'done' : ''}" data-tv="${x.v.id}" data-ti="${x.c.idx}">${x.done ? '✅' : '⬜'} ${o.order ? `<span class="lnum">L${courseVideos(o).indexOf(x.v) + 1}</span>` : ''} ${x.c.idx + 1}. ${esc(x.c.title)} <span class="muted">· ${fmt(chapterLen(x.v, x.c) || 0)}</span>${x.carried && !x.done ? ' <span class="carry" title="Planned for an earlier day and not done yet">↪ carried over</span>' : ''}</div>`).join('')
       : `<div class="muted" style="margin-top:6px">${pl && !pl.days.length ? 'Everything is done. 🎉' : `Rest day 😌${upcoming ? ' Next study day: ' + DAYS[upcoming.getDay()] + ', ' + fmtDay(upcoming) : ''}`}</div>`}
     ${next ? `<button class="primary small" style="margin-top:8px" data-tv="${next.v.id}" data-ti="${next.c.idx}">▶ ${done ? 'Keep going' : "Start today's plan"}</button>` : items.length ? "<div style=\"margin-top:6px\">🎉 Today's plan is done!</div>" : ''}</div>`;
 }
-function planTable(o, p){
+function planTable(o, p, g){
   if(!p.days.length) return '<p class="muted">Pick at least one study day.</p>';
-  const pl = computePlan(o, p);
+  const pl = computePlan(o, p, g);
   if(!pl.days.length) return '<p>🎉 Nothing left to plan. Everything is done!</p>';
-  const end = pl.days[pl.days.length - 1].date;
+  const end = pl.days[pl.days.length - 1].date, nOff = pl.offs.length;
   const long = new Set(remainingItems(o).filter(x => !x.est && chapters(x.v).length === 1 && x.len > pl.budget * 1.1).map(x => x.v)).size;
   const longNote = long ? `<div class="plan-warn">⚠️ ${long === 1 ? '1 lecture is' : long + ' lectures are'} longer than ${fmtDur(pl.budget)} and ${long === 1 ? 'plays' : 'play'} whole, so ${long === 1 ? 'that day runs' : 'those days run'} long.
       <button class="small" id="pSplit">✂️ Split ${long === 1 ? 'it' : 'them'} into ~${fmtDur(pl.budget)} parts</button></div>` : '';
   const weekStart = d => { const x = new Date(d); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
-  const ranges = items => { const out = []; for(const x of items){ const r = out[out.length - 1]; if(r && r.v === x.v && r.to.idx + 1 === x.c.idx){ r.to = x.c; r.n++; } else out.push({v: x.v, li: x.li, from: x.c, to: x.c, n: 1}); } return out; };
-  let html = `<div class="plan-sum">${p.mode === 'date' ? `To finish by <b>${fmtDay(parseDay(p.date))}</b> you need about <b>${fmt(pl.budget)}</b> a day.` : `At <b>${fmt(pl.budget)}</b> a day you'll finish on <b>${fmtDay(end)}</b>.`}
-    ${pl.days.length} study days · ${fmt(pl.total)} in total${pl.est ? ' · some lengths are estimates (30 min) until those videos are opened' : ''}${p.mode === 'date' && pl.days.length > pl.avail ? ` · <span style="color:var(--warn)">needs ${pl.days.length - pl.avail} extra day${pl.days.length - pl.avail > 1 ? 's' : ''}, because chapters aren't cut in half</span>` : ''}${longNote}</div>
+  const ranges = items => { const out = []; for(const x of items){ const r = out[out.length - 1]; if(r && r.v === x.v && r.to.idx + 1 === x.c.idx){ r.to = x.c; r.n++; r.xs.push(x); } else out.push({v: x.v, li: x.li, from: x.c, to: x.c, n: 1, xs: [x]}); } return out; };
+  const dots = xs => `<span class="dots">${xs.slice(0, 14).map(x => DDOT[DLV(diffAt(x.v, x.c.key).s)]).join('')}${xs.length > 14 ? '…' : ''}</span>`;
+  const ramp = pl.ramp ? ` It starts at <b>${fmt(pl.budget / 2)}</b> and builds up ${pl.days.length < 14 ? 'day by day' : 'over 2 weeks'}.` : '';
+  let html = `<div class="plan-sum">${p.mode === 'date' ? `To finish by <b>${fmtDay(parseDay(p.date))}</b> you need about <b>${fmt(pl.budget)}</b> a day.${ramp}` : `At <b>${fmt(pl.budget)}</b> a day you'll finish on <b>${fmtDay(end)}</b>.${ramp}`}
+    ${pl.days.length} study days${nOff ? ` · ${nOff} day${nOff > 1 ? 's' : ''} off` : ''} · ${fmt(pl.total)} in total${pl.est ? ' · some lengths are estimates (30 min) until those videos are opened' : ''}${p.mode === 'date' && pl.days.length > pl.avail ? ` · <span style="color:var(--warn)">needs ${pl.days.length - pl.avail} extra day${pl.days.length - pl.avail > 1 ? 's' : ''}, because chapters aren't cut in half</span>` : ''}${longNote}
+    <div class="muted" style="font-size:12px;margin-top:4px">🟢 easy · 🟡 medium · 🔴 hard</div></div>
     <table class="plan-table"><tr><th>Day</th><th>Date</th><th>What to watch</th><th>Time</th></tr>`;
+  const rows = [...pl.days, ...pl.offs.map(x => ({date: x.date, off: x.kind, items: [], secs: 0}))].sort((a, b) => a.date - b.date);
   let wk = null, shown = 0;
-  for(const day of pl.days){
-    if(shown++ >= 70){ html += `<tr><td colspan="4" class="muted">…and ${pl.days.length - 70} more days</td></tr>`; break; }
+  for(const day of rows){
+    if(shown++ >= 70){ html += `<tr><td colspan="4" class="muted">…and ${rows.length - 70} more days</td></tr>`; break; }
     const ws = dayKey(weekStart(day.date));
-    if(ws !== wk){ wk = ws; const w = pl.days.filter(x => dayKey(weekStart(x.date)) === ws); html += `<tr class="wk"><td colspan="3">Week of ${fmtDay(weekStart(day.date))} · ${w.length} study day${w.length > 1 ? 's' : ''}</td><td class="t">${fmt(w.reduce((a, x) => a + x.secs, 0))}</td></tr>`; }
-    html += `<tr><td>${DAYS[day.date.getDay()]}${dayKey(day.date) === dayKey() ? ' <b>(today)</b>' : ''}</td><td>${fmtDay(day.date)}</td><td>${ranges(day.items).map(r => `${o.order ? `<span class="lnum">L${r.li + 1}</span> ` : ''}${r.n > 1 ? `${r.from.idx + 1}. ${esc(r.from.title)} → ${r.to.idx + 1}. ${esc(r.to.title)} <span class="muted">(${r.n} chapters)</span>` : `${r.from.idx + 1}. ${esc(r.from.title)}`}`).join('<br>')}</td><td class="t">${fmt(day.secs)}</td></tr>`;
+    if(ws !== wk){ wk = ws; const w = rows.filter(x => dayKey(weekStart(x.date)) === ws), st = w.filter(x => !x.off), wo = w.length - st.length; html += `<tr class="wk"><td colspan="3">Week of ${fmtDay(weekStart(day.date))} · ${st.length} study day${st.length !== 1 ? 's' : ''}${wo ? ` · ${wo} off` : ''}</td><td class="t">${fmt(st.reduce((a, x) => a + x.secs, 0))}</td></tr>`; }
+    const dn = `${DAYS[day.date.getDay()]}${dayKey(day.date) === dayKey() ? ' <b>(today)</b>' : ''}`;
+    if(day.off){ html += `<tr class="off"><td>${dn}</td><td>${fmtDay(day.date)}</td><td>🏖 Day off${day.off === 'all' ? ' (all subjects)' : ''}</td><td class="t">0:00</td></tr>`; continue; }
+    html += `<tr><td>${dn}</td><td>${fmtDay(day.date)}</td><td>${ranges(day.items).map(r => `${o.order ? `<span class="lnum">L${r.li + 1}</span> ` : ''}${r.n > 1 ? `${r.from.idx + 1}. ${esc(r.from.title)} → ${r.to.idx + 1}. ${esc(r.to.title)} <span class="muted">(${r.n} chapters)</span>` : `${r.from.idx + 1}. ${esc(r.from.title)}`}${dots(r.xs)}`).join('<br>')}</td><td class="t">${fmt(day.secs)}</td></tr>`;
   }
   return html + '</table>';
 }
@@ -1176,33 +1290,524 @@ function splitLong(o, budget){
   return hit.length;
 }
 function planModal(o){
-  const p0 = o.plan || {mode: 'minutes', minutes: store.settings.goal || 60, date: dayKey(new Date(Date.now() + 30 * 864e5)), days: [1, 2, 3, 4, 5, 6, 0]};
-  const pr = ownerProgress(o), n = pr.total - pr.done;
+  const p0 = o.plan || {mode: 'minutes', minutes: store.settings.goal || 60, date: dayKey(new Date(Date.now() + 30 * 864e5)), days: [1, 2, 3, 4, 5, 6, 0], order: 'smart', ramp: true};
+  const pr = ownerProgress(o), n = pr.total - pr.done, today = dayKey();
+  const g = Object.assign({}, gOffs()), mine = new Set((p0.off || []).filter(d => d >= today));
   openModal(`<h2>📅 Study plan</h2><p class="muted" style="margin:0">${o.order ? '📚 ' : ''}${esc(o.title)} · ${fmt(pr.left)} left in ${n} ${n === 1 ? 'part' : 'chapters'}</p>
     <div class="row" style="margin-top:12px;gap:18px">
       <label class="chk" style="margin:0"><input type="radio" name="pm" value="minutes" ${p0.mode !== 'date' ? 'checked' : ''}> Study <input id="pMin" type="number" min="5" max="600" value="${p0.minutes || 60}" style="width:80px"> minutes a day</label>
-      <label class="chk" style="margin:0"><input type="radio" name="pm" value="date" ${p0.mode === 'date' ? 'checked' : ''}> Finish by <input id="pDate" type="date" value="${p0.date}" min="${dayKey()}" style="width:165px"></label>
+      <label class="chk" style="margin:0"><input type="radio" name="pm" value="date" ${p0.mode === 'date' ? 'checked' : ''}> Finish by <input id="pDate" type="date" value="${p0.date || dayKey(new Date(Date.now() + 30 * 864e5))}" min="${today}" style="width:165px"></label>
     </div>
     <label>Study days</label>
     <div class="daychips">${[1, 2, 3, 4, 5, 6, 0].map(d => `<label><input type="checkbox" value="${d}" ${(p0.days || []).includes(d) ? 'checked' : ''}> ${DAYS[d]}</label>`).join('')}</div>
+    <label>🧠 Order and pace</label>
+    <div class="row" style="gap:10px"><select id="pOrder">${orderOpts(p0.order || 'course')}</select>
+      <label class="chk" style="margin:0"><input type="checkbox" id="pRamp" ${p0.ramp ? 'checked' : ''}> 📈 Start light, build up over 2 weeks</label>
+      ${aiReady() ? '<button class="small" id="pAI" title="Let the AI rate how hard each chapter is">🤖 Rate difficulty with AI</button>' : ''}</div>
+    <div class="hint" id="pHint"></div>
+    <label>🏖 Days off <span class="muted" style="font-weight:400">(the plan skips them and moves ahead to the next study day)</span></label>
+    <div class="row" style="gap:10px"><input id="offDate" type="date" min="${today}" value="${today}" style="width:165px">
+      <label class="chk" style="margin:0"><input type="checkbox" id="offAll" checked> for all subjects</label>
+      <button class="small" id="offAdd">+ Add day off</button></div>
+    <div class="offchips" id="offList"></div>
     <div id="planPreview"></div>
     <div class="actions">${o.plan ? '<button class="danger" id="pDel">Remove plan</button>' : ''}<button onclick="closeModal()">Cancel</button><button class="primary" id="pSave">Save plan</button></div>`, true);
-  const read = () => ({mode: $('#modal').querySelector('input[name=pm]:checked').value, minutes: Math.min(600, Math.max(5, Math.round(+$('#pMin').value || 60))), date: $('#pDate').value || dayKey(), days: [...$('#modal').querySelectorAll('.daychips input:checked')].map(x => +x.value)});
+  const read = () => ({mode: $('#modal').querySelector('input[name=pm]:checked').value, minutes: Math.min(600, Math.max(5, Math.round(+$('#pMin').value || 60))), date: $('#pDate').value || dayKey(), days: [...$('#modal').querySelectorAll('.daychips input:checked')].map(x => +x.value), off: [...mine].sort(), order: $('#pOrder').value, ramp: $('#pRamp').checked});
   // redraw only when the settings really changed, so leaving a box (change event) never swaps a button out mid-click
   let drawn = '';
   const draw = force => {
-    const p = read(), k = JSON.stringify(p);
+    const p = read(), k = JSON.stringify([p, g]);
     if(force !== true && k === drawn) return;
-    drawn = k; $('#planPreview').innerHTML = planTable(o, p);
+    drawn = k; $('#pHint').textContent = orderHint(o, p.order); $('#planPreview').innerHTML = planTable(o, p, g);
     const sb = $('#pSplit');
-    if(sb) sb.onclick = () => { const n = splitLong(o, computePlan(o, read()).budget); if(n){ save(); render(); toast(`✂️ Split ${n} lecture${n > 1 ? 's' : ''} into parts. Plan updated`); } draw(true); };
+    if(sb) sb.onclick = () => { const n = splitLong(o, computePlan(o, read(), g).budget); if(n){ save(); render(); toast(`✂️ Split ${n} lecture${n > 1 ? 's' : ''} into parts. Plan updated`); } draw(true); };
+  };
+  const drawOffs = () => {
+    const list = [...new Set([...Object.keys(g), ...mine])].filter(d => d >= today).sort();
+    $('#offList').innerHTML = list.length ? list.map(d => `<span>${g[d] ? '🌐 ' : ''}${DAYS[parseDay(d).getDay()]}, ${fmtDay(parseDay(d))}${d === today ? ' (today)' : ''}<button data-rm="${d}" title="Remove this day off">✕</button></span>`).join('') + '<span class="muted legend">🌐 = all subjects</span>'
+      : '<span class="muted legend">No days off yet</span>';
+    $('#offList').querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { delete g[b.dataset.rm]; mine.delete(b.dataset.rm); drawOffs(); draw(); });
+  };
+  $('#offAdd').onclick = () => {
+    const d = $('#offDate').value; if(!d || d < today){ toast('Pick today or a later date'); return; }
+    if($('#offAll').checked) g[d] = true; else mine.add(d);
+    drawOffs(); draw();
   };
   $('#pMin').onfocus = () => { $('#modal').querySelector('input[value=minutes]').checked = true; draw(); };
   $('#pDate').onfocus = () => { $('#modal').querySelector('input[value=date]').checked = true; draw(); };
   $('#modal').querySelectorAll('input').forEach(x => { x.addEventListener('input', draw); x.addEventListener('change', draw); });
+  $('#pOrder').onchange = draw;
+  if($('#pAI')) $('#pAI').onclick = async e => {
+    const b = e.currentTarget; b.disabled = true; b.textContent = '🤖 Rating…';
+    try{ const n = await aiRate(o); toast(`🤖 The AI rated ${n} chapters`); draw(true); }catch(err){ toast('AI: ' + err.message); }
+    b.disabled = false; b.textContent = '🤖 Rate difficulty with AI';
+  };
+  drawOffs(); draw();
+  $('#pSave').onclick = () => {
+    const p = read(); if(!p.days.length){ toast('Pick at least one study day'); return; }
+    const wasAll = !!gOffs()[today], pl = computePlan(o, p, g);
+    p.saved = today;
+    if(p.mode === 'date') p.base = pl ? pl.budget : 0; else p.target = pl && pl.days.length ? dayKey(pl.days[pl.days.length - 1].date) : today;
+    o.plan = p; o.planToday = null; store.settings.offDays = g; pruneOffs();
+    if(wasAll !== !!g[today]) planOwners().filter(x => x !== o).forEach(todayChanged);
+    save(); closeModal(); render(); toast("📅 Plan saved. Home shows today's part");
+  };
+  if($('#pDel')) $('#pDel').onclick = () => { delete o.plan; delete o.planToday; delete o.planTodayWas; save(); closeModal(); render(); toast('Plan removed'); };
+}
+
+// ================= smart coach: how hard is each chapter? =================
+// 1 = very easy … 5 = very hard. Your dot choice wins, then your 😀😐😵 rating, then the AI's rating,
+// then clues: words in the title, length compared with the rest of the course, place in the course, ⭐ and rewatching.
+const EASY_RE = /\b(intro(duction)?|basics?|overview|what is|getting started|set ?up|install(ation|ing)?|history|syllabus|welcome|recap|summary|revision|conclusion|outro|fundamentals?|definitions?|terminology|orientation)\b/i;
+const HARD_RE = /\b(advanced?|pointers?|recursion|recursive|dynamic|dp|graphs?|trees?|proofs?|prove|derivations?|derive|theorems?|optimi[sz]\w*|complex(ity)?|tricky|hard|difficult|challenge|memory|bit ?manipulation|series|epsilon|matri(x|ces)|eigen\w*|differential|integration by parts|transforms?|laplace|fourier|algorithms?|linked lists?|stacks?|queues?|heaps?|hashing|backtracking|thevenin|norton|superposition|three[- ]phase|transients?|vectors? calculus|multivariable)\b/i;
+const PRACTICE_RE = /\b(problems?|questions?|q\s?\d+|exercises?|practice|homework|hw|assignments?|examples?|numericals?|mcqs?|quiz|solve|solving|solutions?|pyqs?|tests?|worksheet)\b/i;
+const DDOT = ['🟢', '🟡', '🔴'], DNAME = ['Easy', 'Medium', 'Hard'];
+const DSRC = {you: 'set by you', rated: 'your rating', ai: 'rated by AI', auto: 'auto: title, length, place'};
+const DLV = s => s < 2.3 ? 0 : s < 3.5 ? 1 : 2;
+const plainPart = t => t === 'Whole video' || t === 'Full video' || /^Part \d+( of \d+)?$/.test(t);
+function diffMap(o){
+  const ok = ownerKey(o); if(diffCache.has(ok)) return diffCache.get(ok);
+  const all = [];
+  ownerVideos(o).forEach((v, li) => chapters(v).forEach(c => all.push({v, c, li, len: chapterLen(v, c) || 0})));
+  const lens = all.map(x => x.len).filter(Boolean).sort((a, b) => a - b), med = lens.length ? lens[lens.length >> 1] : 0;
+  const m = new Map();
+  all.forEach((x, i) => {
+    const {v, c} = x, key = c.key, set = (v.diffSet || {})[key], r = (v.rate || {})[key], ai = (v.aiDiff || {})[key];
+    let s, src;
+    if(set){ s = set; src = 'you'; }
+    else if(r){ s = [0, 1.5, 3, 4.5][r]; src = 'rated'; }
+    else if(ai){ s = ai; src = 'ai'; }
+    else {
+      const t = plainPart(c.title) ? v.title : c.title;
+      s = 2.4; src = 'auto';
+      if(EASY_RE.test(t)) s -= 1.1;
+      if(HARD_RE.test(t)) s += 1.2;
+      if(PRACTICE_RE.test(t)) s += 0.3;
+      const num = t.match(/\b(?:problem|question|q|exercise|homework|hw|example)\s*#?\s*(\d+)/i); if(num) s += Math.min(0.6, +num[1] * 0.03);
+      if(med && x.len) s += Math.max(-0.6, Math.min(0.8, 0.5 * Math.log2(x.len / med)));
+      s += all.length > 1 ? 0.5 * i / (all.length - 1) - 0.25 : 0;
+    }
+    if(src === 'auto' || src === 'ai'){
+      if((v.stars || {})[key]) s += 0.4;
+      const w = (v.wt || {})[key]; if(w && x.len > 60 && w > 1.6 * x.len) s += 0.6;   // you rewatched it a lot
+    }
+    m.set(v.id + ':' + key, {s: Math.max(1, Math.min(5, s)), src});
+  });
+  diffCache.set(ok, m); return m;
+}
+function diffAt(v, key){ return diffMap(ownerOf(v)).get(v.id + ':' + key) || {s: 2.5, src: 'auto'}; }
+function diffDot(v, c){ const d = diffAt(v, c.key), lv = DLV(d.s); return `<button class="dbtn" data-diff="${c.idx}" title="${DNAME[lv]} (${DSRC[d.src]}). Click to change">${DDOT[lv]}</button>`; }
+function diffLabel(v, c){ const d = diffAt(v, c.key), lv = DLV(d.s); return `<span title="${DSRC[d.src]}">${DDOT[lv]} ${DNAME[lv]}</span>`; }
+function cycleDiff(i){
+  const v = cur(); const c = v && chapters(v)[i]; if(!c) return;
+  v.diffSet = v.diffSet || {};
+  const steps = [undefined, 1.5, 3, 4.5], next = steps[(steps.indexOf(v.diffSet[c.key]) + 1) % steps.length];
+  if(next == null) delete v.diffSet[c.key]; else v.diffSet[c.key] = next;
+  save(); renderPlaylist(); renderNow();
+  toast(next == null ? '🧠 Back to automatic difficulty' : `Set to ${DDOT[DLV(next)]} ${DNAME[DLV(next)]}`);
+}
+
+// ================= smart order: easy → hard =================
+const ORDERS = [['smart', '🧠 Smart: ideas first, then practice easy → hard'], ['easy', '🧗 Easy → hard (ignores lecture order)'], ['course', '📚 Course order']];
+const orderOpts = sel => ORDERS.map(([v, l]) => `<option value="${v}" ${v === sel ? 'selected' : ''}>${l}</option>`).join('');
+// a course "builds step by step" when most lecture titles are numbered (Lecture 3, Part 2, 1.4, Day 5…)
+function sequential(o){
+  const vids = ownerVideos(o); if(vids.length < 3) return true;
+  const n = vids.filter(v => /\b(lecture|lec|part|chapter|ch|day|class|session|module|unit|episode|ep|video|lesson|week|l)\s*[-#.:]?\s*\d+|\b\d+\.\d+\b|^\s*\d+\s*[.:)\-]/i.test(v.title)).length;
+  return n / vids.length >= 0.5;
+}
+function orderHint(o, mode){
+  if(mode === 'easy') return 'Everything from easiest to hardest. Great for problem sets; risky when each lecture needs the one before it.';
+  if(mode === 'course') return 'Exactly the order of the playlist.';
+  return sequential(o) ? 'This course builds step by step, so lectures stay in order. Inside each lecture: ideas first, then practice problems from easy to hard.'
+    : 'These lectures look independent, so the easier ones come first. Inside each: ideas first, then practice from easy to hard.';
+}
+function orderItems(o, items, mode){
+  if(mode === 'course' || items.length < 2) return items;
+  const pos = new Map(items.map((x, i) => [x, i])), sc = x => diffAt(x.v, x.c.key).s;
+  const byDiff = (a, b) => sc(a) - sc(b) || pos.get(a) - pos.get(b);
+  if(mode === 'easy') return [...items].sort(byDiff);
+  const groups = [];
+  for(const x of items){ const gr = groups[groups.length - 1]; if(gr && gr.li === x.li) gr.items.push(x); else groups.push({li: x.li, items: [x]}); }
+  const avg = gr => gr.items.reduce((a, x) => a + sc(x), 0) / gr.items.length;
+  const lectures = sequential(o) ? groups : [...groups].sort((a, b) => avg(a) - avg(b) || a.li - b.li);
+  const prac = x => !plainPart(x.c.title) && PRACTICE_RE.test(x.c.title);
+  return lectures.flatMap(gr => [...gr.items.filter(x => !prac(x)), ...gr.items.filter(prac).sort(byDiff)]);
+}
+
+// ================= after a chapter: rate it, review it later =================
+const REV = {h: [1, 3, 7, 16, 35], m: [2, 7, 21]};   // days until each review: hard ones more often
+const plusDays = n => dayKey(new Date(Date.now() + n * 864e5));
+function reviewKind(v, key){
+  const r = (v.rate || {})[key], star = !!(v.stars || {})[key];
+  if(r === 3) return 'h'; if(r === 2) return 'm'; if(r === 1) return star ? 'm' : null;
+  return star || DLV(diffAt(v, key).s) === 2 ? 'h' : null;
+}
+function schedule(v, key, kind){
+  v.rev = v.rev || {};
+  if(!kind || store.settings.revise === false){ delete v.rev[key]; return; }
+  v.rev[key] = {k: kind, s: 0, due: plusDays(REV[kind][0])};
+}
+function afterDone(v, key){
+  if(store.settings.revise !== false && !(v.rev || {})[key]) schedule(v, key, reviewKind(v, key));
+  setTimeout(() => askRate(v, key), 0);
+}
+let rateT = null;
+function askRate(v, key){
+  if((v.rate || {})[key]) return;
+  const c = chapters(v).find(x => String(x.key) === String(key)); if(!c) return;
+  const b = $('#rateBar');
+  b.innerHTML = `<span>How was <b>${esc(c.title.slice(0, 60))}</b>?</span><button class="small" data-r="1">😀 Easy</button><button class="small" data-r="2">😐 OK</button><button class="small" data-r="3">😵 Hard</button><button class="small" data-x="1" title="Skip">✕</button>`;
+  b.hidden = false; clearTimeout(rateT); rateT = setTimeout(() => { b.hidden = true; }, 25000);
+  b.querySelectorAll('[data-r]').forEach(x => x.onclick = () => { b.hidden = true; setRate(v, key, +x.dataset.r); });
+  b.querySelector('[data-x]').onclick = () => { b.hidden = true; };
+}
+function setRate(v, key, r){
+  v.rate = v.rate || {}; v.rate[key] = r; if(v.diffSet) delete v.diffSet[key];
+  const rev = store.settings.revise !== false;
+  if(v.done[key] && rev) schedule(v, key, reviewKind(v, key));
+  save(); if(cur() === v && view === 'watch'){ renderPlaylist(); renderNow(); } else if(view === 'home') renderHome();
+  toast(r === 3 ? `😵 Marked hard${rev && v.done[key] ? ". It'll come back for a quick review tomorrow" : ''}` : r === 2 ? `😐 Got it${rev && v.done[key] ? '. A quick review in 2 days' : ''}` : '😀 Nice, marked easy');
+}
+function dueReviews(){
+  const k = dayKey(), out = [];
+  for(const v of store.videos) for(const [key, r] of Object.entries(v.rev || {})){
+    if(!r || r.due > k || !v.done[key]) continue;
+    const c = chapters(v).find(x => String(x.key) === key); if(c) out.push({v, c, r});
+  }
+  return out.sort((a, b) => a.r.due.localeCompare(b.r.due) || diffAt(b.v, b.c.key).s - diffAt(a.v, a.c.key).s);
+}
+function reviewed(v, key, ok){
+  const r = v.rev[key], iv = REV[r.k] || REV.h;
+  r.last = dayKey();
+  if(!ok){ r.s = 0; r.due = plusDays(1); return 'again'; }
+  r.s++;
+  if(r.s >= iv.length){ delete v.rev[key]; return 'done'; }
+  r.due = plusDays(iv[r.s]); return iv[r.s];
+}
+function reviewSection(){
+  const due = dueReviews(); if(!due.length) return '';
+  return `<div class="sec-h" id="revSec"><h2>🔁 Review today (${due.length})</h2><span class="muted" style="font-size:12px">Read your notes or skim at 2×. Spaced reviews make it stick.</span></div>
+    <div class="revbox">${due.slice(0, 12).map(({v, c}) => `<div class="rev-row"><span>${DDOT[DLV(diffAt(v, c.key).s)]}</span>
+      <span class="t" data-sv="${v.id}" data-si="${c.idx}">${esc(c.title)} <span class="muted">· ${esc(ownerOf(v).title.slice(0, 40))}${c.len ? ' · ' + fmt(c.len) : ''}${v.notes[c.key] ? ' · 📝 notes' : ''}</span></span>
+      <button class="small" data-rok="${esc(v.id)}|${esc(c.key)}" title="Remembered it. See it again later">✓ Remembered</button><button class="small" data-rno="${esc(v.id)}|${esc(c.key)}" title="Forgot some. See it again tomorrow">↺ Again</button></div>`).join('')}</div>`;
+}
+function bindReviews(el){
+  el.querySelectorAll('[data-rok],[data-rno]').forEach(b => b.onclick = () => {
+    const [vid, key] = (b.dataset.rok || b.dataset.rno).split('|'); const v = store.videos.find(x => x.id === vid);
+    if(!v || !v.rev || !v.rev[key]) return;
+    const res = reviewed(v, key, !!b.dataset.rok); save(); renderHome();
+    toast(res === 'again' ? '↺ It comes back tomorrow' : res === 'done' ? '🏆 Learned for good. No more reviews for it' : `✓ Next review in ${res} days`);
+  });
+}
+function toggleRevise(){
+  store.settings.revise = store.settings.revise === false;
+  save(); render(); toast(store.settings.revise ? '🔁 Spaced review is on' : '🔁 Spaced review is off');
+}
+
+// ================= smart coach card =================
+let coachActs = [];
+function weekBySubject(){
+  const tot = {};
+  for(let i = 0; i < 7; i++){ const d = new Date(); d.setDate(d.getDate() - i); for(const [k, s] of Object.entries((store.stats[dayKey(d)] || {}).o || {})) tot[k] = (tot[k] || 0) + s; }
+  const top = Object.entries(tot).filter(([k]) => findOwner(k)).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  if(!top.length || top.reduce((a, x) => a + x[1], 0) < 600) return null;
+  return 'This week: ' + top.map(([k, s]) => `<b>${esc(findOwner(k).title.slice(0, 32))}</b> ${fmtDur(s)}`).join(' · ');
+}
+const fmtHour = h => `${h % 12 || 12} ${h < 12 ? 'AM' : 'PM'}`;
+function easiestNext(){
+  let best = null;
+  for(const v of store.videos){ const c = chapters(v).find(x => !v.done[x.key]); if(!c) continue; const s = diffAt(v, c.key).s; if(!best || s < best.s) best = {v, c, s}; }
+  return best;
+}
+// the fewest minutes a day that still finishes by the target date (null if even 10 hours a day can't)
+function minutesToFinish(o, p, target){
+  const endOf = m => { const pl = computePlan(o, Object.assign({}, p, {mode: 'minutes', minutes: m})); return pl && pl.days.length ? dayKey(pl.days[pl.days.length - 1].date) : dayKey(); };
+  if(endOf(600) > target) return null;
+  let lo = 5, hi = 600;
+  while(lo < hi){ const mid = (lo + hi) >> 1; if(endOf(mid) <= target) hi = mid; else lo = mid + 1; }
+  return Math.min(600, Math.ceil(lo / 5) * 5);
+}
+function coachTips(){
+  const tips = [], k = dayKey(), today = statDay(), offAll = !!gOffs()[k];
+  const active = planOwners().filter(o => { const pr = ownerProgress(o); return pr.done < pr.total; });
+  // 1. today's mission: everything planned for today, all subjects together, easiest first
+  if(active.length && !offAll){
+    const its = [];
+    for(const o of active) if(!offKind(o, k)) for(const x of todayPlan(o)) if(!x.done) its.push(x);
+    if(its.length){
+      its.sort((a, b) => diffAt(a.v, a.c.key).s - diffAt(b.v, b.c.key).s);
+      const secs = its.reduce((a, x) => a + (chapterLen(x.v, x.c) || 0), 0), f = its[0], subj = new Set(its.map(x => ownerOf(x.v))).size;
+      tips.push({icon: '🎯', html: `Today: <b>${its.length} part${its.length > 1 ? 's' : ''} · ${fmtDur(secs)}</b>${subj > 1 ? ` across ${subj} subjects` : ''}. Warm up with the easiest: <b>${esc(f.c.title)}</b> ${DDOT[DLV(diffAt(f.v, f.c.key).s)]}`, btns: [['▶ Start', () => goWatch(f.v, f.c.idx)]]});
+    } else if(active.some(o => !offKind(o, k) && todayPlan(o).length)) tips.push({icon: '🎉', html: "Today's plan is done! Anything more is a bonus."});
+  }
+  // 2. pace: behind or ahead of where each plan should be
+  for(const o of active){
+    const p = o.plan, pl = computePlan(o); if(!pl || !pl.days.length) continue;
+    const end = dayKey(pl.days[pl.days.length - 1].date);
+    if(p.mode === 'date'){
+      if(!p.base){ p.base = pl.budget; save(); continue; }
+      if(pl.budget > p.base * 1.25){
+        const keep = Math.max(5, Math.round(p.base / 60)), alt = computePlan(o, Object.assign({}, p, {mode: 'minutes', minutes: keep}));
+        const altEnd = alt && alt.days.length ? alt.days[alt.days.length - 1].date : null;
+        tips.push({icon: '⚠️', html: `To finish <b>${esc(o.title)}</b> by ${fmtDay(parseDay(p.date))} you now need <b>${fmtDur(pl.budget)}</b> a day (you planned ${fmtDur(p.base)}).`,
+          btns: [...(altEnd ? [[`📆 Move to ${fmtDay(altEnd)}`, () => { p.date = dayKey(altEnd); p.base = computePlan(o).budget; o.planToday = null; save(); render(); toast(`📆 Finish date moved to ${fmtDay(altEnd)}`); }]] : []),
+            [`💪 Keep ${fmtDay(parseDay(p.date))}`, () => { p.base = pl.budget; save(); render(); }]]});
+      }
+      continue;
+    }
+    if(!p.target){ p.target = end; save(); continue; }
+    const diff = Math.round((parseDay(end) - parseDay(p.target)) / 864e5);
+    if(diff >= 1){
+      const need = minutesToFinish(o, p, p.target), was = p.minutes;
+      tips.push({icon: '⚠️', html: `<b>${esc(o.title)}</b> is ${diff} day${diff > 1 ? 's' : ''} behind: it now ends ${fmtDay(parseDay(end))} instead of ${fmtDay(parseDay(p.target))}.`,
+        btns: [...(need && need > was ? [[`⚡ Catch up: ${need} min/day`, () => { p.minutes = need; o.planToday = null; save(); render(); toast(`⚡ ${need} min a day. Back on track for ${fmtDay(parseDay(p.target))}`); }]] : []),
+          [`📆 OK, finish ${fmtDay(parseDay(end))}`, () => { p.target = end; save(); render(); }]]});
+    } else if(diff <= -2) tips.push({icon: '🚀', html: `<b>${esc(o.title)}</b> is ${-diff} days ahead of plan. Nice!`});
+  }
+  // 3. reviews due
+  const due = dueReviews();
+  if(due.length) tips.push({icon: '🔁', html: `${due.length} chapter${due.length > 1 ? 's' : ''} to review today (about ${fmtDur(due.reduce((a, x) => a + (x.c.len || 0), 0) / 2)} at 2×).`, btns: [['Show', () => { const s = $('#revSec'); if(s) s.scrollIntoView({behavior: 'smooth', block: 'start'}); }]]});
+  // 4. evening nudge when nothing is studied yet
+  if(!offAll && today.s < 60 && new Date().getHours() >= 17){
+    const st = streak(), pick = easiestNext();
+    if(pick) tips.push({icon: '🔥', html: st ? `Keep your <b>${st}-day streak</b> alive: one easy chapter is enough.` : 'Nothing studied yet today. Start small with the easiest next chapter:', btns: [[`▶ ${pick.c.title.slice(0, 30)}`, () => goWatch(pick.v, pick.c.idx)]]});
+  }
+  // 5. no plans yet
+  if(!planOwners().length && store.videos.length) tips.push({icon: '📅', html: 'No study plans yet. I can plan all your courses at once, easy to hard, starting light.', btns: [['🤖 Plan everything', autoPlanModal]]});
+  // 6. insights
+  const wk = weekBySubject(); if(wk) tips.push({icon: '📊', html: wk});
+  const hrs = store.hours || [], tot = hrs.reduce((a, b) => a + b, 0);
+  if(tot >= 3 * 3600){ const h = hrs.indexOf(Math.max(...hrs)); tips.push({icon: '💡', html: `You study most around <b>${fmtHour(h)}</b>. Putting your plan near that time usually works best.`}); }
+  // 7. optional real AI
+  if(!aiReady() && store.videos.length && !store.settings.aiHintOff) tips.push({icon: '🤖', html: 'Want a real AI too? Add a free Gemini key to ask about any chapter, get quizzes and AI difficulty ratings.', btns: [['Set up', aiModal], ['Hide', () => { store.settings.aiHintOff = true; save(); render(); }]]});
+  return tips;
+}
+function coachCard(){
+  coachActs = [];
+  const btn = (label, fn) => { coachActs.push(fn); return `<button class="small" data-coach="${coachActs.length - 1}">${esc(label)}</button>`; };
+  const tips = coachTips();
+  return `<div class="coach"><div class="coach-h"><b>🤖 Smart coach</b><span class="muted">reads your plans, pace and ratings</span>${btn('🤖 Plan all my courses', autoPlanModal)}</div>
+    ${tips.length ? tips.map(t => `<div class="tip"><span>${t.icon}</span><div>${t.html}</div>${t.btns && t.btns.length ? `<div class="tip-b">${t.btns.map(([l, f]) => btn(l, f)).join('')}</div>` : ''}</div>`).join('')
+      : '<div class="tip"><span>👌</span><div>All good. Nothing needs your attention right now.</div></div>'}</div>`;
+}
+function bindCoach(el){ el.querySelectorAll('[data-coach]').forEach(b => b.onclick = () => { const f = coachActs[+b.dataset.coach]; if(f) f(); }); }
+
+// ================= 🤖 plan all my courses =================
+function autoPlanModal(){
+  const owners = [...store.courses.filter(c => courseVideos(c).length), ...store.videos.filter(v => !courseOf(v))].filter(o => { const pr = ownerProgress(o); return pr.done < pr.total; });
+  if(!owners.length){ toast('Add a lecture or a playlist first'); return; }
+  const sel = new Set(owners.map(ownerKey));
+  openModal(`<h2>🤖 Plan all my courses</h2>
+    <p class="muted" style="margin:0">I'll share your daily time across your courses (bigger ones get more, so they all finish around the same time), order each one from easy to hard and start light.</p>
+    <div class="row" style="margin-top:12px;gap:8px">Study <input id="apMin" type="number" min="10" max="720" value="${store.settings.goal || 60}" style="width:90px"> minutes a day in total</div>
+    <label>Study days</label>
+    <div class="daychips">${[1, 2, 3, 4, 5, 6, 0].map(d => `<label><input type="checkbox" value="${d}" checked> ${DAYS[d]}</label>`).join('')}</div>
+    <label>🧠 Order and pace</label>
+    <div class="row" style="gap:10px"><select id="apOrder">${orderOpts('smart')}</select><label class="chk" style="margin:0"><input type="checkbox" id="apRamp" checked> 📈 Start light, build up over 2 weeks</label></div>
+    <label>Courses</label>
+    <div id="apList">${owners.map(o => `<label class="chk" style="margin:4px 0"><input type="checkbox" data-ap="${esc(ownerKey(o))}" checked> ${o.order ? '📚' : '🎬'} ${esc(o.title)} <span class="muted">· ${fmtDur(ownerProgress(o).left)} left${o.plan ? ' · replaces its plan' : ''}</span></label>`).join('')}</div>
+    <div id="apPrev"></div>
+    <div class="actions"><button onclick="closeModal()">Cancel</button><button class="primary" id="apGo">🤖 Make the plans</button></div>`, true);
+  const read = () => ({mins: Math.min(720, Math.max(10, Math.round(+$('#apMin').value || 60))), days: [...$('#modal').querySelectorAll('.daychips input:checked')].map(x => +x.value), order: $('#apOrder').value, ramp: $('#apRamp').checked});
+  const alloc = () => {
+    const r = read(), chosen = owners.filter(o => sel.has(ownerKey(o)));
+    const left = chosen.map(o => Math.max(600, ownerProgress(o).left)), sum = left.reduce((a, b) => a + b, 0) || 1;
+    return chosen.map((o, i) => ({o, p: {mode: 'minutes', minutes: Math.max(10, Math.round(r.mins * left[i] / sum / 5) * 5), days: r.days, order: r.order, ramp: r.ramp, off: (o.plan && o.plan.off) || []}}));
+  };
+  const draw = () => {
+    const r = read(), plans = alloc();
+    if(!r.days.length){ $('#apPrev').innerHTML = '<p class="muted">Pick at least one study day.</p>'; return; }
+    $('#apPrev').innerHTML = plans.length ? `<table class="plan-table"><tr><th>Course</th><th>Per day</th><th>Study days</th><th>Finishes</th></tr>${plans.map(({o, p}) => {
+      const pl = computePlan(o, p), end = pl.days.length ? pl.days[pl.days.length - 1].date : null;
+      return `<tr><td>${o.order ? '📚 ' : '🎬 '}${esc(o.title)}</td><td class="t">${p.minutes} min</td><td>${pl.days.length}</td><td>${end ? fmtDay(end) : '—'}</td></tr>`; }).join('')}
+      <tr class="wk"><td>Total</td><td class="t">${plans.reduce((a, x) => a + x.p.minutes, 0)} min</td><td colspan="2"></td></tr></table>` : '<p class="muted">Pick at least one course.</p>';
+  };
+  $('#modal').querySelectorAll('input').forEach(x => { x.addEventListener('input', draw); x.addEventListener('change', draw); });
+  $('#apOrder').onchange = draw;
+  $('#apList').querySelectorAll('[data-ap]').forEach(x => x.onchange = () => { if(x.checked) sel.add(x.dataset.ap); else sel.delete(x.dataset.ap); draw(); });
   draw();
-  $('#pSave').onclick = () => { const p = read(); if(!p.days.length){ toast('Pick at least one study day'); return; } o.plan = p; o.planToday = null; save(); closeModal(); render(); toast("📅 Plan saved. Home shows today's part"); };
-  if($('#pDel')) $('#pDel').onclick = () => { delete o.plan; delete o.planToday; save(); closeModal(); render(); toast('Plan removed'); };
+  $('#apGo').onclick = () => {
+    const r = read(), plans = alloc();
+    if(!r.days.length){ toast('Pick at least one study day'); return; }
+    if(!plans.length){ toast('Pick at least one course'); return; }
+    for(const {o, p} of plans){
+      const pl = computePlan(o, p);
+      p.saved = dayKey(); p.target = pl.days.length ? dayKey(pl.days[pl.days.length - 1].date) : dayKey();
+      o.plan = p; o.planToday = null; delete o.planTodayWas;
+    }
+    store.settings.goal = r.mins; save(); closeModal(); view = 'home'; render(); window.scrollTo(0, 0);
+    toast(`🤖 Planned ${plans.length} course${plans.length > 1 ? 's' : ''}. Today's mission is on Home`);
+  };
+}
+
+// ================= 🍅 focus timer =================
+let focus = null;
+function focusMenu(e){
+  e.stopPropagation();
+  const items = focus ? [['⏹ Stop the timer', () => { focus = null; tickFocus(); toast('Timer stopped'); }]] : [];
+  popMenu(e.currentTarget, items.concat([['🍅 Focus 25 min, then a 5 min break', () => startFocus(25, 5)], ['🍅 Focus 50 min, then a 10 min break', () => startFocus(50, 10)], ['🍅 Focus 90 min, then a 15 min break', () => startFocus(90, 15)]]));
+}
+function startFocus(f, b){ focus = {phase: 'focus', end: Date.now() + f * 6e4, f, b}; tickFocus(); toast(`🍅 ${f} minutes of focus. Phone away!`); }
+function tickFocus(){
+  const btn = $('#focusBtn'); if(!btn) return;
+  if(!focus){ btn.textContent = '🍅'; btn.classList.remove('on'); btn.title = 'Focus timer (Pomodoro)'; return; }
+  const left = Math.max(0, Math.ceil((focus.end - Date.now()) / 1000));
+  btn.textContent = (focus.phase === 'focus' ? '🍅 ' : '☕ ') + fmt(left); btn.classList.add('on');
+  btn.title = focus.phase === 'focus' ? 'Focus time. Click to stop' : 'Break. Click to stop';
+  const bl = $('#brkLeft'); if(bl) bl.textContent = fmt(left);
+  if(left > 0) return;
+  if(focus.phase === 'focus'){
+    const sd = statDay(); sd.f = (sd.f || 0) + 1; save();
+    try{ if([1, 3].includes(playerState())) player.pauseVideo(); }catch(e){}
+    focus = {phase: 'break', end: Date.now() + focus.b * 6e4, f: focus.f, b: focus.b};
+    openModal(`<h2>☕ Break time!</h2><p>That's 🍅 ${sd.f} today. Stand up, drink some water and rest your eyes.</p>
+      <p class="muted">The video is paused. Next focus session in <b id="brkLeft">${fmt(focus.b * 60)}</b>.</p>
+      <div class="actions"><button id="brkStop">Stop timer</button><button class="primary" id="brkSkip">Skip break</button></div>`);
+    $('#brkSkip').onclick = () => { closeModal(); if(focus) focus.end = Date.now(); tickFocus(); };
+    $('#brkStop').onclick = () => { closeModal(); focus = null; tickFocus(); };
+    if(view === 'home') renderHome();
+  } else {
+    focus = {phase: 'focus', end: Date.now() + focus.f * 6e4, f: focus.f, b: focus.b};
+    if($('#brkLeft')) closeModal();
+    toast('⏰ Break over. Next 🍅 started, press play!');
+  }
+  tickFocus();
+}
+
+// ================= 🤖 optional AI helper (Google Gemini, your own free key) =================
+// The key lives only in this browser (its own storage slot, so it's never in backups or share links) and is only sent to Google.
+const AIK = 'chapterbox.ai', AIBASE = 'https://generativelanguage.googleapis.com/v1beta';
+function aiCfg(){ try{ return JSON.parse(localStorage.getItem(AIK)) || {}; }catch(e){ return {}; } }
+function aiSet(c){ try{ if(c && c.key) localStorage.setItem(AIK, JSON.stringify(c)); else localStorage.removeItem(AIK); }catch(e){} }
+const aiReady = () => !!aiCfg().key;
+async function aiFetch(path, key, body){
+  const r = await fetch(`${AIBASE}/${path}`, {method: body ? 'POST' : 'GET', headers: Object.assign({'x-goog-api-key': key}, body ? {'Content-Type': 'application/json'} : {}), body: body ? JSON.stringify(body) : undefined});
+  const j = await r.json().catch(() => ({}));
+  if(!r.ok){ const e = new Error(j.error && j.error.message ? String(j.error.message).split('\n')[0].slice(0, 200) : 'HTTP ' + r.status); e.status = r.status; throw e; }
+  return j;
+}
+// model names change often, so ask Google which ones this key can use and take the newest Flash
+async function aiModel(key){
+  const j = await aiFetch('models?pageSize=200', key);
+  const names = (j.models || []).filter(m => (m.supportedGenerationMethods || []).includes('generateContent')).map(m => String(m.name).replace(/^models\//, ''));
+  const score = n => parseFloat((n.match(/gemini-(\d+(?:\.\d+)?)/) || [])[1] || 0) * 10 + (/flash/.test(n) ? 5 : 0) - (/lite|preview|exp|tts|image|live|thinking|audio|embed|8b|vision|learn|robotics|computer/.test(n) ? 20 : 0) - (/-\d{3}$/.test(n) ? 1 : 0);
+  return names.filter(n => /^gemini-/.test(n) && /flash|pro/.test(n)).sort((a, b) => score(b) - score(a))[0] || 'gemini-2.5-flash';
+}
+async function askAI(prompt, json){
+  const c = aiCfg(); if(!c.key) throw new Error('add your key first (⋯ → AI helper)');
+  let model = c.model; if(!model){ model = await aiModel(c.key); aiSet({...c, model}); }
+  const body = {contents: [{role: 'user', parts: [{text: prompt}]}], generationConfig: Object.assign({temperature: 0.4}, json ? {responseMimeType: 'application/json'} : {})};
+  let j;
+  try{ j = await aiFetch(`models/${model}:generateContent`, c.key, body); }
+  catch(e){ if(e.status !== 404) throw e; model = await aiModel(c.key); aiSet({...c, model}); j = await aiFetch(`models/${model}:generateContent`, c.key, body); }   // that model was retired: pick a new one
+  const text = ((((j.candidates || [])[0] || {}).content || {}).parts || []).map(p => p.text || '').join('').trim();
+  if(!text) throw new Error('the AI sent an empty answer, try again');
+  return text;
+}
+function parseAIJSON(s){
+  s = String(s).trim().replace(/^```(?:json)?\s{0,}/i, '').replace(/\s{0,}```$/, '');
+  try{ return JSON.parse(s); }catch(e){}
+  const m = s.match(/[\[{][\s\S]*[\]}]/); if(m){ try{ return JSON.parse(m[0]); }catch(e){} }
+  throw new Error("couldn't read the AI's answer, try again");
+}
+function aiModal(){
+  const c = aiCfg();
+  openModal(`<h2>🤖 AI helper (optional)</h2>
+    <p>Connect Google's Gemini AI with your own <b>free</b> key. Then you can ask about any chapter, get quick quizzes, and let the AI rate how hard chapters are for your plans.</p>
+    <ol style="padding-left:20px;line-height:1.7"><li>Open <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio → Get API key</a> and sign in with Google.</li><li>Create a key (the free tier needs no card) and paste it here.</li></ol>
+    <input id="aiKey" type="password" placeholder="Paste your Gemini API key" value="${esc(c.key || '')}" autocomplete="off" spellcheck="false">
+    <div class="hint">Your key stays in this browser only. It isn't in backups or share links, and it's only sent to Google. The AI sees chapter titles and your notes, not the video.</div>
+    <div class="hint" id="aiMsg">${c.key ? `✅ Connected${c.model ? ` (${esc(c.model)})` : ''}.` : ''}</div>
+    <div class="actions">${c.key ? '<button class="danger" id="aiDel">Remove key</button>' : ''}<button onclick="closeModal()">Close</button><button class="primary" id="aiSave">Save and test</button></div>`);
+  $('#aiSave').onclick = async () => {
+    const k = $('#aiKey').value.trim(); if(!k){ $('#aiMsg').textContent = 'Paste your key first.'; return; }
+    const b = $('#aiSave'); b.disabled = true; $('#aiMsg').textContent = '🤖 Testing your key…';
+    try{ const model = await aiModel(k); aiSet({key: k, model}); await askAI('Reply with just the word OK.'); $('#aiMsg').innerHTML = `✅ Connected! Using <b>${esc(model)}</b>.`; toast('🤖 AI helper connected'); render(); }
+    catch(e){ aiSet(c.key ? c : null); $('#aiMsg').textContent = '❌ ' + e.message; }
+    b.disabled = false;
+  };
+  if($('#aiDel')) $('#aiDel').onclick = () => { aiSet(null); closeModal(); render(); toast('AI key removed from this browser'); };
+}
+const AI_ROLE = 'You are a friendly study tutor for a student who learns from YouTube lectures. Keep answers short, clear and practical, in simple English. Use bullet points where they help, and code examples if the topic is programming.';
+const AI_TASKS = {
+  explain: "Explain this chapter's topic simply, like to a beginner. Then give one small example and one tip to remember it.",
+  points: "List the 5 to 8 most important points of this chapter's topic as short bullets. Then add 2 common mistakes students make.",
+  example: "Give 2 or 3 real-life uses or examples of this chapter's topic. Keep each one short and concrete."
+};
+function aiContext(v, c){
+  const o = courseOf(v), chs = chapters(v), prev = chs[c.idx - 1], next = chs[c.idx + 1];
+  return `Course: ${o ? o.title : v.title}\nLecture: ${v.title}\n${plainPart(c.title) ? '' : `Chapter ${c.idx + 1} of ${chs.length}: ${c.title}\n`}${prev && !plainPart(prev.title) ? `Previous chapter: ${prev.title}\n` : ''}${next && !plainPart(next.title) ? `Next chapter: ${next.title}\n` : ''}${v.notes[c.key] ? `My notes:\n${v.notes[c.key].slice(0, 2500)}\n` : ''}`;
+}
+function mdLite(srcText){
+  let html = '';
+  String(srcText).split('```').forEach((part, i) => {
+    if(i % 2){ html += `<pre><code>${esc(part.replace(/^[\w+-]*\n/, ''))}</code></pre>`; return; }
+    let list = false;
+    for(const raw of esc(part).split('\n')){
+      const line = raw.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*{2}/g, '<b>$1</b>').replace(/^\s*#{1,4}\s*(.+)$/, '<b>$1</b>');
+      const m = line.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)$/);
+      if(m){ if(!list){ html += '<ul>'; list = true; } html += `<li>${m[1]}</li>`; }
+      else { if(list){ html += '</ul>'; list = false; } if(line.trim()) html += `<p>${line}</p>`; }
+    }
+    if(list) html += '</ul>';
+  });
+  return html;
+}
+function normQuiz(x){
+  const list = Array.isArray(x) ? x : (x && (x.questions || x.quiz || Object.values(x).find(Array.isArray))) || [];
+  return list.filter(q => q && (q.q || q.question) && Array.isArray(q.options) && q.options.length >= 2).slice(0, 10).map(q => {
+    let a = q.answer ?? q.correct ?? q.answerIndex;
+    if(typeof a === 'string'){ const t = a.trim(); a = /^[A-Fa-f]$/.test(t) ? t.toUpperCase().charCodeAt(0) - 65 : /^\d+$/.test(t) ? +t : q.options.findIndex(op => String(op).trim().toLowerCase() === t.toLowerCase()); }
+    return {q: String(q.q || q.question), options: q.options.map(String), answer: a >= 0 && a < q.options.length ? a : 0, why: String(q.why || q.explanation || '')};
+  });
+}
+function quizHtml(list){
+  return `<div class="quiz">${list.map((q, i) => `<div class="qq"><b>${i + 1}. ${esc(q.q)}</b>${q.options.map((op, j) => `<button class="qo" data-q="${i}" data-o="${j}">${String.fromCharCode(65 + j)}. ${esc(op)}</button>`).join('')}<div class="why" hidden>💡 ${esc(q.why)}</div></div>`).join('')}<div class="qscore"></div></div>`;
+}
+function bindQuiz(root, list){
+  let right = 0, answered = 0;
+  root.querySelectorAll('.qo').forEach(b => b.onclick = () => {
+    const q = list[+b.dataset.q], box = b.closest('.qq'); if(box.dataset.done) return; box.dataset.done = '1'; answered++;
+    const ok = +b.dataset.o === q.answer; if(ok) right++;
+    b.classList.add(ok ? 'right' : 'wrong'); const good = box.querySelector(`.qo[data-o="${q.answer}"]`); if(good) good.classList.add('right');
+    box.querySelector('.why').hidden = !q.why;
+    root.querySelector('.qscore').textContent = `Score: ${right}/${answered}${answered === list.length ? (right === answered ? ' 🎉 Perfect!' : ' · Read the 💡 for the ones you missed') : ''}`;
+  });
+}
+function openAIBox(v, c){
+  const box = $('#aiBox'); if(!box) return;
+  if(box.innerHTML){ box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="aibox"><div class="chips" style="margin-top:0">${[['explain', '💡 Explain simply'], ['quiz', '🧠 Quiz me'], ['points', '📌 Key points'], ['example', '🌍 Real-life uses']].map(([k, l]) => `<button data-ai="${k}">${l}</button>`).join('')}</div>
+    <div class="row" style="margin-top:8px"><input id="aiQ" placeholder="Ask anything about this chapter…" style="flex:1;min-width:160px"><button class="primary small" id="aiAsk">Ask</button></div>
+    <div class="aiout" id="aiOut"><span class="muted">The AI only sees the titles and your notes, not the video, so double-check anything important.</span></div></div>`;
+  const run = async (task, q) => {
+    const out = $('#aiOut'); if(!out) return; out.innerHTML = '<span class="muted">🤖 Thinking…</span>';
+    try{
+      const ctx = aiContext(v, c);
+      if(task === 'quiz'){
+        const list = normQuiz(parseAIJSON(await askAI(`${AI_ROLE}\n\n${ctx}\nMake a quiz of 5 multiple-choice questions on this chapter's topic, from easy to hard. Reply only with JSON in this shape: [{"q": "question", "options": ["A", "B", "C", "D"], "answer": 0, "why": "one-line explanation"}] where answer is the index of the right option.`, true)));
+        if(!list.length) throw new Error("couldn't read the quiz, try again");
+        out.innerHTML = quizHtml(list); bindQuiz(out, list);
+      } else {
+        out.innerHTML = mdLite(await askAI(`${AI_ROLE}\n\n${ctx}\n${task === 'ask' ? `My question: ${q}` : AI_TASKS[task]}`));
+      }
+    }catch(e){ out.innerHTML = `<span style="color:var(--warn)">🤖 ${esc(e.message)}</span>`; }
+  };
+  box.querySelectorAll('[data-ai]').forEach(b => b.onclick = () => run(b.dataset.ai));
+  $('#aiAsk').onclick = () => { const q = $('#aiQ').value.trim(); if(q) run('ask', q); };
+  $('#aiQ').onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); $('#aiAsk').click(); } };
+}
+async function aiRate(o){
+  const items = [];
+  ownerVideos(o).forEach(v => { const chs = chapters(v); chs.forEach(c => items.push({v, c, t: chs.length === 1 || plainPart(c.title) ? v.title + (plainPart(c.title) && chs.length > 1 ? ' (' + c.title + ')' : '') : `${v.title} › ${c.title}`})); });
+  const list = items.slice(0, 500);
+  let arr = parseAIJSON(await askAI(`You are an experienced teacher. Rate how difficult each part of this course is for a beginner student, from 1 (very easy) to 5 (very hard). Judge the topic, not the length.\nCourse: ${o.title}\n\n${list.map((x, i) => `${i + 1}. ${x.t}`).join('\n')}\n\nReply only with JSON: an array of exactly ${list.length} integers, one for each numbered part, in order.`, true));
+  if(!Array.isArray(arr)) arr = Object.values(arr || {}).find(Array.isArray) || [];
+  let n = 0;
+  list.forEach((x, i) => { const raw = arr[i], d = Math.round(+(raw && typeof raw === 'object' ? (raw.difficulty ?? raw.rating ?? raw.d) : raw)); if(d >= 1 && d <= 5){ (x.v.aiDiff = x.v.aiDiff || {})[x.c.key] = d; n++; } });
+  if(!n) throw new Error("couldn't read the AI's ratings, try again");
+  save(); return n;
 }
 
 // ================= search =================
@@ -1379,10 +1984,13 @@ setInterval(() => {
     if(data.title && !v.titleSet){ v.title = data.title; v.titleSet = true; save(); renderLibrary(); renderTitlebar(); }
   }catch(e){}
   if(st !== 1) return;
-  applySpeed(); statDay().s += dt;
+  applySpeed(); const sd = statDay(); sd.s += dt;
+  const okey = ownerKey(ownerOf(v)); sd.o = sd.o || {}; sd.o[okey] = (sd.o[okey] || 0) + dt;
+  const hrs = store.hours || (store.hours = Array(24).fill(0)); hrs[new Date().getHours()] += dt;
   const t = playerTime(); if(t == null) return;
   v.lastTime = t;
   const chs = chapters(v); const c = curChapter(v);
+  v.wt = v.wt || {}; v.wt[c.key] = (v.wt[c.key] || 0) + dt;
   if(c.end != null && t >= c.end - 0.25 && t < c.end + 2.5){
     // reached the end of this chapter
     markDone(v, c.key);
@@ -1507,7 +2115,7 @@ function loadYouTubeApi(){
 }
 
 // start
-applyTheme();
+applyTheme(); setInterval(tickFocus, 1000);
 window.addEventListener('hashchange', async () => { if(await readShareHash()) openVideo(store.currentId); });
 renderBanner();
 render();

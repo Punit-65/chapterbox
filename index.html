@@ -204,6 +204,16 @@ select{font:inherit;background:var(--input);color:var(--text);border:1px solid v
 .cdp input{width:auto;margin-top:4px}
 .slice{color:var(--muted);font-size:12px}
 .wkt{color:var(--muted);font-weight:400}
+.sched{border-color:var(--accent)}
+.sc-row{display:flex;gap:12px;align-items:baseline;padding:5px 0;font-size:13px;cursor:pointer;border-bottom:1px dashed var(--line)}
+.sc-row:hover{color:var(--accent)}
+.sched .sc-row:last-of-type{border-bottom:0}
+.sc-t{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;min-width:150px}
+.live{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.pv{display:flex;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.pv:last-child{border-bottom:0}
+.pv-d{flex:none;width:96px;color:var(--muted)}
+@media (max-width:760px){.sc-t{min-width:0}.sc-row{flex-direction:column;gap:0}.pv{flex-direction:column;gap:2px}}
 @media (max-width:760px){.fivepill{left:8px;right:8px;bottom:8px;justify-content:space-between}}
 @media (max-width:760px){.ratebar{left:8px;right:8px;bottom:8px;max-width:none}.coach-h .muted{display:none}.coach-h > b{flex:1}}
 .plan-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
@@ -1073,7 +1083,7 @@ function helpModal(){
       <li><b>🤖 Ask AI</b> (optional): add your own free Gemini key in ⋯ → AI helper to get explanations, quizzes and AI difficulty ratings. The AI sees chapter titles and your notes, not the video.</li>
       <li><b>📈 Start slowly</b> (in 📅 Plan): begin with a small daily time, like 20 minutes, and add a few minutes every week until your full time. Long videos are cut so every day matches its time, and the plan continues from where you stopped inside a video.</li>
       <li><b>⏱ Just 5 minutes</b> (Home): starts the easiest next part. After 5 minutes you can stop, or keep going.</li>
-      <li><b>📆 Reminders</b>: add a repeating study reminder to Google Calendar, or download your day-by-day plan as a calendar file for any calendar app.</li>
+      <li><b>🗓 Auto-schedule</b> (Home → Today's plan): say when you can study and bring in your Apple Calendar (on a Mac: Calendar → File → Export). ChapterBox gives every study session a clock time in your free time, studies less on busy days, and puts the sessions in Apple Calendar: as a calendar file, or as a live link that updates by itself. Simple repeating reminders for Apple and Google Calendar are there too.</li>
       <li><b>📜 Transcripts</b>: on a YouTube lecture, the <b>📥 Grab chapters</b> bookmark also brings the transcript from YouTube's "Show transcript" panel. Then 📜 Transcript shows the words with clickable times, 🌐 translates them to English, search (/) finds spoken words, and the AI uses them.</li>
       <li><b>🃏 Flashcards</b>: make cards yourself, from your notes (lines starting with Q: and A:), or with the AI. Review the due ones from Home; good answers come back later, wrong ones sooner. Export them for Anki.</li>
       <li><b>⭐ Revise</b> marks chapters to rewatch. Filter them in the chapter list or find them on Home.</li>
@@ -1108,6 +1118,7 @@ $('#importFile').onchange = async e => {
       if(i >= 0){ store.videos[i] = v; updated++; } else { store.videos.push(v); added++; }
     }
     if(data.settings) store.settings = Object.assign(store.settings, data.settings);
+    calBump();
     for(const k of Array.isArray(data.cards) ? data.cards : []) if(k && k.id && !cards().some(x => x.id === k.id)) cards().push(k);
     if(data.transcripts && typeof data.transcripts === 'object') for(const [id, tr] of Object.entries(data.transcripts)) if(tr && Array.isArray(tr.s)) await trPut(id, tr);
     for(const [k, x] of Object.entries(data.stats && typeof data.stats === 'object' ? data.stats : {})){ const m = store.stats[k] || {s: 0, c: 0}; store.stats[k] = {s: Math.max(m.s || 0, (x && x.s) || 0), c: Math.max(m.c || 0, (x && x.c) || 0)}; }
@@ -1122,7 +1133,7 @@ $('#addBtn').onclick = () => addVideoModal();
 $('#homeBtn').onclick = showHome;
 $('#logo').onclick = showHome;
 $('#themeBtn').onclick = () => { store.settings.theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; save(); applyTheme(); };
-$('#menuBtn').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [['🤖 Plan all my courses', autoPlanModal], ['🔑 AI helper (optional)', aiModal], ['📆 Study reminders', () => calModal()], [`🔁 Spaced review: ${store.settings.revise === false ? 'off' : 'on'}`, toggleRevise], ['⬇️ Export backup', exportBackup], ['⬆️ Import backup', () => $('#importFile').click()], ['❓ Help & shortcuts', helpModal]]); };
+$('#menuBtn').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [['🤖 Plan all my courses', autoPlanModal], ['🔑 AI helper (optional)', aiModal], ['🗓 Auto-schedule & calendar', () => calModal()], [`🔁 Spaced review: ${store.settings.revise === false ? 'off' : 'on'}`, toggleRevise], ['⬇️ Export backup', exportBackup], ['⬆️ Import backup', () => $('#importFile').click()], ['❓ Help & shortcuts', helpModal]]); };
 $('#focusBtn').onclick = focusMenu;
 function applyTheme(){
   const t = store.settings.theme === 'light' ? 'light' : 'dark';
@@ -1197,7 +1208,7 @@ function renderHome(){
       <div class="stat"><div class="big">${fmtDur(total)}</div><div class="muted">studied in total</div></div>
     </div>
     <div class="week">${week.map(x => `<div class="d ${dayKey(x.d) === dayKey() ? 'today' : ''}" title="${fmtDur(x.s)} studied"><span>${Math.round(x.s / 60)}m</span><div class="b" style="height:${Math.max(3, Math.round(x.s / top * 72))}px"></div>${DAYS[x.d.getDay()]}</div>`).join('')}</div>
-    ${plans.length ? `<div class="sec-h"><h2>📅 Today's plan</h2><div class="row"><button class="small" id="calBtn" title="Get a study reminder in your calendar">📆 Reminders</button><button class="small" id="dayOff" title="${offToday ? "Bring today's plans back" : 'No study today for any subject. Every plan moves ahead to the next study day'}">${offToday ? '↩ Undo day off' : '🏖 Day off today'}</button></div></div>` + plans.map(todayCard).join('') : ''}
+    ${plans.length ? `<div class="sec-h"><h2>📅 Today's plan</h2><div class="row"><button class="small" id="calBtn" title="Plan around your calendar and put the study sessions in it">🗓 Auto-schedule</button><button class="small" id="dayOff" title="${offToday ? "Bring today's plans back" : 'No study today for any subject. Every plan moves ahead to the next study day'}">${offToday ? '↩ Undo day off' : '🏖 Day off today'}</button></div></div>` + schedCard() + plans.map(todayCard).join('') : ''}
     ${reviewSection()}
     ${cardsSection()}
     ${courses.length ? `<div class="sec-h"><h2>📚 Your playlists</h2></div><div class="cards">${courses.map(ownerCard).join('')}</div>` : ''}
@@ -1288,44 +1299,49 @@ function computePlan(o, p, g){
   const items = orderItems(o, remainingItems(o), p.order || 'course').map(x => Object.assign({}, x)), total = items.reduce((a, x) => a + x.len, 0);
   const wd = p.days && p.days.length ? p.days : [0, 1, 2, 3, 4, 5, 6];
   const off = d => offKind(o, dayKey(d), p, g);
-  const today = parseDay(dayKey()), slow = slowOf(p), start = parseDay(p.start || p.saved || dayKey());
+  const k0 = dayKey(), today = parseDay(k0), slow = slowOf(p), start = parseDay(p.start || p.saved || k0);
+  const cal = calLimiter(o, p, g);   // the share of a day's free time this plan may use (null: no calendar rules)
+  const capD = (m, d) => { const c = capOn(slow, start, m, d); if(!cal) return c; const x = cal(d, c); return x < 300 ? 0 : x; };
   let maxMin, avail = null, tooSlow = false;
   if(p.mode === 'date'){
     const end = parseDay(p.date), sd = [];
     for(const d = new Date(today); d <= end; d.setDate(d.getDate() + 1)) if(wd.includes(d.getDay()) && !off(d)) sd.push(new Date(d));
     avail = sd.length;
-    if(!slow) maxMin = Math.max(300, Math.ceil(total / Math.max(1, avail))) / 60;
+    if(!slow && !cal) maxMin = Math.max(300, Math.ceil(total / Math.max(1, avail))) / 60;
     else {
-      // the smallest daily maximum that still finishes by the date while starting slowly
-      const fits = m => sd.reduce((a, d) => a + capOn(slow, start, m, d), 0) >= total;
+      // the smallest daily maximum that still finishes by the date (starting slowly, around the calendar)
+      const fits = m => sd.reduce((a, d) => a + capD(m, d), 0) >= total;
       let lo = 5, hi = 600;
       if(!fits(hi)){ lo = hi; tooSlow = true; } else while(lo < hi){ const mid = (lo + hi) >> 1; if(fits(mid)) hi = mid; else lo = mid + 1; }
       maxMin = lo;
     }
   } else maxMin = Math.max(5, +p.minutes || 60);
-  const days = [], offs = []; let i = 0; const d = new Date(today);
-  while(i < items.length && days.length < 3650){
-    if(wd.includes(d.getDay())){
-      const kind = off(d);
-      if(kind) offs.push({date: new Date(d), kind});
-      else {
-        const cap = capOn(slow, start, maxMin, d), list = []; let used = 0;
-        while(i < items.length){
-          const x = items[i], room = cap - used;
-          if(used + x.len <= cap * 1.1 || (!list.length && (x.est || x.len <= cap * 1.1))){ list.push(x); used += x.len; i++; continue; }
-          // longer than a whole day: cut it so the day matches its time, and carry on with the rest tomorrow
-          if(!x.est && x.len > cap * 1.1 && room >= Math.min(300, cap * 0.3)){
-            const take = Math.max(60, Math.round(room));
-            if(x.len - take < 180){ list.push(x); used += x.len; i++; }
-            else { list.push(Object.assign({}, x, {len: take})); items[i] = Object.assign({}, x, {from: x.from + take, len: x.len - take}); used += take; }
-          }
-          break;
-        }
-        if(!list.length && i < items.length){ list.push(items[i]); used += items[i].len; i++; }
-        days.push({date: new Date(d), items: list, secs: used, cap});
+  // today's share was fixed when the day started (see todayPlan): only what is left of it still belongs to today,
+  // so the days after today don't move while you study
+  let left0 = null;
+  if(p === o.plan && !g && o.planToday && o.planToday.date === k0) left0 = todayPlan(o).filter(x => !x.done).reduce((a, x) => a + Math.max(0, x.to - Math.max(x.from, Math.floor(reachOf(x.v, x.c)))), 0);
+  const days = [], offs = []; let i = 0, guard = 0; const d = new Date(today);
+  for(; i < items.length && days.length < 3650 && guard < 1500; d.setDate(d.getDate() + 1), guard++){
+    if(!wd.includes(d.getDay())) continue;
+    const kind = off(d);
+    if(kind){ offs.push({date: new Date(d), kind}); continue; }
+    const nominal = capOn(slow, start, maxMin, d); let cap = capD(maxMin, d), tol = cap < nominal ? 1 : 1.1;
+    if(!cap){ offs.push({date: new Date(d), kind: 'cal'}); continue; }
+    if(left0 != null && +d === +today){ if(left0 < 20) continue; cap = left0; tol = 1; }
+    const list = []; let used = 0;
+    while(i < items.length){
+      const x = items[i], room = cap - used;
+      if(used + x.len <= cap * tol || (!list.length && (x.est || x.len <= cap * tol))){ list.push(x); used += x.len; i++; continue; }
+      // longer than a whole day: cut it so the day matches its time, and carry on with the rest tomorrow
+      if(!x.est && x.len > cap * tol && room >= Math.min(300, cap * 0.3)){
+        const take = Math.max(60, Math.round(room));
+        if(x.len - take < 180 && tol > 1){ list.push(x); used += x.len; i++; }
+        else { list.push(Object.assign({}, x, {len: take})); items[i] = Object.assign({}, x, {from: x.from + take, len: x.len - take}); used += take; }
       }
+      break;
     }
-    d.setDate(d.getDate() + 1);
+    if(!list.length && i < items.length){ list.push(items[i]); used += items[i].len; i++; }
+    days.push({date: new Date(d), items: list, secs: used, cap: Math.min(nominal, capD(maxMin, d) || nominal)});
   }
   const last = days.length ? days[days.length - 1].date : null, peak = days.reduce((a, x) => Math.max(a, x.cap), 0);
   const climbs = !!slow && +slow.s < maxMin;   // starting at or above the maximum is just a flat plan
@@ -1366,13 +1382,13 @@ function todayCard(o){
   return `<div class="plan-today"><div class="row" style="justify-content:space-between">${title}
     <div class="row" style="gap:8px">${items.length ? `<span class="muted">${done}/${items.length} parts · ${fmt(secs)}</span>` : ''}${next ? `<button class="small" data-skip="${key}" title="Take today off for this one only. Its plan moves ahead to the next study day">⏭ Shift to next day</button>` : ''}</div></div>
     ${items.length ? items.map((x, n) => `<div class="pt-item ${x.done ? 'done' : ''}" data-tp="${key}|${n}">${x.done ? '✅' : '⬜'} ${o.order ? `<span class="lnum">L${courseVideos(o).indexOf(x.v) + 1}</span>` : ''} ${x.c.idx + 1}. ${esc(x.c.title)} <span class="muted">· ${fmt(x.len)}${x.part ? ` <span class="slice">(${fmt(x.from)}–${fmt(x.to)})</span>` : ''}</span>${x.carried && !x.done ? ' <span class="carry" title="Planned for an earlier day and not done yet">↪ carried over</span>' : ''}</div>`).join('')
-      : `<div class="muted" style="margin-top:6px">${pl && !pl.days.length ? 'Everything is done. 🎉' : `Rest day 😌${upcoming ? ' Next study day: ' + DAYS[upcoming.getDay()] + ', ' + fmtDay(upcoming) : ''}`}</div>`}
+      : `<div class="muted" style="margin-top:6px">${pl && !pl.days.length ? (pl.total > 0 ? '🗓 No free time on any day. Check your study hours in Auto-schedule.' : 'Everything is done. 🎉') : `${pl && pl.offs.some(x => x.kind === 'cal' && dayKey(x.date) === k) ? '🗓 Your calendar is full today.' : 'Rest day 😌'}${upcoming ? ' Next study day: ' + DAYS[upcoming.getDay()] + ', ' + fmtDay(upcoming) : ''}`}</div>`}
     ${next ? `<button class="primary small" style="margin-top:8px" data-tp="${key}|${items.indexOf(next)}">▶ ${done ? 'Keep going' : "Start today's plan"}</button>` : items.length ? "<div style=\"margin-top:6px\">🎉 Today's plan is done!</div>" : ''}</div>`;
 }
 function planTable(o, p, g){
   if(!p.days.length) return '<p class="muted">Pick at least one study day.</p>';
   const pl = computePlan(o, p, g);
-  if(!pl.days.length) return '<p>🎉 Nothing left to plan. Everything is done!</p>';
+  if(!pl.days.length) return pl.total > 0 ? '<p>🗓 No day has free time for this. Make your study hours longer in Auto-schedule.</p>' : '<p>🎉 Nothing left to plan. Everything is done!</p>';
   const end = pl.days[pl.days.length - 1].date, nOff = pl.offs.length, sl = pl.slow;
   const isPart = x => { const full = chapterLen(x.v, x.c); return !x.est && !!full && (x.from > 0 || x.from + x.len < full - 5); };
   const weekStart = d => { const x = new Date(d); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
@@ -1383,11 +1399,12 @@ function planTable(o, p, g){
   const slowTxt = !sl ? '' : !(+sl.d > 0) ? ` It stays at ${now0} a day.`
     : (began ? ` You're at ${now0} a day now, adding <b>${+sl.d} min</b> every ${every(sl.e)}` : ` It starts at ${now0} a day and adds <b>${+sl.d} min</b> every ${every(sl.e)}`) + (pl.full ? `, reaching <b>${fmtDur(pl.budget)}</b> a day on ${fmtDay(pl.full)}` : '') + '.';
   const head = p.mode !== 'date' ? `At ${sl ? 'up to ' : ''}<b>${fmt(pl.budget)}</b> a day you'll finish on <b>${fmtDay(end)}</b>.`
+    : pl.tooSlow && !sl ? `Your free time only lets you finish on <b>${fmtDay(end)}</b>, after your date (${fmtDay(parseDay(p.date))}).`
     : pl.tooSlow ? `Starting this slowly you'd finish on <b>${fmtDay(end)}</b>, after your date (${fmtDay(parseDay(p.date))}). Start with more minutes, or add more each step.`
     : `To finish by <b>${fmtDay(parseDay(p.date))}</b> you need ${sl ? 'up to' : 'about'} <b>${fmt(pl.budget)}</b> a day.`;
   let html = `<div class="plan-sum">${head}${slowTxt}
     ${pl.days.length} study days${nOff ? ` · ${nOff} day${nOff > 1 ? 's' : ''} off` : ''} · ${fmt(pl.total)} in total${pl.est ? ' · some lengths are estimates (30 min) until those videos are opened' : ''}${p.mode === 'date' && pl.days.length > pl.avail ? ` · <span style="color:var(--warn)">needs ${pl.days.length - pl.avail} extra day${pl.days.length - pl.avail > 1 ? 's' : ''}</span>` : ''}
-    <div class="muted" style="font-size:12px;margin-top:4px">🟢 easy · 🟡 medium · 🔴 hard · long videos are cut so each day matches its time</div></div>
+    <div class="muted" style="font-size:12px;margin-top:4px">🟢 easy · 🟡 medium · 🔴 hard · long videos are cut so each day matches its time${calSet().on && calSet().limit ? ' · 🗓 busy days get less' : ''}</div></div>
     <table class="plan-table"><tr><th>Day</th><th>Date</th><th>What to watch</th><th>Time</th></tr>`;
   const rows = [...pl.days, ...pl.offs.map(x => ({date: x.date, off: x.kind, items: [], secs: 0}))].sort((a, b) => a.date - b.date);
   let wk = null, shown = 0;
@@ -1400,7 +1417,7 @@ function planTable(o, p, g){
       html += `<tr class="wk"><td colspan="3">Week of ${fmtDay(weekStart(day.date))} · ${st.length} study day${st.length !== 1 ? 's' : ''}${wo ? ` · ${wo} off` : ''}${sl && st.length ? ` <span class="wkt">· ${fmtDur(lo)}${hi > lo + 30 ? '–' + fmtDur(hi) : ''} a day</span>` : ''}</td><td class="t">${fmt(st.reduce((a, x) => a + x.secs, 0))}</td></tr>`;
     }
     const dn = `${DAYS[day.date.getDay()]}${dayKey(day.date) === dayKey() ? ' <b>(today)</b>' : ''}`;
-    if(day.off){ html += `<tr class="off"><td>${dn}</td><td>${fmtDay(day.date)}</td><td>🏖 Day off${day.off === 'all' ? ' (all subjects)' : ''}</td><td class="t">0:00</td></tr>`; continue; }
+    if(day.off){ html += `<tr class="off"><td>${dn}</td><td>${fmtDay(day.date)}</td><td>${day.off === 'cal' ? '🗓 Busy in your calendar' : '🏖 Day off' + (day.off === 'all' ? ' (all subjects)' : '')}</td><td class="t">0:00</td></tr>`; continue; }
     html += `<tr><td>${dn}</td><td>${fmtDay(day.date)}</td><td>${ranges(day.items).map(r => `${o.order ? `<span class="lnum">L${r.li + 1}</span> ` : ''}${r.part ? `${r.from.idx + 1}. ${esc(r.from.title)} <span class="slice">(${fmt(r.x.from)}–${fmt(r.x.from + r.x.len)})</span>` : r.n > 1 ? `${r.from.idx + 1}. ${esc(r.from.title)} → ${r.to.idx + 1}. ${esc(r.to.title)} <span class="muted">(${r.n} chapters)</span>` : `${r.from.idx + 1}. ${esc(r.from.title)}`}${dots(r.xs)}`).join('<br>')}</td><td class="t">${fmt(day.secs)}</td></tr>`;
   }
   return html + '</table>';
@@ -1430,7 +1447,7 @@ function planModal(o){
       <button class="small" id="offAdd">+ Add day off</button></div>
     <div class="offchips" id="offList"></div>
     <div id="planPreview"></div>
-    <div class="actions">${o.plan ? '<button class="danger" id="pDel">Remove plan</button>' : ''}<button id="pCal">📆 Reminders</button><button onclick="closeModal()">Cancel</button><button class="primary" id="pSave">Save plan</button></div>`, true);
+    <div class="actions">${o.plan ? '<button class="danger" id="pDel">Remove plan</button>' : ''}<button id="pCal">🗓 Calendar</button><button onclick="closeModal()">Cancel</button><button class="primary" id="pSave">Save plan</button></div>`, true);
   const clamp = (x, a, b, dflt) => Math.min(b, Math.max(a, Math.round(+x || dflt)));
   const sameSlow = (a, b) => a && b && +a.s === +b.s && +a.d === +b.d && +a.e === +b.e;
   const read = () => {
@@ -1711,8 +1728,13 @@ function coachTips(){
   // 7. insights
   const wk = weekBySubject(); if(wk) tips.push({icon: '📊', html: wk});
   const hrs = store.hours || [], tot = hrs.reduce((a, b) => a + b, 0);
-  if(tot >= 3 * 3600){ const h = hrs.indexOf(Math.max(...hrs)); tips.push({icon: '💡', html: `You study most around <b>${fmtHour(h)}</b>. A calendar reminder at that time helps.`, btns: [['📆 Reminders', calModal]]}); }
-  // 8. optional real AI
+  if(tot >= 3 * 3600){ const h = hrs.indexOf(Math.max(...hrs)); tips.push({icon: '💡', html: `You study most around <b>${fmtHour(h)}</b>. A calendar reminder at that time helps.`, btns: [['🗓 Auto-schedule', calModal]]}); }
+  // 8. auto-schedule and the calendar
+  const cst = calSet(), gh = ghCfg();
+  if(gh.err) tips.push({icon: '⚠️', html: `Your live calendar stopped updating: ${esc(gh.err)}.`, btns: [['Fix', calModal]]});
+  if(!cst.on && planOwners().length && !store.settings.calHintOff) tips.push({icon: '🗓', html: 'New: I can schedule your study around your <b>Apple Calendar</b> and put the sessions in it.', btns: [['Set up', calModal], ['Hide', () => { store.settings.calHintOff = true; save(); render(); }]]});
+  if(cst.on && calData.src.length && Math.max(...calData.src.map(s => s.at)) < Date.now() - 21 * 864e5) tips.push({icon: '🗓', html: 'Your calendar copy is over 3 weeks old. Export it again if your events changed.', btns: [['Update', calModal]]});
+  // 9. optional real AI
   if(!aiReady() && store.videos.length && !store.settings.aiHintOff) tips.push({icon: '🤖', html: 'Want a real AI too? Add a free Gemini key to ask about any chapter, get quizzes, flashcards, translations and AI difficulty ratings.', btns: [['Set up', aiModal], ['Hide', () => { store.settings.aiHintOff = true; save(); render(); }]]});
   return tips;
 }
@@ -2009,10 +2031,13 @@ function fiveDone(){
   $('#fStop').onclick = () => { closeModal(); toast('👍 Nice. Small steps add up'); };
 }
 
-// ================= 📆 calendar reminders =================
+// ================= 🗓 auto-schedule + Apple Calendar =================
+// Apple gives websites no way to sign in to iCloud Calendar. So the connection uses what Apple Calendar itself offers:
+// calendar files (.ics) bring your busy times in, and a calendar file or a link that Calendar follows takes the study sessions out.
 const APP_URL = location.origin + location.pathname;
 const pad2 = n => String(n).padStart(2, '0');
 const calStamp = d => `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}T${pad2(d.getHours())}${pad2(d.getMinutes())}00`;
+const utcStamp = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
 const icsEsc = s => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
 function icsFold(line){
   const enc = new TextEncoder(); if(enc.encode(line).length <= 73) return line;
@@ -2020,11 +2045,277 @@ function icsFold(line){
   for(const ch of line){ const b = enc.encode(ch).length; if(n + b > 73){ out += cur2 + '\r\n '; cur2 = ''; n = 1; } cur2 += ch; n += b; }
   return out + cur2;
 }
+const DOW = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'], CAL_DAYS = 60, CALK = 'chapterbox.cal', GHK = 'chapterbox.gh';
+function nowMin(){ const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
+function fmtClock(m){ const h = Math.floor(m / 60) % 24; return `${(h + 11) % 12 + 1}:${pad2(m % 60)} ${h < 12 ? 'AM' : 'PM'}`; }
+const clockIn = v => { const m = /^(\d\d):(\d\d)/.exec(v || ''); return m ? Math.round((+m[1] * 60 + +m[2]) / 5) * 5 : null; };
+const clockOut = m => pad2(Math.floor(m / 60) % 24) + ':' + pad2(m % 60);
+function dlFile(name, text, type){
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], {type})); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function hashStr(s){ let h = 5381; for(let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return h.toString(36) + s.length.toString(36); }
+
+// ---- settings and the calendar copy (the events stay in this browser, outside backups) ----
+function calSet(){
+  const c = Object.assign({on: false, from: 360, to: 1320, block: 45, gap: 10, buf: 10, allDay: false, limit: true, rules: []}, store.settings.cal || {});
+  if(c.pref == null){ const hrs = store.hours || [], best = hrs.some(x => x > 900) ? hrs.indexOf(Math.max(...hrs)) : 17; c.pref = Math.max(c.from, Math.min(best * 60, c.to - 60)); }   // until you pick one: the hour you study most
+  return c;
+}
+function calPut(patch){ store.settings.cal = Object.assign({}, store.settings.cal, patch); save(); calBump(); }
+let calData = {src: []}, calMemo = null, calT = 0;
+try{ const j = JSON.parse(localStorage.getItem(CALK)); if(j && Array.isArray(j.src)) calData = j; }catch(e){}
+function calSave(){ try{ localStorage.setItem(CALK, JSON.stringify(calData)); return true; }catch(e){ return false; } }
+function calBump(){   // forget what was worked out; Home (behind the window) follows along
+  calMemo = null; clearTimeout(calT); calT = setTimeout(() => { if(view === 'home' && $('#modalBg').classList.contains('show')) renderHome(); }, 400);
+}
+
+// ---- reading a calendar file ----
+function zonedMs(tz, y, mo, d, h, mi, s){   // a wall-clock time in another time zone → the moment it means
+  try{
+    const f = new Intl.DateTimeFormat('en-US', {timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'});
+    const wall = Date.UTC(y, mo, d, h, mi, s); let t = wall;
+    for(let i = 0; i < 2; i++){ const p = {}; for(const x of f.formatToParts(new Date(t))) p[x.type] = +x.value; t = wall - (Date.UTC(p.year, p.month - 1, p.day, p.hour % 24, p.minute, p.second) - t); }
+    return t;
+  }catch(e){ return null; }
+}
+function icsTime(val, params){
+  const m = /^(\d{4})(\d\d)(\d\d)(?:T(\d\d)(\d\d)(\d\d)?(Z)?)?$/.exec(String(val).trim()); if(!m) return null;
+  const y = +m[1], mo = +m[2] - 1, d = +m[3], h = +m[4] || 0, mi = +m[5] || 0, s = +m[6] || 0;
+  if(m[4] == null) return {ms: new Date(y, mo, d).getTime(), all: true};
+  if(m[7]) return {ms: Date.UTC(y, mo, d, h, mi, s)};
+  const tz = (/TZID=("?)([^";:]+)\1/i.exec(params || '') || [])[2];
+  if(tz){ const ms = zonedMs(tz, y, mo, d, h, mi, s); if(ms != null) return {ms}; }
+  return {ms: new Date(y, mo, d, h, mi, s).getTime()};
+}
+function icsDur(v){ const m = /^[+-]?P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/.exec(String(v).trim()); return m ? (+m[1] || 0) * 7 * 864e5 + (+m[2] || 0) * 864e5 + (+m[3] || 0) * 36e5 + (+m[4] || 0) * 6e4 + (+m[5] || 0) * 1000 : 0; }
+function icsRule(v){
+  const o = {}; for(const kv of String(v).split(';')){ const i = kv.indexOf('='); if(i > 0) o[kv.slice(0, i).toUpperCase()] = kv.slice(i + 1); }
+  const f = {DAILY: 'D', WEEKLY: 'W', MONTHLY: 'M', YEARLY: 'Y'}[(o.FREQ || '').toUpperCase()]; if(!f) return null;
+  const r = {f}, nums = s => s.split(',').map(Number).filter(x => x && !isNaN(x));
+  if(+o.INTERVAL > 1) r.i = +o.INTERVAL;
+  if(o.BYDAY) r.bd = o.BYDAY.toUpperCase().split(',');
+  if(o.BYMONTHDAY) r.bmd = nums(o.BYMONTHDAY);
+  if(o.BYMONTH) r.bm = nums(o.BYMONTH);
+  if(o.BYSETPOS) r.sp = nums(o.BYSETPOS);
+  if(+o.COUNT > 0) r.c = +o.COUNT;
+  if(o.WKST && o.WKST.toUpperCase() !== 'MO') r.wk = o.WKST.toUpperCase();
+  if(o.UNTIL){ const t = icsTime(o.UNTIL, ''); if(t) r.u = t.all ? t.ms + 864e5 - 1 : t.ms; }
+  return r;
+}
+function icsParse(text){
+  const lines = String(text).replace(/\r\n?/g, '\n').replace(/\n[ \t]/g, '').split('\n'), all = [];
+  let cur = null, skip = '', total = 0;
+  for(const raw of lines){
+    const up = raw.trim().toUpperCase();
+    if(skip){ if(up === skip) skip = ''; continue; }
+    if(up === 'BEGIN:VEVENT'){ cur = {x: []}; total++; continue; }
+    if(!cur) continue;
+    if(up === 'END:VEVENT'){ all.push(cur); cur = null; continue; }
+    if(up.startsWith('BEGIN:')){ skip = 'END:' + up.slice(6); continue; }   // an alarm inside the event
+    let i = 0, q = false; for(; i < raw.length; i++){ const ch = raw[i]; if(ch === '"') q = !q; else if(ch === ':' && !q) break; }
+    if(i >= raw.length) continue;
+    const head = raw.slice(0, i), j = head.indexOf(';'), name = (j < 0 ? head : head.slice(0, j)).toUpperCase(), par = j < 0 ? '' : head.slice(j + 1), val = raw.slice(i + 1);
+    if(name === 'DTSTART') cur.st = icsTime(val, par);
+    else if(name === 'DTEND') cur.en = icsTime(val, par);
+    else if(name === 'DURATION') cur.du = icsDur(val);
+    else if(name === 'SUMMARY') cur.t = val.replace(/\\n/gi, ' ').replace(/\\([,;\\])/g, '$1').trim();
+    else if(name === 'RRULE') cur.r = icsRule(val);
+    else if(name === 'EXDATE') for(const v of val.split(',')){ const t = icsTime(v, par); if(t) cur.x.push(t.ms); }
+    else if(name === 'TRANSP') cur.f = /TRANSPARENT/i.test(val);
+    else if(name === 'STATUS') cur.can = /CANCEL/i.test(val);
+    else if(name === 'UID') cur.uid = val.trim();
+    else if(name === 'RECURRENCE-ID') cur.rid = icsTime(val, par);
+  }
+  // a changed single day of a repeating event replaces that day of the series
+  for(const c of all) if(c.rid && c.uid) for(const m of all) if(m !== c && m.uid === c.uid && m.r && !m.rid) m.x.push(c.rid.ms);
+  const old = Date.now() - 864e5, ev = []; let rep = 0;
+  for(const c of all){
+    if(!c.st || c.can) continue;
+    const s = c.st.ms, d = !!c.st.all; let e = c.en ? c.en.ms : c.du ? s + c.du : 0;
+    if(e <= s) e = d ? new Date(new Date(s).getFullYear(), new Date(s).getMonth(), new Date(s).getDate() + 1).getTime() : s + 30 * 6e4;
+    if(c.r ? (c.r.u != null && c.r.u < old) : e < old) continue;   // over
+    const x = {s, e, t: (c.t || 'Busy').slice(0, 60)};
+    if(d) x.d = 1; if(c.f) x.f = 1; if(c.r){ x.r = c.r; rep++; } if(c.x.length) x.x = c.x;
+    ev.push(x);
+  }
+  return {ev, total, rep};
+}
+// the start times of an event (repeats included) between two moments
+function calOccur(ev, from, to){
+  if(!ev.r) return ev.s >= from && ev.s < to ? [ev.s] : [];
+  const r = ev.r, st = new Date(ev.s), out = [], iv = Math.max(1, r.i || 1), ex = new Set(ev.x || []), until = r.u != null ? r.u : Infinity;
+  const y0 = st.getFullYear(), m0 = st.getMonth(), d0 = st.getDate(), at = (y, m, d) => new Date(y, m, d, st.getHours(), st.getMinutes(), st.getSeconds());
+  const bd = (r.bd || []).map(x => { const m = /^([+-]?\d+)?([A-Z]{2})$/.exec(x); return m ? {n: m[1] ? +m[1] : 0, w: DOW.indexOf(m[2])} : null; }).filter(x => x && x.w >= 0);
+  let n = 0, go = true;
+  const emit = dt => {   // false: nothing later can count
+    const t = dt.getTime(); if(t < ev.s) return true;
+    if(t > until || (r.c && n >= r.c) || t >= to) return false;
+    n++; if(t >= from && !ex.has(t)) out.push(t);
+    return true;
+  };
+  const skip = per => r.c ? 0 : Math.max(0, Math.floor((from - ev.s) / per / iv) - 1);   // whole steps that end before the window
+  const mlen = (y, m) => new Date(y, m + 1, 0).getDate();
+  const inMonth = (y, m) => {   // the days of one month the rule picks
+    const len = mlen(y, m); let ds = [];
+    if(r.bmd && r.bmd.length) ds = r.bmd.map(x => x > 0 ? x : len + 1 + x).filter(x => x >= 1 && x <= len);
+    else if(bd.length) for(const b of bd){ const hit = []; for(let d = 1; d <= len; d++) if(new Date(y, m, d).getDay() === b.w) hit.push(d); if(!b.n) ds.push(...hit); else { const d = b.n > 0 ? hit[b.n - 1] : hit[hit.length + b.n]; if(d) ds.push(d); } }
+    else if(d0 <= len) ds = [d0];
+    ds = [...new Set(ds)].sort((a, b) => a - b);
+    if(r.sp && r.sp.length && ds.length) ds = r.sp.map(x => x > 0 ? ds[x - 1] : ds[ds.length + x]).filter(Boolean).sort((a, b) => a - b);
+    return ds;
+  };
+  if(r.f === 'D'){
+    for(let k = skip(864e5), g = 0; go && g < 5000; k++, g++){ const dt = at(y0, m0, d0 + k * iv); if(bd.length && !bd.some(b => b.w === dt.getDay())) continue; go = emit(dt); }
+  } else if(r.f === 'W'){
+    const wk = Math.max(0, DOW.indexOf(r.wk || 'MO')), base = d0 - ((st.getDay() - wk + 7) % 7);   // the first day of the first week
+    const offs = (bd.length ? bd.map(b => (b.w - wk + 7) % 7) : [(st.getDay() - wk + 7) % 7]).sort((a, b) => a - b);
+    for(let k = skip(7 * 864e5), g = 0; go && g < 3000; k++, g++) for(const o2 of offs){ go = emit(at(y0, m0, base + k * iv * 7 + o2)); if(!go) break; }
+  } else if(r.f === 'M'){
+    for(let k = skip(31 * 864e5), g = 0; go && g < 1500; k++, g++){ const q = m0 + k * iv; for(const d of inMonth(y0 + Math.floor(q / 12), q % 12)){ go = emit(at(y0 + Math.floor(q / 12), q % 12, d)); if(!go) break; } }
+  } else {
+    const months = r.bm && r.bm.length ? r.bm.map(x => x - 1).sort((a, b) => a - b) : [m0], pick = bd.length || (r.bmd && r.bmd.length);
+    for(let k = skip(366 * 864e5), g = 0; go && g < 400; k++, g++) for(const m of months){ for(const d of (pick ? inMonth(y0 + k * iv, m) : d0 <= mlen(y0 + k * iv, m) ? [d0] : [])){ go = emit(at(y0 + k * iv, m, d)); if(!go) break; } if(!go) break; }
+  }
+  return out;
+}
+// what the calendar has on each of the next days: date → [{a, b, t}] in minutes of that day
+function calBuild(){
+  const m = new Map(), t0 = parseDay(dayKey()), from = t0.getTime(), to = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + CAL_DAYS + 1).getTime();
+  for(const src of calData.src) for(const ev of src.ev || []){
+    if(ev.f) continue;   // marked "free" in the calendar
+    const dur = Math.max(ev.d ? 864e5 : 5 * 6e4, ev.e - ev.s);
+    for(const s of calOccur(ev, from - dur, to)){
+      const e = s + dur, s0 = new Date(Math.max(s, from)); let day = new Date(s0.getFullYear(), s0.getMonth(), s0.getDate());
+      for(let g = 0; day.getTime() < e && day.getTime() < to && g < 400; g++){
+        const next = new Date(day.getFullYear(), day.getMonth(), day.getDate() + 1), a = Math.max(s, day.getTime()), b = Math.min(e, next.getTime());
+        if(b > a){ const k = dayKey(day); if(!m.has(k)) m.set(k, []); m.get(k).push(ev.d ? {a: 0, b: 1440, t: ev.t, all: 1} : {a: Math.floor((a - day.getTime()) / 6e4), b: Math.ceil((b - day.getTime()) / 6e4), t: ev.t}); }
+        day = next;
+      }
+    }
+  }
+  return m;
+}
+function calDays(){ const k0 = dayKey(); if(!calMemo || calMemo.day !== k0) calMemo = {day: k0, days: calBuild(), free: new Map()}; return calMemo.days; }
+
+// ---- free time ----
+function busyOn(k){   // everything that blocks study on a date, earliest first
+  const st = calSet(), dow = parseDay(k).getDay(), out = [];
+  for(const r of st.rules || []) if((r.d || []).includes(dow)) out.push({a: r.a, b: r.b, t: r.t});
+  for(const e of calDays().get(k) || []) if(!e.all || st.allDay) out.push(e);
+  return out.sort((x, y) => x.a - y.a);
+}
+function freeSlots(k, fromMin){   // the free stretches inside your study hours, in minutes of the day
+  const st = calSet(), busy = busyOn(k).map(e => e.all ? [0, 1440] : [e.a - st.buf, e.b + st.buf]).sort((x, y) => x[0] - y[0]), out = [];
+  let t = Math.max(st.from, fromMin || 0);
+  for(const [a, b] of busy){ if(a >= st.to) break; if(a > t) out.push([t, a]); if(b > t) t = b; }
+  if(t < st.to) out.push([t, st.to]);
+  return out.map(([a, b]) => [Math.ceil(a / 5) * 5, Math.floor(b / 5) * 5]).filter(([a, b]) => b - a >= 15);
+}
+function slotStudy(len, st){ let t = 0, s = 0; while(len - t >= 10){ const take = Math.min(st.block, len - t); s += take; t += take + st.gap; } return s; }   // minutes of study that fit, breaks taken out
+function calFreeSecs(k){
+  calDays(); let v = calMemo.free.get(k);
+  if(v == null){ const st = calSet(); v = freeSlots(k).reduce((a, [x, y]) => a + slotStudy(y - x, st), 0) * 60; calMemo.free.set(k, v); }
+  return v;
+}
+// how much of a day one plan may use: the day's free time is shared by all plans that want that day
+function calLimiter(o, p, g){
+  const st = calSet(); if(!st.on || !st.limit) return null;
+  const k0 = dayKey(), rest = [];
+  for(const x of planOwners()){
+    if(x === o) continue;
+    const q = x.plan, pr = ownerProgress(x); if(pr.done >= pr.total) continue;
+    rest.push({x, q, slow: slowOf(q), start: parseDay(q.start || q.saved || k0), max: q.mode === 'date' ? Math.max(5, Math.round((q.base || 3600) / 60)) : Math.max(5, +q.minutes || 60), end: q.mode === 'date' ? q.date : null, wd: q.days && q.days.length ? q.days : [0, 1, 2, 3, 4, 5, 6]});
+  }
+  return (d, own) => {
+    const k = dayKey(d), free = calFreeSecs(k); let want = own;
+    for(const r of rest) if(r.wd.includes(d.getDay()) && !(r.end && k > r.end) && !offKind(r.x, k, r.q, g)) want += capOn(r.slow, r.start, r.max, d);
+    return want > free ? Math.floor(own * free / want / 60) * 60 : own;
+  };
+}
+
+// ---- giving the study pieces of a day their clock times ----
+function fillSlots(slots, pieces, st){
+  const out = []; let pi = 0, at = 0;   // at: seconds of the current piece already placed
+  for(const [a, b] of slots){
+    let t = a;
+    while(pi < pieces.length && b - t >= 10){
+      const room = Math.min(st.block, b - t) * 60, parts = []; let used = 0;
+      while(pi < pieces.length){
+        const p = pieces[pi], rest = p.len - at, take = Math.min(rest, room - used);
+        if(take < 60 && take < rest) break;   // not worth starting a piece for under a minute
+        parts.push({p, secs: take, at: p.from + at}); used += take; at += take;
+        if(at >= p.len - 0.5){ pi++; at = 0; } else break;   // the session is full
+      }
+      if(!used) break;
+      const len = Math.max(5, Math.ceil(used / 300) * 5);
+      out.push({a: t, b: Math.min(b, t + len), parts}); t += len + st.gap;
+    }
+    if(pi >= pieces.length) break;
+  }
+  let left = 0; for(let i = pi; i < pieces.length; i++) left += pieces[i].len - (i === pi ? at : 0);
+  return {sessions: out, left};
+}
+function placeDay(k, pieces, fromMin){
+  const st = calSet(), all = freeSlots(k, fromMin), pref = Math.max(st.pref, fromMin || 0);
+  const wins = all.map(([a, b]) => [Math.max(a, pref), b]).filter(([a, b]) => b - a >= 15);   // from the time you like to start
+  let need = Math.ceil(pieces.reduce((a, x) => a + x.len, 0) / 60) - wins.reduce((a, [x, y]) => a + slotStudy(y - x, st), 0);
+  // not enough room after that time: use earlier free time too, the latest first, each as late as it can be
+  for(const [a, b0] of all.slice().reverse()){
+    if(need <= 0) break;
+    const b = Math.min(b0, pref); if(b - a < 15) continue;
+    const span = Math.ceil((need + st.gap * (Math.ceil(need / st.block) - 1)) / 5) * 5, s = Math.max(a, b - span);
+    wins.push([s, b]); need -= slotStudy(b - s, st);
+  }
+  const r = fillSlots(wins.sort((x, y) => x[0] - y[0]), pieces, st);
+  return r.left > 0 ? [r, fillSlots(all, pieces, st)].sort((x, y) => x.left - y.left)[0] : r;
+}
+const sessTitle = s => [...new Set(s.parts.map(x => x.p.o.title))].join(' + ');
+const sessShort = s => { const x = s.parts[0]; return `${x.p.c.idx + 1}. ${x.p.c.title.slice(0, 44)}${s.parts.length > 1 ? ` +${s.parts.length - 1} more` : ''}`; };
+function partLine(x){
+  const p = x.p, full = chapterLen(p.v, p.c), cut = full && (x.at > 0 || x.at + x.secs < full - 5);
+  return `${p.o.order ? 'L' + (courseVideos(p.o).indexOf(p.v) + 1) + ' · ' : ''}${p.c.idx + 1}. ${p.c.title} (${cut ? fmt(x.at) + '–' + fmt(x.at + x.secs) : fmt(x.secs)})`;
+}
+// today, from now on: what is left of today's plan in the free time that is still ahead
+function todaySched(){
+  const k = dayKey(), pieces = [];
+  for(const o of planOwners()){
+    if(offKind(o, k)) continue;
+    for(const x of todayPlan(o)){ if(x.done) continue; const from = Math.max(x.from, Math.floor(reachOf(x.v, x.c))), len = (x.to || 0) - from; if(len >= 20) pieces.push({o, v: x.v, c: x.c, from, len, to: x.part ? x.to : null}); }
+  }
+  const r = placeDay(k, pieces, Math.ceil((nowMin() + 1) / 5) * 5);
+  return {pieces, sessions: r.sessions, left: r.left, busy: busyOn(k)};
+}
+// every study session of the coming days. Today keeps the times it got in the morning, so calendars stay calm
+function planSessions(n){
+  const k0 = dayKey(), until = plusDays((n || 56) - 1), by = new Map(), why = new Map();
+  const add = (k, x) => { if(!by.has(k)) by.set(k, []); by.get(k).push(x); };
+  for(const o of planOwners()){
+    const pl = computePlan(o); if(!pl) continue;
+    for(const x of pl.offs){ const k = dayKey(x.date); if(k <= until && why.get(k) !== 'cal') why.set(k, x.kind); }
+    if(!offKind(o, k0)) for(const x of todayPlan(o)) if(x.len >= 20) add(k0, {o, v: x.v, c: x.c, from: x.from, len: x.len});
+    for(const d of pl.days){ const k = dayKey(d.date); if(k !== k0 && k <= until) for(const x of d.items) add(k, {o, v: x.v, c: x.c, from: x.from, len: x.len}); }
+  }
+  const days = new Map(); for(const k of [...by.keys()].sort()) days.set(k, placeDay(k, by.get(k)));
+  return {days, why};
+}
+function schedCard(){
+  const st = calSet(), k = dayKey(); if(!st.on || gOffs()[k]) return '';
+  const s = todaySched(), busy = s.busy.filter(e => !e.all);
+  if(!s.pieces.length && !busy.length) return '';
+  const total = s.pieces.reduce((a, x) => a + x.len, 0);
+  const note = !s.pieces.length ? '✅ Nothing left to schedule today.' : !s.sessions.length ? `⏰ No free time left in your study hours today for ${fmtDur(total)}. Do it when you can, or shift it to the next day.` : s.left >= 120 ? `⏰ ${fmtDur(s.left)} more doesn't fit your free time today.` : '';
+  return `<div class="plan-today sched"><div class="row" style="justify-content:space-between"><b>🗓 Today around your calendar</b><span class="muted" style="font-size:12px">${busy.length ? 'Busy: ' + busy.slice(0, 4).map(e => `${esc(e.t)} ${fmtClock(e.a)}–${fmtClock(e.b)}`).join(' · ') + (busy.length > 4 ? ' …' : '') : 'Nothing in your calendar today'}</span></div>
+    ${s.sessions.map((x, i) => `<div class="sc-row" data-ss="${i}" title="Start this session"><span class="sc-t">${fmtClock(x.a)} – ${fmtClock(x.b)}</span><span>${esc(sessTitle(x))} <span class="muted">· ${esc(sessShort(x))}</span></span></div>`).join('')}
+    ${note ? `<div class="muted" style="margin-top:6px">${note}</div>` : ''}</div>`;
+}
+
+// ---- out to the calendar ----
 function calDefaults(){
-  const plans = planOwners(), hrs = store.hours || [], best = hrs.some(x => x > 900) ? hrs.indexOf(Math.max(...hrs)) : 19;
+  const plans = planOwners();
   const days = plans.length ? [...new Set(plans.flatMap(o => o.plan.days && o.plan.days.length ? o.plan.days : [0, 1, 2, 3, 4, 5, 6]))] : [0, 1, 2, 3, 4, 5, 6];
   const mins = plans.length ? Math.round(plans.reduce((a, o) => { const pl = computePlan(o); return a + (pl && pl.days[0] ? pl.days[0].cap : 0); }, 0) / 60) : (store.settings.goal || 60);
-  return {time: `${pad2(best)}:00`, days, mins: Math.max(5, mins || 30)};
+  return {days, mins: Math.max(5, mins || 30)};
 }
 function gcalLink(time, mins, days){
   const [hh, mm] = time.split(':').map(Number), st = new Date(); st.setHours(hh || 0, mm || 0, 0, 0);
@@ -2033,51 +2324,188 @@ function gcalLink(time, mins, days){
   u.searchParams.set('action', 'TEMPLATE'); u.searchParams.set('text', '📚 Study time · ChapterBox');
   u.searchParams.set('dates', `${calStamp(st)}/${calStamp(en)}`);
   try{ u.searchParams.set('ctz', Intl.DateTimeFormat().resolvedOptions().timeZone); }catch(e){}
-  u.searchParams.set('recur', 'RRULE:FREQ=WEEKLY;BYDAY=' + [...days].sort().map(i => ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][i]).join(','));
+  u.searchParams.set('recur', 'RRULE:FREQ=WEEKLY;BYDAY=' + [...days].sort().map(i => DOW[i]).join(','));
   u.searchParams.set('details', `Time to study! Open ChapterBox and press ⏱ Just 5 minutes to start:\n${APP_URL}`);
   return u.toString();
 }
-function icsPlan(time, alarm){
-  const byDay = new Map();
-  for(const o of planOwners()){ const pl = computePlan(o); if(!pl) continue; for(const d of pl.days){ const k = dayKey(d.date); if(!byDay.has(k)) byDay.set(k, []); byDay.get(k).push({o, d}); } }
-  const until = plusDays(55), keys = [...byDay.keys()].filter(k => k <= until).sort(), [hh, mm] = time.split(':').map(Number), now = new Date();
-  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ChapterBox//Study plan//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:ChapterBox study plan'];
-  const utc = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
-  for(const k of keys){
-    const parts = byDay.get(k), secs = parts.reduce((a, x) => a + x.d.secs, 0), st = parseDay(k); st.setHours(hh || 0, mm || 0, 0, 0);
-    const en = new Date(st.getTime() + Math.max(secs, 300) * 1000);
-    const desc = parts.map(({o, d}) => `${o.title}: ${fmt(d.secs)}\n` + d.items.map(x => `• ${o.order ? 'L' + (courseVideos(o).indexOf(x.v) + 1) + ' ' : ''}${x.c.idx + 1}. ${x.c.title} (${fmt(x.len)})`).join('\n')).join('\n\n') + `\n\nOpen ChapterBox: ${APP_URL}`;
-    L.push('BEGIN:VEVENT', `UID:chapterbox-${k}-${Math.random().toString(36).slice(2, 10)}@punit-65.github.io`, `DTSTAMP:${utc(now)}`, `DTSTART:${calStamp(st)}`, `DTEND:${calStamp(en)}`,
-      `SUMMARY:${icsEsc(`📚 Study ${fmtDur(secs)}: ${parts.map(x => x.o.title).join(', ')}`)}`, `DESCRIPTION:${icsEsc(desc)}`, `URL:${APP_URL}`);
-    if(alarm) L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Study time', 'TRIGGER:-PT10M', 'END:VALARM');
-    L.push('END:VEVENT');
+// all study sessions of the next 8 weeks as calendar events. The same session keeps its id, so adding the file again updates it
+function icsBuild(alarm){
+  const r = planSessions(56), stamp = utcStamp(new Date()), seq = Math.max(1, Math.floor((Date.now() - Date.UTC(2026, 0, 1)) / 6e4)), core = [];
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ChapterBox//Study plan//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:ChapterBox study', 'REFRESH-INTERVAL;VALUE=DURATION:PT1H', 'X-PUBLISHED-TTL:PT1H'];
+  let n = 0, days = 0;
+  for(const [k, day] of r.days){
+    const d = parseDay(k); if(day.sessions.length) days++;
+    day.sessions.forEach((s, i) => {
+      const ev = [`UID:chapterbox-${k}-${i + 1}@chapterbox`, `DTSTART:${calStamp(new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, s.a))}`, `DTEND:${calStamp(new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, s.b))}`,
+        `SUMMARY:${icsEsc('📚 Study: ' + sessTitle(s))}`, `DESCRIPTION:${icsEsc(s.parts.map(x => '• ' + partLine(x)).join('\n') + '\n\nOpen ChapterBox: ' + APP_URL)}`, `URL:${APP_URL}`];
+      core.push(ev.join('|'));
+      L.push('BEGIN:VEVENT', ev[0], `DTSTAMP:${stamp}`, `LAST-MODIFIED:${stamp}`, `SEQUENCE:${seq}`, ...ev.slice(1));
+      if(alarm) L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Study time', 'TRIGGER:-PT10M', 'END:VALARM');
+      L.push('END:VEVENT'); n++;
+    });
   }
   L.push('END:VCALENDAR');
-  return {text: L.map(icsFold).join('\r\n') + '\r\n', n: keys.length};
+  return {text: L.map(icsFold).join('\r\n') + '\r\n', n, days, sig: hashStr(core.join('\n'))};
 }
+function icsRepeat(){   // one repeating reminder that never goes out of date
+  const st = calSet(), d0 = calDefaults(), s = new Date(); s.setHours(0, st.pref, 0, 0);
+  for(let i = 0; i < 8 && (!d0.days.includes(s.getDay()) || s < new Date()); i++) s.setDate(s.getDate() + 1);
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ChapterBox//Reminder//EN', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT', 'UID:chapterbox-reminder@chapterbox', `DTSTAMP:${utcStamp(new Date())}`, `DTSTART:${calStamp(s)}`, `DTEND:${calStamp(new Date(s.getTime() + d0.mins * 6e4))}`,
+    'RRULE:FREQ=WEEKLY;BYDAY=' + [...d0.days].sort().map(i => DOW[i]).join(','), `SUMMARY:${icsEsc('📚 Study time · ChapterBox')}`, `DESCRIPTION:${icsEsc('Time to study! Open ChapterBox and press Just 5 minutes to start:\n' + APP_URL)}`, `URL:${APP_URL}`,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Study time', 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'];
+  return L.map(icsFold).join('\r\n') + '\r\n';
+}
+
+// ---- 🔄 live calendar: a secret gist on your own GitHub that Apple Calendar follows ----
+// The key is yours, stays in this browser (outside backups) and is only ever sent to api.github.com.
+function ghCfg(){ try{ return JSON.parse(localStorage.getItem(GHK)) || {}; }catch(e){ return {}; } }
+function ghSet(c){ try{ if(c && c.token) localStorage.setItem(GHK, JSON.stringify(c)); else localStorage.removeItem(GHK); }catch(e){} }
+async function ghApi(path, token, method, body){
+  let r;
+  try{ r = await fetch('https://api.github.com' + path, {method, headers: Object.assign({Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json'}, body ? {'Content-Type': 'application/json'} : {}), body: body ? JSON.stringify(body) : undefined}); }
+  catch(e){ throw new Error("couldn't reach GitHub (are you online?)"); }
+  const j = await r.json().catch(() => ({}));
+  if(!r.ok){
+    const e = new Error(r.status === 401 ? 'that key is wrong or has expired' : r.status === 404 && method !== 'POST' ? 'the calendar file on GitHub is gone. Disconnect and connect again' : r.status === 403 || r.status === 404 ? 'that key may not edit gists (keep "gist" ticked when you create it)' : String(j.message || 'HTTP ' + r.status).slice(0, 160));
+    e.status = r.status; throw e;
+  }
+  return j;
+}
+async function liveConnect(token){
+  const f = icsBuild(true);
+  const j = await ghApi('/gists', token, 'POST', {description: 'ChapterBox study calendar (kept up to date by ChapterBox)', public: false, files: {'chapterbox.ics': {content: f.text}}});
+  const file = j.files && j.files['chapterbox.ics'], url = file && String(file.raw_url || '').replace(/\/raw\/[0-9a-f]+\//, '/raw/');
+  if(!j.id || !url || !url.startsWith('https://gist.githubusercontent.com/')) throw new Error("GitHub didn't create the calendar file");
+  ghSet({token, id: j.id, url, sig: f.sig, at: Date.now()});
+}
+async function liveSync(force){
+  const c = ghCfg(); if(!c.token || !c.id) return false;
+  const f = icsBuild(true); if(!force && f.sig === c.sig && !c.err) return false;
+  try{ await ghApi('/gists/' + c.id, c.token, 'PAT' + 'CH', {files: {'chapterbox.ics': {content: f.text}}}); }
+  catch(e){ ghSet(Object.assign(c, {err: e.message, dead: e.status === 401 || e.status === 404})); throw e; }
+  ghSet(Object.assign(c, {sig: f.sig, at: Date.now(), err: '', dead: false})); return true;
+}
+function liveTick(){ const c = ghCfg(); if(!c.token || c.dead || !navigator.onLine || playerState() === 1) return; liveSync().catch(() => {}); }
+const ago = t => { const m = Math.round((Date.now() - t) / 6e4); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : fmtDay(new Date(t)); };
+function dayNames(d){
+  const o = [1, 2, 3, 4, 5, 6, 0].filter(x => d.includes(x)); if(o.length === 7) return 'every day';
+  const run = o.length > 2 && o.every((x, i) => !i || [1, 2, 3, 4, 5, 6, 0].indexOf(x) === [1, 2, 3, 4, 5, 6, 0].indexOf(o[i - 1]) + 1);
+  return run ? DAYS[o[0]] + '–' + DAYS[o[o.length - 1]] : o.map(x => DAYS[x]).join(', ');
+}
+
 function calModal(){
-  const d0 = calDefaults(), hasPlans = planOwners().length > 0;
-  openModal(`<h2>📆 Study reminders</h2><p class="muted" style="margin:0">Get a reminder on your phone at study time, through your calendar.</p>
-    <div class="row" style="margin-top:12px;gap:8px">Study at <input id="calT" type="time" value="${d0.time}" style="width:130px"> for about <input id="calM" type="number" min="5" max="600" value="${d0.mins}" style="width:80px"> min</div>
-    <label>On these days</label>
-    <div class="daychips" id="calDays">${[1, 2, 3, 4, 5, 6, 0].map(d => `<label><input type="checkbox" value="${d}" ${d0.days.includes(d) ? 'checked' : ''}> ${DAYS[d]}</label>`).join('')}</div>
-    <div class="pl-way"><b>🔁 Daily reminder (recommended)</b><div class="muted" style="margin:4px 0 8px">A repeating event in Google Calendar. It never goes out of date, even when your plan shifts or you take a day off.</div><button class="primary" id="calG">➕ Add to Google Calendar</button></div>
-    <div class="pl-way"><b>📋 Full plan, day by day</b><div class="muted" style="margin:4px 0 8px">One event per study day for the next 8 weeks, with exactly what to watch and for how long. In Google Calendar: Settings → Import. On a phone, just open the file.</div>
-      ${hasPlans ? '<div class="row"><button id="calI">⬇️ Download calendar file (.ics)</button><label class="chk" style="margin:0"><input type="checkbox" id="calA" checked> remind me 10 min before</label></div>' : '<div class="muted">Make a 📅 plan first.</div>'}</div>
-    <div class="actions"><button class="primary" onclick="closeModal()">Done</button></div>`);
-  const days = () => [...$('#calDays').querySelectorAll('input:checked')].map(x => +x.value);
-  $('#calG').onclick = () => {
-    if(!days().length){ toast('Pick at least one day'); return; }
-    window.open(gcalLink($('#calT').value || '19:00', Math.max(5, +$('#calM').value || 30), days()), '_blank', 'noopener');
-    toast('📆 Google Calendar opened. Press Save there');
+  const s0 = calSet();
+  openModal(`<h2>🗓 Auto-schedule &amp; Apple Calendar</h2>
+    <p class="muted" style="margin:0">ChapterBox finds the free time around your calendar events, gives every study session a clock time, and puts the sessions in your Apple Calendar.</p>
+    <div class="pl-way"><b>1 · When can you study?</b>
+      <div class="row" style="gap:6px;margin-top:8px">Between <input id="cFrom" type="time" step="300" value="${clockOut(s0.from)}" style="width:118px"> and <input id="cTo" type="time" step="300" value="${clockOut(s0.to)}" style="width:118px"> · best start around <input id="cPref" type="time" step="300" value="${clockOut(s0.pref)}" style="width:118px"></div>
+      <div class="row" style="gap:6px;margin-top:8px">Sessions of <input id="cBlock" type="number" min="15" max="240" step="5" value="${s0.block}" style="width:68px"> min · breaks of <input id="cGap" type="number" min="0" max="60" step="5" value="${s0.gap}" style="width:62px"> min · keep <input id="cBuf" type="number" min="0" max="60" step="5" value="${s0.buf}" style="width:62px"> min free around events</div>
+      <label class="chk" style="margin-top:10px"><input type="checkbox" id="cLimit" ${s0.limit ? 'checked' : ''}> On busy days study less and move the rest ahead</label>
+      <label class="chk" style="margin-top:6px"><input type="checkbox" id="cAllDay" ${s0.allDay ? 'checked' : ''}> All-day events (an exam, a trip) are days off from study</label>
+      <label class="chk" style="margin-top:6px;color:var(--text)"><input type="checkbox" id="cOn" ${s0.on ? 'checked' : ''}> <b>Auto-schedule is on</b> <span class="muted">(clock times on Home, plans follow your free time)</span></label>
+    </div>
+    <div class="pl-way"><b>2 · When are you busy? Bring in your Apple Calendar</b>
+      <div class="muted" style="margin:4px 0 8px;font-size:13px">On your Mac open <b>Calendar</b>, click a calendar in the list on the left, choose <b>File → Export → Export…</b> and drop the file here (one file per calendar). Weekly classes keep repeating, so do it again only when your calendar changes. Your events stay in this browser.</div>
+      <div id="cSrc"></div>
+      <div class="row" style="margin-top:8px"><button class="primary" id="cFileBtn">📂 Add calendar file (.ics)</button><input type="file" id="cFile" accept=".ics,.ical,text/calendar" multiple hidden><span class="muted" style="font-size:12px">or drag it onto this window</span></div>
+      <div class="muted" style="font-size:13px;margin-top:12px">No file? Add a fixed busy time, like college hours:</div>
+      <div class="daychips" id="rDays" style="margin-top:6px">${[1, 2, 3, 4, 5, 6, 0].map(d => `<label><input type="checkbox" value="${d}" ${d >= 1 && d <= 5 ? 'checked' : ''}> ${DAYS[d]}</label>`).join('')}</div>
+      <div class="row" style="gap:6px;margin-top:6px"><input id="rT" placeholder="College" style="width:120px"><input id="rA" type="time" step="300" value="09:00" style="width:118px"><span class="muted">to</span><input id="rB" type="time" step="300" value="16:00" style="width:118px"><button class="small" id="rAdd">+ Add</button></div>
+    </div>
+    <div class="pl-way"><b>3 · Put the study sessions in your calendar</b>
+      <div class="row" style="margin-top:8px"><button class="primary" id="calI">🍎 Add to Apple Calendar</button><label class="chk" style="margin:0"><input type="checkbox" id="calA" checked> remind me 10 min before</label></div>
+      <div class="hint">A calendar file with every session of the next 8 weeks. Mac: open it and pick a calendar. iPhone: tap it, then Add All. Tip: give them their own calendar (Calendar → File → New Calendar), so you can clear it and add the file again when your plan changes.</div>
+      <div id="cLive"></div>
+      <div class="row" style="margin-top:10px"><button class="small" id="calR">🔁 Simple daily reminder (.ics)</button><button class="small" id="calG">➕ Google Calendar reminder</button></div>
+    </div>
+    <div class="pl-way"><b>Your next 7 days</b><div id="cPrev"></div></div>
+    <div class="actions"><button class="primary" id="cDone">Done</button></div>`, true);
+  const drawPrev = () => {
+    if(!$('#cPrev')) return;
+    if(!planOwners().length){ $('#cPrev').innerHTML = '<div class="muted" style="margin-top:6px">Make a 📅 plan first. Then your sessions show up here with their times.</div>'; return; }
+    const r = planSessions(7), rows = [];
+    for(let i = 0; i < 7; i++){
+      const k = plusDays(i), d = parseDay(k), day = r.days.get(k), busy = busyOn(k);
+      const what = day && day.sessions.length ? day.sessions.map(s => `<b>${fmtClock(s.a)}–${fmtClock(s.b)}</b> ${esc(sessTitle(s))}`).join(' · ') + (day.left >= 120 ? ` <span style="color:var(--warn)">· ${fmtDur(day.left)} doesn't fit</span>` : '')
+        : day && day.left ? `<span style="color:var(--warn)">No free time for ${fmtDur(day.left)}</span>`
+        : r.why.get(k) === 'cal' ? '🗓 No free time, study moves ahead' : r.why.get(k) ? '🏖 Day off' : '<span class="muted">No study planned</span>';
+      rows.push(`<div class="pv"><span class="pv-d">${i ? DAYS[d.getDay()] + ', ' + fmtDay(d) : 'Today'}</span><span>${what}${busy.length ? `<div class="muted" style="font-size:12px">Busy: ${busy.slice(0, 5).map(e => esc(e.t) + (e.all ? ' (all day)' : ' ' + fmtClock(e.a) + '–' + fmtClock(e.b))).join(' · ')}${busy.length > 5 ? ' …' : ''}</div>` : ''}</span></div>`);
+    }
+    $('#cPrev').innerHTML = rows.join('');
   };
-  if($('#calI')) $('#calI').onclick = () => {
-    const f = icsPlan($('#calT').value || '19:00', $('#calA').checked);
-    if(!f.n){ toast('Nothing planned yet'); return; }
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([f.text], {type: 'text/calendar'})); a.download = 'chapterbox-study-plan.ics';
-    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-    toast(`📋 Calendar file with ${f.n} study days downloaded`);
+  const drawSrc = () => {
+    const rows = calData.src.map((s, i) => `<span>📄 ${esc(s.name)} · ${s.ev.length} event${s.ev.length === 1 ? '' : 's'} · ${fmtDay(new Date(s.at))}<button data-rs="${i}" title="Remove this calendar">✕</button></span>`)
+      .concat((calSet().rules || []).map((r, i) => `<span>🔁 ${esc(r.t)} · ${dayNames(r.d)} · ${fmtClock(r.a)}–${fmtClock(r.b)}<button data-rr="${i}" title="Remove this busy time">✕</button></span>`));
+    $('#cSrc').innerHTML = `<div class="offchips" style="margin-top:0">${rows.length ? rows.join('') : '<span class="muted legend">Nothing added yet, so only your study hours above count.</span>'}</div>`;
+    $('#cSrc').querySelectorAll('[data-rs]').forEach(b => b.onclick = () => { calData.src.splice(+b.dataset.rs, 1); calSave(); calBump(); drawSrc(); drawPrev(); });
+    $('#cSrc').querySelectorAll('[data-rr]').forEach(b => b.onclick = () => { const rules = (calSet().rules || []).slice(); rules.splice(+b.dataset.rr, 1); calPut({rules}); drawSrc(); drawPrev(); });
   };
+  const apply = loud => {
+    const from = clockIn($('#cFrom').value), pref = clockIn($('#cPref').value); let to = clockIn($('#cTo').value); if(to === 0) to = 1440;
+    const num = (id, a, b, d) => { const v = parseFloat($(id).value); return Math.min(b, Math.max(a, Math.round((isNaN(v) ? d : v) / 5) * 5)); };
+    if(from == null || to == null || to - from < 30){ if(loud === true) toast('Your study hours need to be at least 30 minutes long'); return; }
+    calPut({from, to, pref: pref == null ? calSet().pref : pref, block: num('#cBlock', 15, 240, 45), gap: num('#cGap', 0, 60, 10), buf: num('#cBuf', 0, 60, 10), limit: $('#cLimit').checked, allDay: $('#cAllDay').checked, on: $('#cOn').checked});
+    drawPrev();
+  };
+  ['#cFrom', '#cTo', '#cPref', '#cBlock', '#cGap', '#cBuf', '#cLimit', '#cAllDay', '#cOn'].forEach(id => { $(id).oninput = apply; $(id).onchange = () => apply(true); });
+  const turnOn = () => { if(!calSet().on){ calPut({on: true}); $('#cOn').checked = true; } };
+  const addFiles = async files => {
+    let got = 0;
+    for(const f of [...files]){
+      let res = null; try{ res = icsParse(await f.text()); }catch(e){}
+      if(!res || !res.total){ toast(`No calendar events found in ${f.name}`); continue; }
+      if(!res.ev.length){ toast(`${f.name}: nothing upcoming (${res.total} past event${res.total === 1 ? '' : 's'} skipped)`); continue; }
+      const src = {name: f.name.slice(0, 80), at: Date.now(), ev: res.ev.slice(0, 3000)}, i = calData.src.findIndex(s => s.name === src.name);
+      if(i >= 0) calData.src[i] = src; else calData.src.push(src);
+      got += src.ev.length; toast(`🍎 ${f.name}: ${src.ev.length} upcoming event${src.ev.length === 1 ? '' : 's'}${res.rep ? `, ${res.rep} repeating` : ''}`);
+    }
+    if(got && !calSave()) toast('That calendar is too big to keep in this browser');
+    calBump(); if(got) turnOn();
+    drawSrc(); drawPrev();
+  };
+  $('#cFileBtn').onclick = () => $('#cFile').click();
+  $('#cFile').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+  $('#modal').ondragover = e => { if($('#cFile')) e.preventDefault(); };
+  $('#modal').ondrop = e => { if(!$('#cFile') || !e.dataTransfer || !e.dataTransfer.files.length) return; e.preventDefault(); addFiles(e.dataTransfer.files); };
+  $('#rAdd').onclick = () => {
+    const a = clockIn($('#rA').value), b = clockIn($('#rB').value), d = [...$('#rDays').querySelectorAll('input:checked')].map(x => +x.value);
+    if(a == null || b == null || b <= a || !d.length){ toast('Pick the days, a start and a later end time'); return; }
+    calPut({rules: [...(calSet().rules || []), {t: ($('#rT').value.trim() || 'Busy').slice(0, 40), d, a, b}]}); turnOn(); $('#rT').value = '';
+    drawSrc(); drawPrev();
+  };
+  $('#calI').onclick = () => {
+    const f = icsBuild($('#calA').checked);
+    if(!f.n){ toast(planOwners().length ? 'No study session fits your free time yet' : 'Make a 📅 plan first'); return; }
+    dlFile('chapterbox-study-plan.ics', f.text, 'text/calendar'); toast(`🍎 ${f.n} study sessions on ${f.days} days. Open the file to add them`);
+  };
+  $('#calR').onclick = () => { dlFile('chapterbox-reminder.ics', icsRepeat(), 'text/calendar'); toast('🔁 Open the file to add the repeating reminder'); };
+  $('#calG').onclick = () => { const d0 = calDefaults(); window.open(gcalLink(clockOut(calSet().pref), d0.mins, d0.days), '_blank', 'noopener'); toast('📆 Google Calendar opened. Press Save there'); };
+  const drawLive = () => {
+    const c = ghCfg(), box = $('#cLive'); if(!box) return;
+    if(!c.token){
+      box.innerHTML = `<div class="live"><b>🔄 Live calendar</b> <span class="muted">(updates by itself)</span>
+        <div class="muted" style="font-size:13px;margin-top:4px">Apple Calendar can follow a link and refresh on its own. ChapterBox keeps that link up to date, in a secret gist on your own GitHub account, whenever your plan changes. One-time setup:</div>
+        <ol><li><a href="https://github.com/settings/tokens/new?description=ChapterBox%20calendar&amp;scopes=gist" target="_blank" rel="noopener" style="color:var(--accent)">Create a GitHub key</a>: set <b>Expiration</b> to <b>No expiration</b> (the link stops updating when the key expires), keep only <b>gist</b> ticked, press <b>Generate token</b> and copy it.</li>
+        <li>Paste it here: <input id="ghTok" type="password" autocomplete="off" placeholder="ghp_…" style="width:230px"> <button class="small" id="ghGo">Connect</button></li></ol>
+        <div class="hint">The key stays in this browser and can only edit your gists. Anyone who gets the secret link could see your study sessions (titles and times), never your other events.</div></div>`;
+      $('#ghGo').onclick = async () => {
+        const token = $('#ghTok').value.trim(), b = $('#ghGo'); if(!token){ toast('Paste your GitHub key first'); return; }
+        b.disabled = true; b.textContent = 'Connecting…';
+        try{ await liveConnect(token); toast('🔄 Live calendar is on. Now subscribe in Apple Calendar'); }catch(e){ toast('GitHub: ' + e.message); }
+        drawLive();
+      };
+      return;
+    }
+    box.innerHTML = `<div class="live"><b>🔄 Live calendar is on</b> <span class="muted">${c.err ? '' : '· updated ' + ago(c.at)}</span>
+      ${c.err ? `<div style="color:var(--warn);margin-top:4px">⚠️ It stopped updating: ${esc(c.err)}.</div>` : ''}
+      <div class="row" style="margin-top:8px"><a class="btn primary" id="ghSub" href="${esc(String(c.url || '').replace(/^https:/, 'webcal:'))}">🍎 Subscribe in Apple Calendar</a><button class="small" id="ghCopy">Copy link</button><button class="small" id="ghNow">Update now</button><button class="small" id="ghOff">Disconnect</button></div>
+      <div class="hint">Subscribe once. On a Mac pick <b>iCloud</b> as the location so it also shows on your iPhone, and set Auto-refresh to every 15 minutes. ChapterBox updates the link while this site is open.</div></div>`;
+    $('#ghCopy').onclick = () => copyLink(c.url, 'Link copied. In Calendar: File → New Calendar Subscription…');
+    $('#ghNow').onclick = async () => { try{ await liveSync(true); toast('🔄 Calendar link updated'); }catch(e){ toast('GitHub: ' + e.message); } drawLive(); };
+    $('#ghOff').onclick = async () => { ghSet(null); drawLive(); try{ await ghApi('/gists/' + c.id, c.token, 'DELETE'); }catch(e){} toast('Live calendar is off. Remove the subscription in Apple Calendar too'); };
+  };
+  $('#cDone').onclick = () => { closeModal(); render(); liveTick(); };
+  drawSrc(); drawLive(); drawPrev();
 }
 
 // ================= 📜 transcripts =================
@@ -2376,6 +2804,7 @@ function cardsSection(){
   return `<div class="sec-h"><h2>🃏 Flashcards</h2><div class="row">${due.length ? `<button class="primary small" id="fcStart">▶ Review ${due.length} due</button>` : '<span class="muted" style="font-size:13px">All caught up ✅</span>'}<button class="small" id="fcAll">Practice all (${all.length})</button></div></div>`;
 }
 function bindHome8(el){
+  el.querySelectorAll('[data-ss]').forEach(r => r.onclick = () => { const s = todaySched().sessions[+r.dataset.ss], x = s && s.parts[0]; if(x) goSlice(x.p.v, x.p.c.idx, x.at, x.p.to); });
   if($('#fiveBtn')) $('#fiveBtn').onclick = startFive;
   if($('#calBtn')) $('#calBtn').onclick = () => calModal();
   if($('#fcStart')) $('#fcStart').onclick = () => reviewCards();
@@ -2707,7 +3136,7 @@ function loadYouTubeApi(){
 }
 
 // start
-applyTheme(); setInterval(tickFocus, 1000);
+applyTheme(); setInterval(tickFocus, 1000); setInterval(liveTick, 120000); setTimeout(liveTick, 9000);
 window.addEventListener('hashchange', async () => { if(await readShareHash()) openVideo(store.currentId); });
 renderBanner();
 render();

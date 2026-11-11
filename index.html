@@ -1310,7 +1310,7 @@ function capOn(slow, start, maxMin, d){
 // real study time: an hour of video takes longer than an hour (pausing, notes), and practice comes on top
 function paceOf(p){ return Math.max(1, +(p && p.pace) || 1); }
 function pracOf(p){ return Math.max(0, +(p && p.practice) || 0) * 60; }
-const PACES = [[1, '1 h (just watching)'], [1.25, '1 h 15 min'], [1.5, '1 h 30 min (pausing, notes)'], [2, '2 h (solving along)']];
+const PACES = [[1, '1 h (just watching)'], [1.25, '1 h 15 min'], [1.5, '1 h 30 min (pausing, notes)'], [1.75, '1 h 45 min (notes + practice)'], [2, '2 h (solving along)']];
 function paceOpts(sel){ return PACES.map(([v, l]) => `<option value="${v}" ${+sel === v ? 'selected' : ''}>${l}</option>`).join(''); }
 const studied = sd => sd ? (sd.s || 0) + (sd.x || 0) : 0;   // watched time plus the credit for pausing, notes and practice
 // what a part is called in plans: a lecture that plays whole goes by its own title
@@ -1718,7 +1718,18 @@ function minutesToFinish(o, p, target){
   while(lo < hi){ const mid = (lo + hi) >> 1; if(endOf(mid) <= target) hi = mid; else lo = mid + 1; }
   return Math.min(600, Math.ceil(lo / 5) * 5);
 }
+// plans made before real study time: they count it too now (1 h of video = 1 h 30 min), with new end dates and no false alarm
+function paceUp(){
+  for(const o of planOwners()){
+    const p = o.plan; if(p.pace != null) continue;
+    p.pace = store.settings.pace || 1.5; if(p.pace === 1){ save(); continue; }   // same time as before: nothing to move
+    const pl = computePlan(o);
+    if(pl && pl.days.length){ p.target = dayKey(pl.days[pl.days.length - 1].date); if(p.mode === 'date') p.base = pl.budget; }
+    save();
+  }
+}
 function coachTips(){
+  paceUp();
   const tips = [], k = dayKey(), today = statDay(), offAll = !!gOffs()[k];
   const active = planOwners().filter(o => { const pr = ownerProgress(o); return pr.done < pr.total; });
   // 1. today's mission: everything planned for today, all subjects together; warm up with the easiest
@@ -1777,7 +1788,6 @@ function coachTips(){
   const hrs = store.hours || [], tot = hrs.reduce((a, b) => a + b, 0);
   if(tot >= 3 * 3600){ const h = hrs.indexOf(Math.max(...hrs)); tips.push({icon: '💡', html: `You study most around <b>${fmtHour(h)}</b>. A calendar reminder at that time helps.`, btns: [['🗓 Auto-schedule', calModal]]}); }
   // 8. real study time, auto-schedule and the calendar
-  if(planOwners().some(o => o.plan.pace == null) && !store.settings.realHintOff) tips.push({icon: '⏳', html: 'Your plans count only the video time. Real study takes longer: pausing, notes, practice.', btns: [['Make them realistic', makeRealistic], ['Keep', () => { store.settings.realHintOff = true; save(); render(); }]]});
   const cst = calSet(), gh = ghCfg();
   if(gh.err) tips.push({icon: '⚠️', html: `Your live calendar stopped updating: ${esc(gh.err)}.`, btns: [['Fix', calModal]]});
   if(!cst.on && planOwners().length && !store.settings.calHintOff) tips.push({icon: '🗓', html: 'New: I can schedule your study around your <b>Apple Calendar</b> and put the sessions in it.', btns: [['Set up', calModal], ['Hide', () => { store.settings.calHintOff = true; save(); render(); }]]});

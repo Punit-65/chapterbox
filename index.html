@@ -352,9 +352,10 @@ function loadStore(){
   }catch(e){}
   return {videos:[], courses:[], stats:{}, settings:{autoNext:true}, currentId:null};
 }
-let saveWarned = false;
+let saveWarned = false, liveT = 0, liveWatch = false;
 function save(){
   diffCache.clear();
+  if(liveWatch){ clearTimeout(liveT); liveT = setTimeout(liveTick, 10000); }   // the live calendar link follows changes a few seconds after you stop
   try{ localStorage.setItem(KEY, JSON.stringify(store)); }
   catch(e){ if(!saveWarned){ toast('Could not save: browser storage is blocked here'); saveWarned = true; } }
 }
@@ -2557,7 +2558,14 @@ function icsRepeat(){   // one repeating reminder that never goes out of date
 // ---- 🔄 live calendar: a secret gist on your own GitHub that Apple Calendar follows ----
 // The key is yours, stays in this browser (outside backups) and is only ever sent to api.github.com.
 function ghCfg(){ try{ return JSON.parse(localStorage.getItem(GHK)) || {}; }catch(e){ return {}; } }
-function ghSet(c){ try{ if(c && c.token) localStorage.setItem(GHK, JSON.stringify(c)); else localStorage.removeItem(GHK); }catch(e){} }
+const GHID = 'chapterbox.ghid';   // the calendar file this browser made: connecting again brings back the same link
+const ghLast = () => { try{ return JSON.parse(localStorage.getItem(GHID)) || null; }catch(e){ return null; } };
+function ghSet(c){
+  try{ if(c && c.token){ localStorage.setItem(GHK, JSON.stringify(c)); if(c.id && c.url) localStorage.setItem(GHID, JSON.stringify({id: c.id, url: c.url})); } else localStorage.removeItem(GHK); }catch(e){}
+  liveWatch = !!(c && c.token);
+}
+liveWatch = !!ghCfg().token;
+const icsEmpty = () => ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ChapterBox//Study plan//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:ChapterBox study', 'REFRESH-INTERVAL;VALUE=DURATION:PT1H', 'X-PUBLISHED-TTL:PT1H', 'END:VCALENDAR'].join('\r\n') + '\r\n';
 async function ghApi(path, token, method, body){
   let r;
   try{ r = await fetch('https://api.github.com' + path, {method, headers: Object.assign({Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json'}, body ? {'Content-Type': 'application/json'} : {}), body: body ? JSON.stringify(body) : undefined}); }
@@ -2570,9 +2578,15 @@ async function ghApi(path, token, method, body){
   return j;
 }
 async function liveConnect(token){
-  const f = icsBuild(true);
-  const j = await ghApi('/gists', token, 'POST', {description: 'ChapterBox study calendar (kept up to date by ChapterBox)', public: false, files: {'chapterbox.ics': {content: f.text}}});
-  const file = j.files && j.files['chapterbox.ics'], url = file && String(file.raw_url || '').replace(/\/raw\/[0-9a-f]+\//, '/raw/');
+  const f = icsBuild(true), old = ghLast(), files = {'chapterbox.ics': {content: f.text}}; let j = null;
+  if(old && old.id){   // connected before: reuse that calendar file. Same link, so the calendar you already follow keeps working and nothing is added twice
+    try{ j = await ghApi('/gists/' + old.id, token, 'PAT' + 'CH', {files}); }
+    catch(e){ if(e.status !== 404) throw e; }   // gone (or from another GitHub account): make a new one below
+  }
+  if(!j) j = await ghApi('/gists', token, 'POST', {description: 'ChapterBox study calendar (kept up to date by ChapterBox)', public: false, files});
+  const file = j.files && j.files['chapterbox.ics'];
+  let url = file && String(file.raw_url || '').replace(/\/raw\/[0-9a-f]+\//, '/raw/');
+  if(!url && old && j.id === old.id) url = old.url;   // the same file as before: the same link
   if(!j.id || !url || !url.startsWith('https://gist.githubusercontent.com/')) throw new Error("GitHub didn't create the calendar file");
   ghSet({token, id: j.id, url, sig: f.sig, at: Date.now()});
 }
@@ -2616,7 +2630,7 @@ function calModal(){
     </div>
     <div class="pl-way"><b>3 · Put the study sessions in your calendar</b>
       <div class="row" style="margin-top:8px"><button class="primary" id="calI">🍎 Add to Apple Calendar</button><label class="chk" style="margin:0"><input type="checkbox" id="calA" checked> remind me 10 min before</label></div>
-      <div class="hint">A calendar file with every session of the next 8 weeks. Mac: open it and pick a calendar. iPhone: tap it, then Add All. Tip: give them their own calendar (Calendar → File → New Calendar), so you can clear it and add the file again when your plan changes.</div>
+      <div class="hint">A calendar file with every session of the next 8 weeks. It's a one-time copy: it never updates itself, and every new import adds sessions next to the old ones. For a calendar that replaces itself, use the live calendar below. If you do import: on a Mac open the file and pick a calendar, on an iPhone tap it, then Add All. Give it its own calendar (Calendar → File → New Calendar) and delete that calendar before you import again.</div>
       <div id="cLive"></div>
       <div class="row" style="margin-top:10px"><button class="small" id="calR">🔁 Simple daily reminder (.ics)</button><button class="small" id="calG">➕ Google Calendar reminder</button></div>
     </div>
@@ -2708,10 +2722,15 @@ function calModal(){
     box.innerHTML = `<div class="live"><b>🔄 Live calendar is on</b> <span class="muted">${c.err ? '' : '· updated ' + ago(c.at)}</span>
       ${c.err ? `<div style="color:var(--warn);margin-top:4px">⚠️ It stopped updating: ${esc(c.err)}.</div>` : ''}
       <div class="row" style="margin-top:8px"><a class="btn primary" id="ghSub" href="${esc(String(c.url || '').replace(/^https:/, 'webcal:'))}">🍎 Subscribe in Apple Calendar</a><button class="small" id="ghCopy">Copy link</button><button class="small" id="ghNow">Update now</button><button class="small" id="ghOff">Disconnect</button></div>
-      <div class="hint">Subscribe once. On a Mac pick <b>iCloud</b> as the location so it also shows on your iPhone, and set Auto-refresh to every 15 minutes. ChapterBox updates the link while this site is open.</div></div>`;
+      <div class="hint">Subscribe once. On a Mac pick <b>iCloud</b> as the location so it also shows on your iPhone, and set Auto-refresh to every 15 minutes. Whenever your plan changes, ChapterBox swaps the whole calendar for the new schedule, so old sessions disappear by themselves (it updates while this site is open). Your sidebar should have just <b>one</b> "ChapterBox study" calendar with the ))) icon.</div>
+      <details class="hint" style="margin-top:6px"><summary style="cursor:pointer">Seeing the same sessions twice?</summary><div style="margin-top:4px">Extra calendars come from older links, which can't refresh any more, or from imported files. In Apple Calendar right-click each extra <b>ChapterBox study</b> calendar and choose <b>Unsubscribe</b> (<b>Delete</b> if it has no ))) icon). Not sure which one is the current one? Remove them all, then press <b>Subscribe</b> above once.</div></details></div>`;
     $('#ghCopy').onclick = () => copyLink(c.url, 'Link copied. In Calendar: File → New Calendar Subscription…');
     $('#ghNow').onclick = async () => { try{ await liveSync(true); toast('🔄 Calendar link updated'); }catch(e){ toast('GitHub: ' + e.message); } drawLive(); };
-    $('#ghOff').onclick = async () => { ghSet(null); drawLive(); try{ await ghApi('/gists/' + c.id, c.token, 'DELETE'); }catch(e){} toast('Live calendar is off. Remove the subscription in Apple Calendar too'); };
+    $('#ghOff').onclick = async () => {   // empty the calendar, don't delete it: Apple Calendar clears the sessions by itself, and connecting again brings the same link back
+      ghSet(null); drawLive();
+      try{ await ghApi('/gists/' + c.id, c.token, 'PAT' + 'CH', {files: {'chapterbox.ics': {content: icsEmpty()}}}); }catch(e){}
+      toast('Live calendar is off. Apple Calendar empties it by itself; connect again later and the same link comes back');
+    };
   };
   $('#cDone').onclick = () => { closeModal(); render(); liveTick(); };
   $('#cWeek').onclick = () => weekModal(0);

@@ -213,6 +213,8 @@ select{font:inherit;background:var(--input);color:var(--text);border:1px solid v
 .pv{display:flex;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
 .pv:last-child{border-bottom:0}
 .pv-d{flex:none;width:96px;color:var(--muted)}
+.wk-ed{padding:1px 6px;font-size:11px;margin-left:6px}
+@media print{.wk-ed{display:none}}
 .sec-h{flex-wrap:wrap;gap:8px}
 .wk-wrap{overflow-x:auto}
 .wk-sum{margin-top:14px}
@@ -1221,7 +1223,7 @@ function renderHome(){
       <div class="stat"><div class="big">${fmtDur(total)}</div><div class="muted">studied in total</div></div>
     </div>
     <div class="week">${week.map(x => `<div class="d ${dayKey(x.d) === dayKey() ? 'today' : ''}" title="${fmtDur(x.s)} studied"><span>${Math.round(x.s / 60)}m</span><div class="b" style="height:${Math.max(3, Math.round(x.s / top * 72))}px"></div>${DAYS[x.d.getDay()]}</div>`).join('')}</div>
-    ${plans.length ? `<div class="sec-h"><h2>📅 Today's plan</h2><div class="row"><button class="small" id="wkBtn" title="Every session of the week with exact lengths, clock times and totals">📋 Week timetable</button><button class="small" id="calBtn" title="Plan around your calendar and put the study sessions in it">🗓 Auto-schedule</button><button class="small" id="dayOff" title="${offToday ? "Bring today's plans back" : 'No study today for any subject. Every plan moves ahead to the next study day'}">${offToday ? '↩ Undo day off' : '🏖 Day off today'}</button></div></div>` + schedCard() + plans.map(todayCard).join('') : ''}
+    ${plans.length ? `<div class="sec-h"><h2>📅 Today's plan</h2><div class="row"><button class="small" id="wkBtn" title="Every session of the week with exact lengths, clock times and totals">📋 Week timetable</button><button class="small" id="calBtn" title="Plan around your calendar and put the study sessions in it">🗓 Auto-schedule</button><button class="small" id="chgBtn" title="Change today's study hours, start time or busy blocks. Any other day too">✏️ Change day</button><button class="small" id="dayOff" title="${offToday ? "Bring today's plans back" : 'No study today for any subject. Every plan moves ahead to the next study day'}">${offToday ? '↩ Undo day off' : '🏖 Day off today'}</button></div></div>` + schedCard() + plans.map(todayCard).join('') : ''}
     ${reviewSection()}
     ${cardsSection()}
     ${courses.length ? `<div class="sec-h"><h2>📚 Your playlists</h2></div><div class="cards">${courses.map(ownerCard).join('')}</div>` : ''}
@@ -2128,7 +2130,7 @@ function weekModal(w){
   const table = n => {
     let html = `<table class="plan-table"><tr><th>Time</th>${n === 3 ? '<th>Subject</th>' : ''}<th>What to study</th><th>Video</th><th>Study time</th></tr>`;
     for(const day of days){
-      html += `<tr class="wk"><td colspan="${n}">${DAYS[day.d.getDay()]}, ${fmtDay(day.d)}${day.k === dayKey() ? ' (today)' : ''}${day.busy.length ? ` <span class="wkt">· busy: ${day.busy.slice(0, 4).map(e => esc(e.t) + (e.all ? ' (all day)' : ' ' + fmtClock(e.a) + '–' + fmtClock(e.b))).join(' · ')}${day.busy.length > 4 ? ' …' : ''}</span>` : ''}</td><td class="t">${day.dv ? fmt(day.dv) : ''}</td><td class="t">${day.ds ? fmt(day.ds) : ''}</td></tr>`;
+      html += `<tr class="wk"><td colspan="${n}">${DAYS[day.d.getDay()]}, ${fmtDay(day.d)}${day.k === dayKey() ? ' (today)' : ''} <button class="small wk-ed" data-ed="${day.k}" title="Change this day">✏️</button>${day.busy.length ? ` <span class="wkt">· busy: ${day.busy.slice(0, 4).map(e => esc(e.t) + (e.all ? ' (all day)' : ' ' + fmtClock(e.a) + '–' + fmtClock(e.b))).join(' · ')}${day.busy.length > 4 ? ' …' : ''}</span>` : ''}</td><td class="t">${day.dv ? fmt(day.dv) : ''}</td><td class="t">${day.ds ? fmt(day.ds) : ''}</td></tr>`;
       if(!day.st.length) html += `<tr class="off"><td colspan="${n + 2}">${day.left ? 'No free time for ' + fmtDur(day.left) : day.why === 'cal' ? '🗓 No free time, study moves ahead' : day.why ? '🏖 Day off' : 'No study planned'}</td></tr>`;
       for(const r of day.rows){
         if(r.gap){ html += `<tr class="brk"><td class="wk-time">${fmtClock(r.a)} – ${fmtClock(r.b)}</td><td colspan="${n + 1}">${esc(r.what)} · ${mins(r.b - r.a)}</td></tr>`; continue; }
@@ -2145,11 +2147,12 @@ function weekModal(w){
       ${sum ? `<table class="plan-table wk-sum"><tr><th>Subject</th><th>Video</th><th>Study time</th><th>Share</th></tr>${sum}<tr class="wk"><td>Total</td><td class="t">${fmt(wv)}</td><td class="t">${fmt(ws)}</td><td class="t">100%</td></tr></table>` : ''}` : '<p class="muted">Make a 📅 plan first. Then your week shows up here.</p>'}</div>
     <div class="hint">Video is the exact length of each part. Study time adds pausing, notes and practice (set per subject in 📅 Plan). Clock times, breaks and meals follow 🗓 Auto-schedule.</div>
     <div class="actions"><button id="wkCal">🗓 Auto-schedule</button><button class="primary" onclick="closeModal()">Done</button></div>`, true);
+  $('#wkBody').querySelectorAll('[data-ed]').forEach(b => b.onclick = () => dayModal(b.dataset.ed, () => weekModal(w)));
   $('#wkPrev').onclick = () => weekModal(w - 1); $('#wkNext').onclick = () => weekModal(w + 1); $('#wkCal').onclick = () => calModal();
   $('#wkCsv').onclick = () => { dlFile('chapterbox-week.csv', csv.map(r => r.map(q).join(',')).join('\n') + '\n', 'text/csv'); toast('⬇️ Week timetable downloaded'); };
   $('#wkPrint').onclick = () => {
     const win = window.open('', '_blank'); if(!win){ toast('Allow pop-ups to print'); return; }
-    win.document.write('<title>ChapterBox week timetable</title><style>body{font:13px system-ui,sans-serif;margin:24px}table{border-collapse:collapse;width:100%;margin-bottom:18px}td,th{border:1px solid #999;padding:4px 7px;text-align:left;vertical-align:top}tr.wk td{background:#eee;font-weight:700}tr.brk td{color:#666;font-size:11px}.t,.wk-time{white-space:nowrap}.wkt{font-weight:400}.wk-m{display:none}</style><h2>Week timetable · ' + fmtDay(days[0].d) + ' – ' + fmtDay(days[6].d) + '</h2>' + $('#wkBody').innerHTML);
+    win.document.write('<title>ChapterBox week timetable</title><style>body{font:13px system-ui,sans-serif;margin:24px}table{border-collapse:collapse;width:100%;margin-bottom:18px}td,th{border:1px solid #999;padding:4px 7px;text-align:left;vertical-align:top}tr.wk td{background:#eee;font-weight:700}tr.brk td{color:#666;font-size:11px}.t,.wk-time{white-space:nowrap}.wkt{font-weight:400}.wk-m{display:none}.wk-ed{display:none}</style><h2>Week timetable · ' + fmtDay(days[0].d) + ' – ' + fmtDay(days[6].d) + '</h2>' + $('#wkBody').innerHTML);
     win.document.close(); win.focus(); win.print();
   };
 }
@@ -2322,8 +2325,10 @@ function calBuild(){
 function calDays(){ const k0 = dayKey(); if(!calMemo || calMemo.day !== k0) calMemo = {day: k0, days: calBuild(), free: new Map()}; return calMemo.days; }
 
 // ---- free time ----
+const dayOv = k => (store.settings.dayEdit || {})[k] || null;   // changes you made to one day: {from, to, pref, max, busy: [{t, a, b}]}
+function dayHrs(k){ const st = calSet(), o = dayOv(k) || {}; return {from: o.from != null ? o.from : st.from, to: o.to != null ? o.to : st.to}; }
 function busyOn(k){   // everything that blocks study on a date, earliest first
-  const st = calSet(), dow = parseDay(k).getDay(), out = [];
+  const st = Object.assign({}, calSet(), dayHrs(k)), dow = parseDay(k).getDay(), out = [];
   for(const r of st.rules || []) if((r.d || []).includes(dow)) out.push({a: r.a, b: r.b, t: r.t});
   for(const m of st.meals || []) if(m.on && m.b > m.a) out.push({a: m.a, b: m.b, t: m.t, meal: 1});
   for(const e of calDays().get(k) || []) if(!e.all || st.allDay) out.push(e);
@@ -2333,10 +2338,11 @@ function busyOn(k){   // everything that blocks study on a date, earliest first
     for(const r of st.rules || []) if((r.d || []).includes(dow2) && r.a < st.to) out.push({a: r.a + 1440, b: r.b + 1440, t: r.t});
     for(const e of calDays().get(k2) || []) if(!e.all && e.a < st.to) out.push(Object.assign({}, e, {a: e.a + 1440, b: e.b + 1440}));
   }
+  for(const b of (dayOv(k) || {}).busy || []) out.push({a: b.a, b: b.b, t: b.t, mine: 1});   // busy blocks you added to this day only
   return out.sort((x, y) => x.a - y.a);
 }
 function freeSlots(k, fromMin){   // the free stretches inside your study hours, in minutes of the day
-  const st = calSet(), busy = busyOn(k).map(e => e.all ? [0, 1440] : e.meal ? [e.a, e.b] : [e.a - st.buf, e.b + st.buf]).sort((x, y) => x[0] - y[0]), out = [];
+  const st = Object.assign({}, calSet(), dayHrs(k)), busy = busyOn(k).map(e => e.all ? [0, 1440] : e.meal ? [e.a, e.b] : [e.a - st.buf, e.b + st.buf]).sort((x, y) => x[0] - y[0]), out = [];
   let t = Math.max(st.from, fromMin || 0);
   const end = st.to < st.from ? st.to + 1440 : st.to;   // study hours can end after midnight
   for(const [a, b] of busy){ if(a >= end) break; if(a > t) out.push([t, a]); if(b > t) t = b; }
@@ -2347,12 +2353,12 @@ function gapAfter(st, n){ return st.longN > 0 && n % st.longN === 0 ? Math.max(s
 function slotStudy(len, st){ let t = 0, s = 0, n = 0; while(len - t >= 10){ const take = Math.min(st.block, len - t); s += take; n++; t += take + gapAfter(st, n); } return s; }   // minutes of study that fit, breaks taken out
 function calFreeSecs(k){
   calDays(); let v = calMemo.free.get(k);
-  if(v == null){ const st = calSet(); v = st.limit ? freeSlots(k).reduce((a, [x, y]) => a + slotStudy(y - x, st), 0) * 60 : 86400; if(st.max > 0) v = Math.min(v, st.max * 60); calMemo.free.set(k, v); }   // free study time, capped by your daily limit
+  if(v == null){ const st = calSet(), o = dayOv(k), mx = o && o.max != null ? o.max : st.max; v = st.limit || o ? freeSlots(k).reduce((a, [x, y]) => a + slotStudy(y - x, st), 0) * 60 : 86400; if(mx > 0) v = Math.min(v, mx * 60); calMemo.free.set(k, v); }   // free study time, capped by your daily limit
   return v;
 }
 // how much of a day one plan may use: the day's free time is shared by all plans that want that day
 function calLimiter(o, p, g){
-  const st = calSet(); if(!st.on || !(st.limit || st.max > 0)) return null;
+  const st = calSet(); if(!st.on || !(st.limit || st.max > 0 || Object.keys(store.settings.dayEdit || {}).length)) return null;
   const k0 = dayKey(), rest = [];
   for(const x of planOwners()){
     if(x === o) continue;
@@ -2390,7 +2396,7 @@ function fillSlots(slots, pieces, st, whole){   // whole: don't cut practice at 
   return {sessions: out, left};
 }
 function placeDay(k, pieces, fromMin){
-  const st = calSet(), all = freeSlots(k, fromMin), pref = Math.max(st.pref, fromMin || 0);
+  const st = calSet(), all = freeSlots(k, fromMin), o = dayOv(k) || {}, pref = Math.max(o.pref != null ? o.pref : st.pref, fromMin || 0);
   const from = T => all.map(([a, b]) => [Math.max(a, T), b]).filter(([a, b]) => b - a >= 15);
   // practice stays in one piece when there is room for that; on a full day it may be cut over two sessions
   const fill = T => { const s = from(T), r = fillSlots(s, pieces, st, true); if(r.left < 120) return r; const r2 = fillSlots(s, pieces, st); return r2.left < r.left ? r2 : r; };
@@ -2442,6 +2448,64 @@ function schedCard(){
   return `<div class="plan-today sched"><div class="row" style="justify-content:space-between"><b>🗓 Today around your calendar</b><span class="muted" style="font-size:12px">${busy.length ? 'Busy: ' + busy.slice(0, 4).map(e => `${esc(e.t)} ${fmtClock(e.a)}–${fmtClock(e.b)}`).join(' · ') + (busy.length > 4 ? ' …' : '') : 'Nothing in your calendar today'}</span></div>
     ${s.sessions.map((x, i) => `<div class="sc-row" data-ss="${i}" title="Start this session"><span class="sc-t">${fmtClock(x.a)} – ${fmtClock(x.b)}</span><span>${esc(sessTitle(x))} <span class="muted">· ${esc(sessShort(x))}</span></span></div>`).join('')}
     ${note ? `<div class="muted" style="margin-top:6px">${note}</div>` : ''}</div>`;
+}
+
+// ---- ✏️ change one day: its own study hours, start time, study limit and busy blocks ----
+function dayPut(k, patch){
+  const all = Object.assign({}, store.settings.dayEdit), e = Object.assign({}, all[k], patch), today = dayKey();
+  for(const x of Object.keys(e)) if(e[x] == null || (x === 'busy' && !e.busy.length)) delete e[x];
+  if(Object.keys(e).length) all[k] = e; else delete all[k];
+  for(const x of Object.keys(all)) if(x < today) delete all[x];
+  store.settings.dayEdit = all; calPut(calSet().on ? {} : {on: true});
+}
+function dayModal(k, back){
+  const today = dayKey(), last = plusDays(CAL_DAYS - 1); k = k || today; if(k < today) k = today; if(k > last) k = last;
+  let i = 0; while(plusDays(i) < k) i++;
+  const d = parseDay(k), st = calSet(), ov = dayOv(k) || {}, h = dayHrs(k), wrapG = st.to < st.from, bk = back || (() => closeModal());
+  const hrs = (ov.from != null || ov.to != null) ? ' <span class="muted">(changed)</span>' : '';
+  openModal(`<h2>✏️ Change ${i ? DAYS[d.getDay()] + ', ' + fmtDay(d) : 'today'}</h2>
+    <div class="row" style="justify-content:space-between;margin-top:4px;flex-wrap:wrap"><span class="muted" style="font-size:13px;flex:1 1 220px;min-width:0">Only this day changes. Every other day keeps your normal 🗓 Auto-schedule settings.</span><div class="row"><button class="small" id="dyPrev" ${i ? '' : 'disabled'}>◀</button><button class="small" id="dyNext" ${k < last ? '' : 'disabled'}>▶</button></div></div>
+    <div class="pl-way"><b>This day's sessions</b><div id="dyList" style="margin-top:6px"></div></div>
+    <div class="pl-way"><b>Study time this day</b>${hrs}
+      <div class="row" style="gap:6px;margin-top:8px">Between <input id="dFrom" type="time" step="300" value="${clockOut(h.from)}" style="width:118px"> and <input id="dTo" type="time" step="300" value="${clockOut(h.to)}" style="width:118px"> · start around <input id="dPref" type="time" step="300" value="${clockOut(ov.pref != null ? ov.pref : st.pref)}" style="width:118px"></div>
+      <div class="row" style="gap:6px;margin-top:8px">At most <input id="dMax" type="number" min="0" max="16" step="0.5" value="${ov.max ? ov.max / 60 : ''}" placeholder="${st.max ? st.max / 60 : 'no limit'}" style="width:84px"> hours of study this day</div>
+      <div class="row" style="gap:6px;margin-top:10px"><b style="font-size:13px">Busy this day:</b><input id="dT" placeholder="Dentist" style="width:120px"><input id="dA" type="time" step="300" value="17:00" style="width:118px"><span class="muted">to</span><input id="dB" type="time" step="300" value="18:00" style="width:118px"><button class="small" id="dAdd">+ Add</button></div>
+      <div id="dyBusy" class="offchips" style="margin-top:6px"></div>
+    </div>
+    <div class="hint">Changing a day turns on 🗓 Auto-schedule, so your plans follow it. Study that doesn't fit moves to the next day.</div>
+    <div class="actions"><button id="dyReset">↩ Back to normal</button><button class="primary" id="dyDone">Done</button></div>`, true);
+  const draw = () => {
+    const o = dayOv(k) || {};
+    const r = k === today ? todaySched() : planSessions(i + 1).days.get(k), ss = r ? r.sessions : [], left = r ? r.left : 0, busy = busyOn(k).filter(e => !e.meal);
+    $('#dyList').innerHTML = (ss.length ? ss.map(s => `<div class="pv"><span class="pv-d">${fmtClock(s.a)} – ${fmtClock(s.b)}</span><span>${esc(sessTitle(s))} <span class="muted">· ${esc(sessShort(s))}</span></span></div>`).join('') : `<div class="muted">${i && planSessions(i + 1).why.get(k) ? '🏖 Day off' : 'No study sessions on this day'}</div>`)
+      + (left >= 120 ? `<div style="color:var(--warn);font-size:13px;margin-top:4px">⏰ ${fmtDur(left)} doesn't fit, it moves to the next day</div>` : '')
+      + (busy.length ? `<div class="muted" style="font-size:12px;margin-top:4px">Busy: ${busy.slice(0, 6).map(e => esc(e.t) + (e.all ? ' (all day)' : ' ' + fmtClock(e.a) + '–' + fmtClock(e.b))).join(' · ')}</div>` : '');
+    $('#dyBusy').innerHTML = (o.busy || []).map((b, n) => `<span>🚫 ${esc(b.t)} · ${fmtClock(b.a)}–${fmtClock(b.b)}<button data-rb="${n}" title="Remove">✕</button></span>`).join('') || '<span class="muted legend">Nothing added for this day.</span>';
+    $('#dyBusy').querySelectorAll('[data-rb]').forEach(b => b.onclick = () => { const l = (dayOv(k).busy || []).slice(); l.splice(+b.dataset.rb, 1); dayPut(k, {busy: l}); draw(); });
+    $('#dyReset').disabled = !Object.keys(o).length;
+  };
+  const apply = loud => {
+    const f = clockIn($('#dFrom').value); let to = clockIn($('#dTo').value), pf = clockIn($('#dPref').value); if(to === 0) to = 1440;
+    if(f == null || to == null) return;
+    const wrap = to < f;
+    if((wrap ? to + 1440 - f : to - f) < 30 || (wrap && (!wrapG || to > 480))){ if(loud === true) toast(wrap && !wrapG ? 'To run past midnight, turn that on in 🗓 Auto-schedule first' : 'Study hours need to be at least 30 minutes long'); return; }
+    if(wrap && pf != null && pf < f && pf <= to) pf += 1440;
+    const mx = parseFloat($('#dMax').value);
+    dayPut(k, {from: f === st.from ? null : f, to: to === st.to ? null : to, pref: pf == null || pf === st.pref ? null : pf, max: isNaN(mx) || mx <= 0 ? null : Math.round(Math.min(16, mx) * 60)});
+    draw();
+  };
+  ['#dFrom', '#dTo', '#dPref', '#dMax'].forEach(id => { $(id).oninput = () => apply(); $(id).onchange = () => apply(true); });
+  $('#dAdd').onclick = () => {
+    let a = clockIn($('#dA').value), b = clockIn($('#dB').value); if(b === 0) b = 1440;
+    if(a == null || b == null || (b <= a && !(wrapG && b <= 480))){ toast('Pick a start and a later end time'); return; }
+    if(b <= a) b += 1440;
+    if(wrapG && a < h.from && a <= h.to){ a += 1440; if(b < a) b += 1440; }
+    dayPut(k, {busy: [...(dayOv(k) || {}).busy || [], {t: ($('#dT').value.trim() || 'Busy').slice(0, 40), a, b}]}); $('#dT').value = ''; draw();
+  };
+  $('#dyPrev').onclick = () => dayModal(plusDays(i - 1), back); $('#dyNext').onclick = () => dayModal(plusDays(i + 1), back);
+  $('#dyReset').onclick = () => { dayPut(k, {from: null, to: null, pref: null, max: null, busy: []}); toast('↩ ' + (i ? 'That day' : 'Today') + ' is back to normal'); dayModal(k, back); };
+  $('#dyDone').onclick = () => bk();
+  draw();
 }
 
 // ---- out to the calendar ----
@@ -2567,9 +2631,10 @@ function calModal(){
       const what = day && day.sessions.length ? day.sessions.map(s => `<b>${fmtClock(s.a)}–${fmtClock(s.b)}</b> ${esc(sessTitle(s))}`).join(' · ') + (day.left >= 120 ? ` <span style="color:var(--warn)">· ${fmtDur(day.left)} doesn't fit</span>` : '')
         : day && day.left ? `<span style="color:var(--warn)">No free time for ${fmtDur(day.left)}</span>`
         : r.why.get(k) === 'cal' ? '🗓 No free time, study moves ahead' : r.why.get(k) ? '🏖 Day off' : '<span class="muted">No study planned</span>';
-      rows.push(`<div class="pv"><span class="pv-d">${i ? DAYS[d.getDay()] + ', ' + fmtDay(d) : 'Today'}</span><span>${what}${busy.length ? `<div class="muted" style="font-size:12px">Busy: ${busy.slice(0, 5).map(e => esc(e.t) + (e.all ? ' (all day)' : ' ' + fmtClock(e.a) + '–' + fmtClock(e.b))).join(' · ')}${busy.length > 5 ? ' …' : ''}</div>` : ''}</span></div>`);
+      rows.push(`<div class="pv"><span class="pv-d">${i ? DAYS[d.getDay()] + ', ' + fmtDay(d) : 'Today'}<br><button class="small" data-ed="${k}" title="Change this day">✏️ Change</button></span><span>${what}${busy.length ? `<div class="muted" style="font-size:12px">Busy: ${busy.slice(0, 5).map(e => esc(e.t) + (e.all ? ' (all day)' : ' ' + fmtClock(e.a) + '–' + fmtClock(e.b))).join(' · ')}${busy.length > 5 ? ' …' : ''}</div>` : ''}</span></div>`);
     }
     $('#cPrev').innerHTML = rows.join('');
+    $('#cPrev').querySelectorAll('[data-ed]').forEach(b => b.onclick = () => dayModal(b.dataset.ed, () => calModal()));
   };
   const drawSrc = () => {
     const rows = calData.src.map((s, i) => `<span>📄 ${esc(s.name)} · ${s.ev.length} event${s.ev.length === 1 ? '' : 's'} · ${fmtDay(new Date(s.at))}<button data-rs="${i}" title="Remove this calendar">✕</button></span>`)
@@ -2961,6 +3026,7 @@ function bindHome8(el){
   if($('#wkBtn')) $('#wkBtn').onclick = () => weekModal(0);
   if($('#fiveBtn')) $('#fiveBtn').onclick = startFive;
   if($('#calBtn')) $('#calBtn').onclick = () => calModal();
+  if($('#chgBtn')) $('#chgBtn').onclick = () => dayModal(dayKey(), () => { closeModal(); renderHome(); });
   if($('#fcStart')) $('#fcStart').onclick = () => reviewCards();
   if($('#fcAll')) $('#fcAll').onclick = () => { const ids = new Set(store.videos.map(v => v.id)); reviewCards(cards().filter(x => ids.has(x.v)).sort(() => Math.random() - 0.5)); };
   el.querySelectorAll('[data-tp]').forEach(r => r.onclick = () => {

@@ -173,6 +173,24 @@ a.bmk{cursor:grab}
 .sd-dot{width:12px;height:12px;border-radius:3px;display:block}
 .sd-bar{grid-column:2 / 4;height:6px;background:var(--track);border-radius:3px;overflow:hidden}
 .sd-bar i{display:block;height:100%;border-radius:3px}
+.sm{display:grid;gap:12px;background:linear-gradient(135deg,rgba(90,130,255,.08),rgba(255,78,69,.06)),var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px;min-width:0}
+.sm-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sm-h > b{font-size:15px}
+.sm-h .muted{flex:1;font-size:12px;min-width:0}
+.sm-load{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sm-load .big{font-size:30px;font-weight:800;line-height:1.1}
+.sm-path{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.sm-w{background:var(--panel2);border-radius:8px;padding:6px 2px;text-align:center;font-size:12px;font-weight:700;min-width:0;white-space:nowrap}
+.sm-w small{display:block;font-size:10px;font-weight:600;color:var(--muted)}
+.sm-w.now{box-shadow:0 0 0 2px var(--accent)}
+.sm-line{font-size:13px;line-height:1.45}
+.sm-strip{display:grid;grid-template-columns:repeat(24,minmax(0,1fr));gap:2px;align-items:end;height:48px}
+.sm-strip i{display:block;border-radius:3px 3px 1px 1px;background:var(--cat1);opacity:.5;min-height:3px}
+.sm-strip i.best{opacity:1}
+.sm-ax{display:grid;grid-template-columns:repeat(24,minmax(0,1fr));gap:2px;font-size:9px;color:var(--muted);margin-top:3px}
+.sm-ax span{white-space:nowrap}
+.sm-warn{font-size:13px;color:var(--warn)}
+@media (max-width:480px){.sm{padding:10px;gap:10px}.sm-load .big{font-size:26px}}
 @media (min-width:701px){.hm-h{font-size:13px}.hm-n{font-size:11px}.hm-k{top:4px;right:7px;font-size:10px}}
 @media (max-width:700px){.hm-sum{grid-template-columns:1fr 1fr}.hm-d{height:auto;aspect-ratio:1;padding:4px 5px}.hm-k{top:3px;right:5px;font-size:9px}}
 @media (max-width:480px){.hm{padding:10px;gap:10px}.hm-w,.hm-g{gap:3px}.hm-d{padding:3px 4px;border-radius:7px}.hm-chip .big{font-size:17px}}
@@ -1140,6 +1158,7 @@ function helpModal(){
       <li><b>🤖 Smart coach</b> (Home) tells you today's mission across all subjects (easiest first), warns when a plan falls behind with a one-click catch-up, shows reviews due and when you study best. <b>🤖 Plan all my courses</b> shares your daily time across every course.</li>
       <li><b>⚡ Energy check-in</b> (Home): each day it asks how much energy and focus you have. <b>Low</b> is a lighter day (about 60%, easy parts first, short sessions), <b>Medium</b> is your plan, <b>High</b> is a bigger day (about 125%, hardest parts first, longer sessions). What is cut or added moves to the other days by itself. Press Change any time.</li>
       <li><b>📆 Study calendar</b> (Home, under the week): a month view like YPT. Every day is coloured by how long you studied (darker blue is more) with the time written in it, and a ✓ means you reached your daily goal. Tap a day to see which subjects it was, use ◀ ▶ for other months, and Hide it if you want a shorter Home.</li>
+      <li><b>✨ Smart timetable</b> (Home, under the calendar): ChapterBox notes every study block while a lecture plays. It learns your usual start time, how long you sit and how long you rest, builds today's timetable at those times, and raises your daily study time a little each week you manage it (+5, +10 or +15%, up to a ceiling you choose). A week with few study days holds the amount or eases it back. Turn it on from the card or the ⋯ menu. It stays on this device.</li>
       <li><b>🧠 Difficulty</b>: every chapter gets 🟢 easy, 🟡 medium or 🔴 hard from its title, length, place in the course and your own ratings. Click the dot to change it. Plans can go <b>🧠 Smart</b> (ideas first, then practice from easy to hard), <b>🧗 Easy → hard</b> or <b>📚 Course order</b>.</li>
       <li><b>😀 😐 😵</b> After a chapter, rate it in one tap. Hard ones come back for a <b>🔁 spaced review</b> (after 1, 3, 7, 16 and 35 days). Turn it off in ⋯.</li>
       <li><b>🍅 Focus timer</b> (top bar): 25, 50 or 90 minutes of focus, then it pauses the video for a break.</li>
@@ -1184,12 +1203,13 @@ $('#importFile').onchange = async e => {
     }
     if(data.settings) store.settings = Object.assign(store.settings, data.settings);
     calBump();
+    if(Array.isArray(data.blk)) store.blk = blkMerge(store.blk, data.blk);
     for(const k of Array.isArray(data.cards) ? data.cards : []) if(k && k.id && !cards().some(x => x.id === k.id)) cards().push(k);
     if(data.transcripts && typeof data.transcripts === 'object') for(const [id, tr] of Object.entries(data.transcripts)) if(tr && Array.isArray(tr.s)) await trPut(id, tr);
     for(const [k, x] of Object.entries(data.stats && typeof data.stats === 'object' ? data.stats : {})){ const m = store.stats[k] || {s: 0, c: 0}; const ex = Math.max(m.x || 0, (x && +x.x) || 0); store.stats[k] = {s: Math.max(m.s || 0, (x && x.s) || 0), c: Math.max(m.c || 0, (x && x.c) || 0)}; if(ex) store.stats[k].x = ex; }
     for(const c of Array.isArray(data.courses) ? data.courses : []){ if(!c || !c.id || !Array.isArray(c.order)) continue; const i = store.courses.findIndex(x => x.id === c.id); if(i >= 0) store.courses[i] = c; else store.courses.push(c); }
     if(!cur() && store.videos[0]) store.currentId = store.videos[0].id;
-    save(); view = 'home'; render();
+    rhMemo = null; save(); view = 'home'; render();
     toast(`Imported: ${added} new, ${updated} updated`);
   }catch(err){ toast("That file isn't a ChapterBox backup"); }
   e.target.value = '';
@@ -1198,7 +1218,7 @@ $('#addBtn').onclick = () => addVideoModal();
 $('#homeBtn').onclick = showHome;
 $('#logo').onclick = showHome;
 $('#themeBtn').onclick = () => { store.settings.theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; save(); applyTheme(); };
-$('#menuBtn').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [['🤖 Plan all my courses', autoPlanModal], ['🔑 AI helper (optional)', aiModal], ['📋 Week timetable', () => weekModal(0)], ['🗓 Auto-schedule & calendar', () => calModal()], [`🔁 Spaced review: ${store.settings.revise === false ? 'off' : 'on'}`, toggleRevise], ['⬇️ Export backup', exportBackup], ['⬆️ Import backup', () => $('#importFile').click()], ['❓ Help & shortcuts', helpModal]]); };
+$('#menuBtn').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [['🤖 Plan all my courses', autoPlanModal], ['🔑 AI helper (optional)', aiModal], ['📋 Week timetable', () => weekModal(0)], ['🗓 Auto-schedule & calendar', () => calModal()], ['✨ Smart timetable', () => smartModal()], [`🔁 Spaced review: ${store.settings.revise === false ? 'off' : 'on'}`, toggleRevise], ['⬇️ Export backup', exportBackup], ['⬆️ Import backup', () => $('#importFile').click()], ['❓ Help & shortcuts', helpModal]]); };
 $('#focusBtn').onclick = focusMenu;
 function applyTheme(){
   const t = store.settings.theme === 'light' ? 'light' : 'dark';
@@ -1247,6 +1267,7 @@ function streak(){
   return n;
 }
 function renderHome(){
+  try{ smartWeek(); }catch(e){}
   const el = $('#homeView'), today = statDay(), ts = studied(today), goal = (store.settings.goal || 60) * 60, offToday = !!gOffs()[dayKey()];
   const recent = o => Math.max(0, ...ownerVideos(o).map(v => v.opened || v.added || 0));
   const owners = [...store.courses.filter(c => courseVideos(c).length), ...store.videos.filter(v => !courseOf(v))].sort((a, b) => recent(b) - recent(a));
@@ -1275,6 +1296,7 @@ function renderHome(){
     </div>
     <div class="week">${week.map(x => `<div class="d ${dayKey(x.d) === dayKey() ? 'today' : ''}" title="${fmtDur(x.s)} studied"><span>${Math.round(x.s / 60)}m</span><div class="b" style="height:${Math.max(3, Math.round(x.s / top * 72))}px"></div>${DAYS[x.d.getDay()]}</div>`).join('')}</div>
     ${hmHtml()}
+    ${smartCard()}
     ${plans.length ? `<div class="sec-h"><h2>📅 Today's plan</h2><div class="row"><button class="small" id="wkBtn" title="Every session of the week with exact lengths, clock times and totals">📋 Week timetable</button><button class="small" id="calBtn" title="Plan around your calendar and put the study sessions in it">🗓 Auto-schedule</button><button class="small" id="chgBtn" title="Change today's study hours, start time or busy blocks. Any other day too">✏️ Change day</button><button class="small" id="dayOff" title="${offToday ? "Bring today's plans back" : 'No study today for any subject. Every plan moves ahead to the next study day'}">${offToday ? '↩ Undo day off' : '🏖 Day off today'}</button></div></div>` + energyCard() + schedCard() + energyOwners(plans).map(todayCard).join('') : ''}
     ${reviewSection()}
     ${cardsSection()}
@@ -1301,7 +1323,7 @@ function renderHome(){
     o.plan.off = [...s]; todayChanged(o); save(); render();
     toast(s.has(k) ? '⏭ Shifted. This plan moves ahead to the next study day' : "↩ Back on today's plan");
   });
-  bindCoach(el); bindReviews(el); bindHome8(el); bindHm();
+  bindCoach(el); bindReviews(el); bindHome8(el); bindHm(); bindSmart();
 }
 function ownerCard(o){
   const pr = ownerProgress(o), t = continueTarget(o), pct = pr.total ? Math.round(pr.done / pr.total * 100) : 0;
@@ -1956,7 +1978,7 @@ function autoPlanModal(){
   const owners = [...store.courses.filter(c => courseVideos(c).length), ...store.videos.filter(v => !courseOf(v))].filter(o => { const pr = ownerProgress(o); return pr.done < pr.total; });
   if(!owners.length){ toast('Add a lecture or a playlist first'); return; }
   const sel = new Set(owners.map(ownerKey)), goal = store.settings.goal || 60;
-  const cst = calSet(), free = cst.on && (cst.limit || cst.max > 0) ? [...Array(7)].map((_, i) => calFreeSecs(plusDays(i))) : null;   // what Auto-schedule leaves free
+  const cst = calSet(), free = cst.on && (cst.limit || cst.max > 0 || smartOn()) ? [...Array(7)].map((_, i) => calFreeSecs(plusDays(i))) : null;   // what Auto-schedule leaves free
   openModal(`<h2>🤖 Plan all my courses</h2>
     <p class="muted" style="margin:0">I'll share your daily time across your courses (bigger ones get more, so they all finish around the same time) and start slowly, adding a little time every week.</p>
     <div class="row" style="margin-top:12px;gap:8px">Study up to <input id="apMin" type="number" min="10" max="900" step="5" value="${goal}" style="width:90px"> minutes a day in total <b id="apHr"></b></div>
@@ -2328,10 +2350,146 @@ function dlFile(name, text, type){
 function hashStr(s){ let h = 5381; for(let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return h.toString(36) + s.length.toString(36); }
 
 // ---- settings and the calendar copy (the events stay in this browser, outside backups) ----
-function calSet(){
+function calBase(){
   const c = Object.assign({on: false, from: 360, to: 1320, block: 45, gap: 10, buf: 10, allDay: false, limit: true, rules: [], longN: 3, long: 30, max: 0, meals: [{t: 'Breakfast', a: 480, b: 510, on: false}, {t: 'Lunch', a: 780, b: 840, on: true}, {t: 'Dinner', a: 1230, b: 1290, on: true}]}, store.settings.cal || {});
   if(c.pref == null){ const hrs = store.hours || [], best = hrs.some(x => x > 900) ? hrs.indexOf(Math.max(...hrs)) : 17; c.pref = Math.max(c.from, Math.min(best * 60, (c.to < c.from ? c.to + 1440 : c.to) - 60)); }   // until you pick one: the hour you study most
   return c;
+}
+function calSet(){ const c = calBase(); return smartOn() ? smartCal(c) : c; }
+
+// ================= ✨ smart timetable: it learns how you really study, then plans around it =================
+// every sitting is logged as [start ms, end ms, seconds played]. It goes on while you are back within 5 minutes
+const BLK_GAP = 300000, BLK_KEEP = 150 * 864e5;
+var rhMemo = null;
+function blkDay(ms){ return dayKey(new Date(ms - dayShift() * 6e4)); }
+function blkMin(ms){ const d = new Date(ms), m = d.getHours() * 60 + d.getMinutes(), s = dayShift(); return s && m < s ? m + 1440 : m; }   // like nowMin: 1 AM in a late study day is 25:00
+function trackBlk(dt){
+  const now = Date.now(); let b = store.blk; if(!Array.isArray(b)) b = store.blk = [];
+  const l = b[b.length - 1];
+  if(l && now >= l[1] && now - l[1] <= BLK_GAP){ l[1] = now; l[2] = Math.round((l[2] + dt) * 10) / 10; return; }
+  if(b.length >= 1200 || (b[0] && b[0][1] < now - BLK_KEEP)) b = store.blk = b.filter(x => x[1] > now - BLK_KEEP).slice(-1000);
+  b.push([now - Math.round(dt * 1000), now, Math.round(dt * 10) / 10]);
+}
+function blkMerge(a, b){   // a backup brings its blocks along
+  const seen = new Set(), out = [], cut = Date.now() - BLK_KEEP;
+  for(const x of [...(Array.isArray(a) ? a : []), ...(Array.isArray(b) ? b : [])]){
+    if(!Array.isArray(x) || !(x[1] > cut) || !(x[0] <= x[1]) || !(x[2] >= 0)) continue;
+    const k = Math.round(x[0] / 1000) + '-' + Math.round(x[1] / 1000); if(seen.has(k)) continue; seen.add(k); out.push([+x[0], +x[1], +x[2]]);
+  }
+  return out.sort((p, q) => p[0] - q[0]).slice(-1000);
+}
+function medOf(a){ if(!a.length) return null; const s = a.slice().sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
+function r5(x){ return Math.round(x / 5) * 5; }
+function dayDiff(a, b){ return Math.round((parseDay(b) - parseDay(a)) / 864e5); }
+// what the last 4 weeks say about you. Today is left out, so the times don't move while you study
+function rhythm(){
+  const k0 = dayKey(); if(rhMemo && rhMemo.k === k0) return rhMemo.v;
+  const first = plusDays(-28), mins = []; let d7 = 0, m7 = 0;
+  for(let i = 1; i <= 28; i++){ const m = studied(store.stats[plusDays(-i)]) / 60; if(m >= 15) mins.push(m); if(i <= 7){ m7 += m; if(m >= 15) d7++; } }
+  const byDay = new Map(); let hrs = Array(24).fill(0);
+  for(const b of Array.isArray(store.blk) ? store.blk : []){
+    if(!Array.isArray(b) || !(b[2] >= 120) || !(b[1] >= b[0])) continue;
+    const k = blkDay(b[0]); if(k < first || k >= k0) continue;
+    if(!byDay.has(k)) byDay.set(k, []); byDay.get(k).push(b);
+  }
+  const days = [...byDay.values()].filter(l => l.reduce((a, b) => a + b[2], 0) >= 600), spans = [], gaps = [], starts = [], ends = []; let nb = 0;
+  const spread = (a, b, w) => {   // w seconds of study between a and b, shared out by the time spent in each clock hour
+    const tot = b - a; if(!(tot > 0)){ hrs[new Date(a).getHours()] += w; return; }
+    for(let t = a, n = 0; t < b && n < 200; n++){ const d = new Date(t), nx = Math.min(b, new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours() + 1).getTime()); if(!(nx > t)) break; hrs[d.getHours()] += w * (nx - t) / tot; t = nx; }
+  };
+  for(const list of days){
+    list.sort((a, b) => a[0] - b[0]); nb += list.length;
+    const f = list.find(b => b[2] >= 300) || list[0], l = [...list].reverse().find(b => b[2] >= 300) || list[list.length - 1];
+    starts.push(blkMin(f[0]));
+    let e = blkMin(l[1]); if(e < blkMin(l[0])) e += 1440; ends.push(e);
+    list.forEach((b, i) => {
+      if(b[2] >= 300 && b[1] - b[0] >= 600000) spans.push((b[1] - b[0]) / 60000);
+      if(i){ const g = (b[0] - list[i - 1][1]) / 60000; if(g >= 5 && g <= 90) gaps.push(g); }
+      spread(b[0], b[1], b[2]);
+    });
+  }
+  let rough = false;
+  if(hrs.reduce((a, b) => a + b, 0) < 600 && (store.hours || []).reduce((a, b) => a + b, 0) >= 600){ hrs = (store.hours || []).slice(0, 24); rough = true; }   // no blocks yet: the all-time hours will do
+  let best = null, bv = 0; for(let h = 0; h < 23; h++){ const v = hrs[h] + hrs[h + 1]; if(v > bv){ bv = v; best = h; } }
+  if(bv < 600) best = null;
+  const v = {
+    base: mins.length >= 3 ? medOf(mins) : null, avg: mins.length ? mins.reduce((a, b) => a + b, 0) / mins.length : null, studyDays: mins.length, last7: {n: d7, mins: m7},
+    block: spans.length >= 5 ? Math.max(20, Math.min(90, r5(medOf(spans)))) : null,
+    gap: gaps.length >= 4 ? Math.max(5, Math.min(30, r5(medOf(gaps)))) : null,
+    start: starts.length >= 3 ? r5(medOf(starts)) : null, end: ends.length >= 3 ? r5(medOf(ends)) : null,
+    hrs, best, rough, blocks: nb, bdays: days.length,
+    conf: days.length >= 10 && nb >= 25 ? 'good' : days.length >= 3 && nb >= 5 ? 'ok' : 'learning'
+  };
+  rhMemo = {k: k0, v}; return v;
+}
+function smartOn(){ return !!(store.settings.smart && store.settings.smart.on); }
+function smartCeil(){ const sm = store.settings.smart || {}; return Math.max(30, Math.round(+sm.max || Math.max(store.settings.goal || 60, 240))); }
+function smartStep(t, g){ return Math.max(5, r5(t * (g || 0.1))); }
+// minutes of study the ramp allows on a day: this week's amount, plus a step for every week after it. 0 means no ramp
+function smartCap(k){
+  const sm = store.settings.smart; if(!sm || !sm.on || !sm.wk) return 0;
+  const w = sm.wk, wks = Math.floor(Math.max(0, dayDiff(w.from, k)) / 7);
+  return Math.min(smartCeil(), Math.max(20, w.t + w.s * wks));
+}
+function smartInit(){   // the ramp starts where you are: your usual study day, or your daily goal while there is nothing to learn from
+  const sm = store.settings.smart, r = rhythm();
+  const t = Math.max(20, Math.min(smartCeil(), r5(r.base != null ? r.base : store.settings.goal || 60)));
+  sm.wk = {from: dayKey(), t, s: smartStep(t, sm.g)}; delete sm.last;
+}
+// the caps moved: plans keep their shape (nothing reads as "behind" only because the ramp changed), and today starts fresh if you haven't studied yet
+function smartApply(change, fresh){
+  const owners = planOwners(), was = new Map(), end = o => { const pl = computePlan(o); return pl && pl.days.length ? pl.days[pl.days.length - 1].date : null; };
+  for(const o of owners){ try{ was.set(o, end(o)); }catch(e){} }
+  change(); calBump();
+  const k0 = dayKey();
+  if(fresh && studied(store.stats[k0]) < 60) for(const o of owners) if(o.planToday && o.planToday.date === k0) o.planToday = null;
+  for(const o of owners){
+    const p = o.plan, e0 = was.get(o); if(!p || !e0) continue;
+    try{
+      const e1 = end(o), dd = e1 ? Math.round((e1 - e0) / 864e5) : 0;
+      if(dd && p.mode !== 'date' && p.target){ const t = parseDay(p.target); t.setDate(t.getDate() + dd); p.target = dayKey(t); }
+    }catch(e){}
+  }
+  save();
+}
+// once a week: how the last 7 days went decides the next amount. A full week raises it, a thin one holds or eases it back
+function smartWeek(){
+  const sm = store.settings.smart; if(!sm || !sm.on) return;
+  const k0 = dayKey();
+  if(!sm.wk){ smartApply(() => smartInit(), true); return; }
+  const w = sm.wk; if(dayDiff(w.from, k0) < 7) return;
+  const off = gOffs(); let exp = 0, n = 0, tot = 0;
+  for(let i = 1; i <= 7; i++){ const k = plusDays(-i); if(off[k]) continue; exp++; const m = studied(store.stats[k]) / 60; if(m >= 15){ n++; tot += m; } }
+  const A = n ? tot / n : 0, T = w.t, ceil = smartCeil(), g = sm.g || 0.1;
+  let t2, why;
+  if(!exp){ t2 = T; why = 'hold'; }
+  else if(n >= 3 && n >= Math.ceil(exp * 0.7) && A >= T * 0.9){
+    if(T >= ceil){ t2 = ceil; why = 'ceil'; }
+    else { t2 = Math.min(ceil, Math.max(T + 5, r5(Math.max(T, Math.min(A, T * 1.25)) * (1 + g)))); why = 'up'; }
+  } else { t2 = Math.max(20, Math.min(T, Math.max(r5(A), r5(T * 0.8)))); why = t2 < T ? 'down' : 'hold'; }
+  smartApply(() => { sm.wk = {from: k0, t: t2, s: smartStep(t2, g)}; sm.last = {k: k0, n, exp, avg: Math.round(A), from: T, to: t2, why}; }, true);
+}
+function smartCal(c){   // Smart is on: session length, breaks and start time come from how you really study. What you set by hand still rules the rest
+  const r = rhythm(); c.on = true;
+  if(r.block) c.block = r.block;
+  if(r.gap != null) c.gap = r.gap;
+  if(r.start != null){ const end = c.to < c.from ? c.to + 1440 : c.to; c.pref = Math.max(c.from, Math.min(r.start, end - 60)); }
+  return c;
+}
+function smartBits(){ const r = rhythm(), b = []; if(r.block) b.push(`sessions of about ${r.block} min`); if(r.gap != null) b.push(`${r.gap} min breaks`); if(r.start != null) b.push(`usual start around ${fmtClock(r.start)}`); return b.join(', '); }
+function smartLine(){
+  if(!smartOn()) return '';
+  const b = smartBits();
+  return `<div class="muted" style="margin-top:6px;font-size:12px">✨ ${b ? 'Times follow how you study: ' + b + '.' : 'Still learning your habits. These times use your own settings for now.'}</div>`;
+}
+function smartToggle(on){
+  smartApply(() => {
+    const sm = store.settings.smart = Object.assign({g: 0.1}, store.settings.smart, {on});
+    if(on){ store.settings.cal = Object.assign({}, store.settings.cal, {on: true}); if(!sm.wk) smartInit(); }
+  }, on);
+  const sm = store.settings.smart;
+  toast(on ? `✨ Smart timetable is on. Starting at ${fmtDur(sm.wk.t * 60)} a day` : '✨ Smart timetable is off. Auto-schedule keeps your own times');
+  render();
 }
 function calPut(patch){ store.settings.cal = Object.assign({}, store.settings.cal, patch); save(); calBump(); }
 let calData = {src: []}, calMemo = null, calT = 0;
@@ -2498,12 +2656,12 @@ function gapAfter(st, n){ return st.longN > 0 && n % st.longN === 0 ? Math.max(s
 function slotStudy(len, st){ let t = 0, s = 0, n = 0; while(len - t >= 10){ const take = Math.min(st.block, len - t); s += take; n++; t += take + gapAfter(st, n); } return s; }   // minutes of study that fit, breaks taken out
 function calFreeSecs(k){
   calDays(); let v = calMemo.free.get(k);
-  if(v == null){ const st = calSet(), o = dayOv(k), mx = o && o.max != null ? o.max : st.max; v = st.limit || o ? freeSlots(k).reduce((a, [x, y]) => a + slotStudy(y - x, st), 0) * 60 : 86400; if(mx > 0) v = Math.min(v, mx * 60); calMemo.free.set(k, v); }   // free study time, capped by your daily limit
+  if(v == null){ const st = calSet(), o = dayOv(k), own = o && o.max != null, sc = own ? 0 : smartCap(k), mx0 = own ? o.max : st.max, mx = sc ? (mx0 > 0 ? Math.min(mx0, sc) : sc) : mx0; v = st.limit || o ? freeSlots(k).reduce((a, [x, y]) => a + slotStudy(y - x, st), 0) * 60 : 86400; if(mx > 0) v = Math.min(v, mx * 60); calMemo.free.set(k, v); }   // free study time, capped by your daily limit
   return v;
 }
 // how much of a day one plan may use: the day's free time is shared by all plans that want that day
 function calLimiter(o, p, g){
-  const st = calSet(); if(!st.on || !(st.limit || st.max > 0 || Object.keys(store.settings.dayEdit || {}).length)) return null;
+  const st = calSet(); if(!st.on || !(st.limit || st.max > 0 || smartOn() || Object.keys(store.settings.dayEdit || {}).length)) return null;
   const k0 = dayKey(), rest = [];
   for(const x of planOwners()){
     if(x === o) continue;
@@ -2591,9 +2749,9 @@ function schedCard(){
   if(!s.pieces.length && !busy.length) return '';
   const total = s.pieces.reduce((a, x) => a + x.len, 0);
   const note = !s.pieces.length ? '✅ Nothing left to schedule today.' : !s.sessions.length ? `⏰ No free time left in your study hours today for ${fmtDur(total)}. Do it when you can, or shift it to the next day.` : s.left >= 120 ? `⏰ ${fmtDur(s.left)} more doesn't fit your free time today.` : '';
-  return `<div class="plan-today sched"><div class="row" style="justify-content:space-between"><b>🗓 Today around your calendar</b><span class="muted" style="font-size:12px">${busy.length ? 'Busy: ' + busy.slice(0, 4).map(e => `${esc(e.t)} ${fmtClock(e.a)}–${fmtClock(e.b)}`).join(' · ') + (busy.length > 4 ? ' …' : '') : 'Nothing in your calendar today'}</span></div>
+  return `<div class="plan-today sched"><div class="row" style="justify-content:space-between"><b>${smartOn() ? '✨ Today, at your own times' : '🗓 Today around your calendar'}</b><span class="muted" style="font-size:12px">${busy.length ? 'Busy: ' + busy.slice(0, 4).map(e => `${esc(e.t)} ${fmtClock(e.a)}–${fmtClock(e.b)}`).join(' · ') + (busy.length > 4 ? ' …' : '') : 'Nothing in your calendar today'}</span></div>
     ${s.sessions.map((x, i) => `<div class="sc-row" data-ss="${i}" title="Start this session"><span class="sc-t">${fmtClock(x.a)} – ${fmtClock(x.b)}</span><span>${esc(sessTitle(x))} <span class="muted">· ${esc(sessShort(x))}</span></span></div>`).join('')}
-    ${note ? `<div class="muted" style="margin-top:6px">${note}</div>` : ''}</div>`;
+    ${note ? `<div class="muted" style="margin-top:6px">${note}</div>` : ''}${smartLine()}</div>`;
 }
 
 // ---- ✏️ change one day: its own study hours, start time, study limit and busy blocks ----
@@ -2614,7 +2772,7 @@ function dayModal(k, back){
     <div class="pl-way"><b>This day's sessions</b><div id="dyList" style="margin-top:6px"></div></div>
     <div class="pl-way"><b>Study time this day</b>${hrs}
       <div class="row" style="gap:6px;margin-top:8px">Between <input id="dFrom" type="time" step="300" value="${clockOut(h.from)}" style="width:118px"> and <input id="dTo" type="time" step="300" value="${clockOut(h.to)}" style="width:118px"> · start around <input id="dPref" type="time" step="300" value="${clockOut(ov.pref != null ? ov.pref : st.pref)}" style="width:118px"></div>
-      <div class="row" style="gap:6px;margin-top:8px">At most <input id="dMax" type="number" min="0" max="16" step="0.5" value="${ov.max ? ov.max / 60 : ''}" placeholder="${st.max ? st.max / 60 : 'no limit'}" style="width:84px"> hours of study this day</div>
+      <div class="row" style="gap:6px;margin-top:8px">At most <input id="dMax" type="number" min="0" max="16" step="0.5" value="${ov.max ? ov.max / 60 : ''}" placeholder="${st.max ? st.max / 60 : smartOn() ? +(smartCap(k) / 60).toFixed(2) : 'no limit'}" style="width:84px"> hours of study this day</div>
       <div class="row" style="gap:6px;margin-top:10px"><b style="font-size:13px">Busy this day:</b><input id="dT" placeholder="Dentist" style="width:120px"><input id="dA" type="time" step="300" value="17:00" style="width:118px"><span class="muted">to</span><input id="dB" type="time" step="300" value="18:00" style="width:118px"><button class="small" id="dAdd">+ Add</button></div>
       <div id="dyBusy" class="offchips" style="margin-top:6px"></div>
     </div>
@@ -2751,19 +2909,20 @@ function dayNames(d){
 }
 
 function calModal(){
-  const s0 = calSet();
+  const s0 = calBase(), sdis = smartOn() ? ' disabled' : '';
   openModal(`<h2>🗓 Auto-schedule &amp; Apple Calendar</h2>
     <p class="muted" style="margin:0">ChapterBox finds the free time around your calendar events, gives every study session a clock time, and puts the sessions in your Apple Calendar.</p>
+    ${smartOn() ? `<div class="hint" style="margin-top:8px">✨ <b>Smart timetable is on.</b> It sets your start time, session length and breaks from how you really study${smartBits() ? ' (' + smartBits() + ')' : ''}, so those boxes wait. Your study hours, meals and busy times below still count. <button class="small" id="cSmart">✨ Smart settings</button></div>` : ''}
     <div class="pl-way"><b>1 · When can you study?</b>
-      <div class="row" style="gap:6px;margin-top:8px">Between <input id="cFrom" type="time" step="300" value="${clockOut(s0.from)}" style="width:118px"> and <input id="cTo" type="time" step="300" value="${clockOut(s0.to)}" style="width:118px"> · best start around <input id="cPref" type="time" step="300" value="${clockOut(s0.pref)}" style="width:118px"></div>
-      <div class="row" style="gap:6px;margin-top:8px">Sessions of <input id="cBlock" type="number" min="15" max="240" step="5" value="${s0.block}" style="width:68px"> min · breaks of <input id="cGap" type="number" min="0" max="60" step="5" value="${s0.gap}" style="width:62px"> min · keep <input id="cBuf" type="number" min="0" max="60" step="5" value="${s0.buf}" style="width:62px"> min free around events</div>
+      <div class="row" style="gap:6px;margin-top:8px">Between <input id="cFrom" type="time" step="300" value="${clockOut(s0.from)}" style="width:118px"> and <input id="cTo" type="time" step="300" value="${clockOut(s0.to)}" style="width:118px"> · best start around <input id="cPref" type="time" step="300" value="${clockOut(s0.pref)}" style="width:118px"${sdis}></div>
+      <div class="row" style="gap:6px;margin-top:8px">Sessions of <input id="cBlock" type="number" min="15" max="240" step="5" value="${s0.block}" style="width:68px"${sdis}> min · breaks of <input id="cGap" type="number" min="0" max="60" step="5" value="${s0.gap}" style="width:62px"${sdis}> min · keep <input id="cBuf" type="number" min="0" max="60" step="5" value="${s0.buf}" style="width:62px"> min free around events</div>
       <div class="hint" style="margin-top:4px">🦉 Night owl? Hours can run past midnight, like 8 PM to 2 AM. Until they end, it still counts as the same study day.</div>
       <div class="row" style="gap:6px;margin-top:8px">After every <input id="cLongN" type="number" min="0" max="10" value="${s0.longN}" style="width:58px"> sessions a long break of <input id="cLong" type="number" min="10" max="180" step="5" value="${s0.long}" style="width:62px"> min</div>
       <div class="row" style="gap:6px;margin-top:8px">At most <input id="cMax" type="number" min="0" max="16" step="0.5" value="${s0.max ? s0.max / 60 : ''}" placeholder="no limit" style="width:84px"> hours of study a day, all subjects together</div>
       <div class="row" style="gap:6px;margin-top:8px">${(s0.meals || []).map((m, i) => `<label class="chk" style="margin:0;color:var(--text)"><input type="checkbox" data-meal="${i}" ${m.on ? 'checked' : ''}> 🍽 ${esc(m.t)}</label><span class="row" style="gap:6px;flex-wrap:nowrap"><input type="time" step="300" data-ma="${i}" value="${clockOut(m.a)}" style="width:118px"><span class="muted">to</span><input type="time" step="300" data-mb="${i}" value="${clockOut(m.b)}" style="width:118px"></span>`).join('<span style="width:10px"></span>')}</div>
       <label class="chk" style="margin-top:10px"><input type="checkbox" id="cLimit" ${s0.limit ? 'checked' : ''}> On busy days study less and move the rest ahead</label>
       <label class="chk" style="margin-top:6px"><input type="checkbox" id="cAllDay" ${s0.allDay ? 'checked' : ''}> All-day events (an exam, a trip) are days off from study</label>
-      <label class="chk" style="margin-top:6px;color:var(--text)"><input type="checkbox" id="cOn" ${s0.on ? 'checked' : ''}> <b>Auto-schedule is on</b> <span class="muted">(clock times on Home, plans follow your free time)</span></label>
+      <label class="chk" style="margin-top:6px;color:var(--text)"><input type="checkbox" id="cOn" ${s0.on || smartOn() ? 'checked' : ''}${sdis}> <b>Auto-schedule is on</b> <span class="muted">(clock times on Home, plans follow your free time)</span></label>
     </div>
     <div class="pl-way"><b>2 · When are you busy? Bring in your Apple Calendar</b>
       <div class="muted" style="margin:4px 0 8px;font-size:13px">On your Mac open <b>Calendar</b>, click a calendar in the list on the left, choose <b>File → Export → Export…</b> and drop the file here (one file per calendar). Weekly classes keep repeating, so do it again only when your calendar changes. Your events stay in this browser.</div>
@@ -2811,7 +2970,7 @@ function calModal(){
     if(wrap && pref != null && pref < from && pref <= to) pref += 1440;   // a best start after midnight
     const meals = (calSet().meals || []).map((m, i) => { const a = clockIn($(`[data-ma="${i}"]`).value), b = clockIn($(`[data-mb="${i}"]`).value); return {t: m.t, a: a == null ? m.a : a, b: b == null ? m.b : b, on: $(`[data-meal="${i}"]`).checked}; });
     const mx = parseFloat($('#cMax').value), ln = parseFloat($('#cLongN').value);
-    calPut({from, to, pref: pref == null ? calSet().pref : pref, block: num('#cBlock', 15, 240, 45), gap: num('#cGap', 0, 60, 10), buf: num('#cBuf', 0, 60, 10), limit: $('#cLimit').checked, allDay: $('#cAllDay').checked, on: $('#cOn').checked,
+    calPut({from, to, pref: pref == null ? calBase().pref : pref, block: num('#cBlock', 15, 240, 45), gap: num('#cGap', 0, 60, 10), buf: num('#cBuf', 0, 60, 10), limit: $('#cLimit').checked, allDay: $('#cAllDay').checked, on: $('#cOn').checked,
       longN: isNaN(ln) ? 3 : Math.min(10, Math.max(0, Math.round(ln))), long: num('#cLong', 10, 180, 30), max: isNaN(mx) || mx <= 0 ? 0 : Math.round(Math.min(16, mx) * 60), meals});
     drawPrev();
   };
@@ -2831,6 +2990,7 @@ function calModal(){
     calBump(); if(got) turnOn();
     drawSrc(); drawPrev();
   };
+  if($('#cSmart')) $('#cSmart').onclick = () => smartModal();
   $('#cFileBtn').onclick = () => $('#cFile').click();
   $('#cFile').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
   $('#modal').ondragover = e => { if($('#cFile')) e.preventDefault(); };
@@ -3249,6 +3409,93 @@ function dayStatModal(k){
   $('#sdPrev').onclick = () => dayStatModal(step(-1));
   $('#sdNext').onclick = () => dayStatModal(step(1));
 }
+function smartCard(){ try{ return smartCard_(); }catch(e){ return ''; } }
+function smartCard_(){
+  const sm = store.settings.smart, r = rhythm();
+  if(!(sm && sm.on)){
+    if(store.settings.smartHintOff) return '';
+    const hint = r.base != null ? `So far I see about ${fmtDur(r.base * 60)} on your study days${r.start != null ? `, usually starting around ${fmtClock(r.start)}` : ''}.` : 'Study a few days and I will learn your pattern.';
+    return `<div class="sm"><div class="sm-h"><b>✨ Smart timetable</b><span class="muted"></span><button class="small primary" id="smOn">Turn on</button><button class="small" id="smHide" title="Hide this card. You can still turn it on from the ⋯ menu">✕</button></div>
+      <div class="sm-line muted">It notes when and for how long you really study, builds your daily timetable at those times, and adds a little study time each week you hit it. It stays on this device.</div>
+      <div class="muted" style="font-size:12px">${hint}</div></div>`;
+  }
+  const k0 = dayKey(), w = sm.wk || {t: 60, s: 5, from: k0}, cap = smartCap(k0), ceil = smartCeil(), open = store.settings.smOpen !== false;
+  const conf = {learning: 'still learning', ok: 'getting to know you', good: 'knows your rhythm'}[r.conf];
+  const head = `<div class="sm-h"><b>✨ Smart timetable</b><span class="muted"></span><button class="small" id="smTog" title="${open ? 'Hide the details' : 'Show the details'}">${open ? 'Hide ▴' : 'Show ▾'}</button><button class="small" id="smSet" title="Growth speed, ceiling and more">⚙</button></div>`;
+  const done = studied(store.stats[k0]), full = done >= cap * 60;
+  const load = `<div class="sm-load"><span class="big">${fmtDur(cap * 60)}</span><span class="muted">a day this week${cap >= ceil ? ' · your ceiling' : ` · +${fmtDur(w.s * 60)} each week you hit it`}</span></div>
+    <div><div class="bar ${full ? 'green' : ''}"><i style="width:${Math.min(100, done / Math.max(60, cap * 60) * 100)}%"></i></div><div class="muted" style="font-size:12px;margin-top:4px">Today: ${fmtDur(done)} of ${fmtDur(cap * 60)}${full ? ' ✓' : ''} <span style="opacity:.8">· counted while your lectures play</span></div></div>`;
+  if(!open) return `<div class="sm">${head}${load}</div>`;
+  const path = [0, 1, 2, 3, 4].map(i => `<div class="sm-w${i ? '' : ' now'}">${fmtDur(smartCap(plusDays(i * 7)) * 60)}<small>${i ? '+' + i + ' wk' : 'now'}</small></div>`).join('');
+  const l = sm.last, hrs = x => fmtDur(x * 60);
+  const last = !l ? `🌱 First week: I start from ${r.base != null ? 'your usual study day' : 'your daily goal'}, ${hrs(w.t)}.`
+    : l.why === 'up' ? `✅ Last week you studied ${l.n} of ${l.exp} days (about ${hrs(l.avg)} each), so this week goes up to ${hrs(l.to)}.`
+    : l.why === 'ceil' ? `✅ Last week you studied ${l.n} of ${l.exp} days. You are at your ceiling of ${hrs(l.to)}.`
+    : l.why === 'down' ? `🔽 Last week: ${l.n} of ${l.exp} days${l.n ? ` (about ${hrs(l.avg)} each)` : ''}. This week eases to ${hrs(l.to)} so it is doable.`
+    : `⏸ Last week: ${l.n} of ${l.exp} days. This week stays at ${hrs(l.to)} until a steadier week.`;
+  const chip = (big, lab) => `<div class="hm-chip"><div class="big">${big}</div><div class="muted">${lab}</div></div>`;
+  const chips = `<div class="muted" style="font-size:12px;margin-bottom:-4px">What I learned from your last 4 weeks · ${conf}</div><div class="hm-sum">${chip(r.base != null ? fmtDur(r.base * 60) : '—', 'on a study day')}${chip(r.start != null ? fmtClock(r.start) : '—', 'usual start')}${chip(r.block ? r.block + '<small> min</small>' : '—', 'a session')}${chip(r.gap != null ? r.gap + '<small> min</small>' : '—', 'a break')}</div>`;
+  const mx = Math.max(1, ...r.hrs), has = r.hrs.some(x => x > 0), b = r.best;
+  const strip = has ? `<div><div class="muted" style="font-size:12px;margin-bottom:5px">${r.rough ? 'When you usually study (all time)' : 'When you study (last 4 weeks)'}${b != null ? ` · best window <b style="color:var(--text)">${fmtHour(b)} to ${fmtHour((b + 2) % 24)}</b>` : ''}</div>
+    <div class="sm-strip" role="img" aria-label="Study time for each hour of the day">${r.hrs.map((s, h) => `<i class="${b != null && (h === b || h === b + 1) ? 'best' : ''}" style="height:${Math.max(6, Math.round(s / mx * 100))}%" title="${fmtHour(h)}: ${fmtDur(s)}"></i>`).join('')}</div>
+    <div class="sm-ax">${['12 AM', '6 AM', '12 PM', '6 PM'].map((t, i) => `<span style="grid-column:${i * 6 + 1}">${t}</span>`).join('')}</div></div>` : '';
+  const warn = [];
+  for(const o of planOwners()){
+    const p = o.plan, pr = ownerProgress(o); if(p.mode !== 'date' || pr.done >= pr.total) continue;
+    try{ const pl = computePlan(o); if(pl && pl.tooSlow) warn.push(`⚠️ <b>${esc(o.title.length > 34 ? o.title.slice(0, 32) + '…' : o.title)}</b> can't finish by ${fmtDay(parseDay(p.date))} at this pace. Raise the ceiling or move the date.`); }catch(e){}
+  }
+  const learning = r.conf === 'learning' ? `<div class="sm-line muted">I have seen ${r.bdays} study day${r.bdays === 1 ? '' : 's'} so far. Until I know your habits, the times use your own settings (sessions of ${calBase().block} min, breaks of ${calBase().gap} min). Every day I get better.</div>` : '';
+  const noPlan = !planOwners().length ? `<div class="sm-line muted">Make a 📅 plan and I will turn this into a timetable at your usual times. <button class="small" id="smPlan">🤖 Plan all my courses</button></div>` : '';
+  return `<div class="sm">${head}${load}<div class="sm-path">${path}</div><div class="sm-line">${last}</div>${chips}${strip}${learning}${noPlan}${warn.map(x => `<div class="sm-warn">${x}</div>`).join('')}</div>`;
+}
+function bindSmart(){
+  const q = id => document.getElementById(id);
+  if(q('smOn')) q('smOn').onclick = () => smartToggle(true);
+  if(q('smHide')) q('smHide').onclick = () => { store.settings.smartHintOff = true; save(); renderHome(); };
+  if(q('smTog')) q('smTog').onclick = () => { store.settings.smOpen = store.settings.smOpen === false; save(); renderHome(); };
+  if(q('smSet')) q('smSet').onclick = () => smartModal();
+  if(q('smPlan')) q('smPlan').onclick = () => autoPlanModal();
+}
+function smartModal(){
+  const sm = store.settings.smart || {}, on = !!sm.on, ceil = smartCeil(), r = rhythm(), g = sm.g || 0.1;
+  const start = sm.wk ? sm.wk.t : r.base != null ? r5(r.base) : store.settings.goal || 60, nb = (store.blk || []).length;
+  openModal(`<h2>✨ Smart timetable</h2>
+    <p class="muted" style="margin:0">ChapterBox notes when each study block starts and ends while a lecture plays. From that it learns your usual start time, session length and breaks, builds your daily timetable at those times, and raises your daily study time a little every week you manage it. A week with few study days holds the amount or eases it back. It all stays on this device.</p>
+    <div class="pl-way"><label class="chk" style="margin:0;color:var(--text)"><input type="checkbox" id="smOnBox" ${on ? 'checked' : ''}> <b>Smart timetable is on</b></label>
+      <div class="hint">Turning it on also turns on 🗓 Auto-schedule. Your study hours, meals and busy times still count.</div></div>
+    <div class="pl-way"><b>How fast should your daily time grow?</b>
+      <div style="margin-top:8px"><span class="seg" id="smG">${[[0.05, 'Gentle'], [0.1, 'Normal'], [0.15, 'Fast']].map(([x, n]) => `<button data-g="${x}" class="${Math.abs(g - x) < 0.001 ? 'on' : ''}">${n} +${Math.round(x * 100)}%</button>`).join('')}</span></div>
+      <div class="hint" id="smGHint"></div>
+      <div class="row" style="gap:6px;margin-top:10px">Never more than <input id="smMax" type="number" min="0.5" max="16" step="0.5" value="${+(ceil / 60).toFixed(2)}" style="width:84px"> hours a day</div>
+      <div class="row" style="gap:6px;margin-top:10px">Start from <input id="smStart" type="number" min="0.5" max="16" step="0.25" value="${+(start / 60).toFixed(2)}" style="width:84px"> hours a day <button class="small" id="smRestart">Restart from today</button></div>
+    </div>
+    <div class="pl-way"><b>What it tracks</b><div class="muted" style="font-size:13px;margin:4px 0 8px">${nb ? `${nb} study block${nb === 1 ? '' : 's'} saved from the last 5 months.` : 'No study blocks saved yet. They appear while a lecture plays.'}</div><button class="small" id="smForget" ${nb ? '' : 'disabled'}>🧹 Forget my study blocks</button></div>
+    <div class="actions"><button class="primary" id="smDone">Done</button></div>`, true);
+  const hint = () => { const s = store.settings.smart || {}, t = s.wk ? s.wk.t : start; $('#smGHint').textContent = `About +${smartStep(t, s.g || 0.1)} min a day each week you manage it, up to ${fmtDur(smartCeil() * 60)}.`; };
+  hint();
+  $('#smOnBox').onchange = e => { smartToggle(e.target.checked); smartModal(); };
+  $('#smG').querySelectorAll('button').forEach(b => b.onclick = () => {
+    const x = +b.dataset.g;
+    smartApply(() => { const s = store.settings.smart = Object.assign({}, store.settings.smart, {g: x}); if(s.wk) s.wk.s = smartStep(s.wk.t, x); });
+    $('#smG').querySelectorAll('button').forEach(y => y.classList.toggle('on', y === b)); hint(); render();
+  });
+  $('#smMax').onchange = () => {
+    const h = parseFloat($('#smMax').value); if(!(h >= 0.5)) return;
+    smartApply(() => { store.settings.smart = Object.assign({}, store.settings.smart, {max: Math.round(Math.min(16, h) * 60)}); }); hint(); render();
+  };
+  $('#smRestart').onclick = () => {
+    const h = parseFloat($('#smStart').value); if(!(h >= 0.5)) return;
+    const t = Math.max(20, Math.min(smartCeil(), r5(h * 60)));
+    smartApply(() => { const s = store.settings.smart = Object.assign({g: 0.1}, store.settings.smart); s.wk = {from: dayKey(), t, s: smartStep(t, s.g)}; delete s.last; }, true);
+    toast(`✨ Starting again from ${fmtDur(t * 60)} a day`); hint(); render();
+  };
+  let armed = false;
+  $('#smForget').onclick = () => {
+    if(!armed){ armed = true; $('#smForget').textContent = 'Tap again to clear them'; return; }
+    store.blk = []; rhMemo = null; save(); calBump(); toast('🧹 Study blocks cleared'); smartModal(); render();
+  };
+  $('#smDone').onclick = () => closeModal();
+}
 function bindHome8(el){
   el.querySelectorAll('[data-ss]').forEach(r => r.onclick = () => withEnergy(() => { const s = todaySched().sessions[+r.dataset.ss], x = s && s.parts.find(q => !q.p.practice); if(x) goSlice(x.p.v, x.p.c.idx, x.at, x.p.to); else if(s) toast('✍️ Practice time: solve problems or revise your notes'); }));
   // ticking the practice of the day: it counts as study time
@@ -3463,7 +3710,7 @@ setInterval(() => {
   applySpeed(); const sd = statDay(); sd.s += dt;
   const pc = paceOf(ownerOf(v).plan); if(pc > 1) sd.x = (sd.x || 0) + dt * (pc - 1);   // pausing and notes: credited as study time, at your own pace
   const okey = ownerKey(ownerOf(v)); sd.o = sd.o || {}; sd.o[okey] = (sd.o[okey] || 0) + dt;
-  const hrs = store.hours || (store.hours = Array(24).fill(0)); hrs[new Date().getHours()] += dt;
+  const hrs = store.hours || (store.hours = Array(24).fill(0)); hrs[new Date().getHours()] += dt; try{ trackBlk(dt); }catch(e){}
   const t = playerTime(); if(t == null) return;
   v.lastTime = t;
   const chs = chapters(v); const c = curChapter(v);

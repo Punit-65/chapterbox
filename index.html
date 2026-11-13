@@ -133,6 +133,49 @@ a.bmk{cursor:grab}
 .en-btn{flex:1 1 150px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:10px 12px;white-space:normal;line-height:1.3}
 .en-btn .en-i{font-size:22px}
 .en-btn .muted{font-size:12px}
+:root{--cat1:#3987e5;--cat2:#d95926;--cat3:#199e70;--cat4:#c98500;--cat5:#d55181;--cat6:#008300;--cat7:#9085e9;--cat8:#e66767}
+[data-theme="light"]{--cat1:#2a78d6;--cat2:#eb6834;--cat3:#1baf7a;--cat4:#eda100;--cat5:#e87ba4;--cat6:#008300;--cat7:#6250d6;--cat8:#e34948}
+.hm{--hm0:var(--panel2);--hm1:#184f95;--hm2:#256abf;--hm3:#5598e7;--hm4:#86b6ef;--hm5:#b7d3f6;--hmt1:#fff;--hmt2:#fff;--hmt3:#0b0b0b;--hmt4:#0b0b0b;--hmt5:#0b0b0b;display:grid;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+[data-theme="light"] .hm{--hm1:#86b6ef;--hm2:#5598e7;--hm3:#256abf;--hm4:#184f95;--hm5:#0d366b;--hmt1:#0b0b0b;--hmt2:#0b0b0b;--hmt3:#fff;--hmt4:#fff;--hmt5:#fff}
+.hm-grid{min-width:0}
+.hm-sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;min-width:0}
+.hm-leg{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:11px;color:var(--muted)}
+.hm-leg span{display:inline-flex;align-items:center;gap:5px}
+.hm-leg i{width:12px;height:12px;border-radius:3px;border:1px solid var(--line);display:inline-block}
+.hm-chip{background:var(--panel2);border-radius:10px;padding:8px 10px;min-width:0}
+.hm-chip .big{font-size:19px;font-weight:800;line-height:1.2}
+.hm-chip .big small{font-size:12px;color:var(--muted);font-weight:600}
+.hm-chip .muted{font-size:12px}
+.hm-mon{min-width:116px;text-align:center}
+.hm-w,.hm-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.hm-w{margin-bottom:4px;font-size:11px;color:var(--muted);text-align:center}
+.hm-pad{display:block}
+.hm-d{--c:var(--hm0);--t:var(--muted);position:relative;height:68px;min-width:0;padding:5px 7px;border:0;border-radius:8px;background:var(--c);color:var(--t);display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;gap:0;font:inherit;line-height:1.1;text-align:left;overflow:hidden}
+.hm-d.lv1{--c:var(--hm1);--t:var(--hmt1)}
+.hm-d.lv2{--c:var(--hm2);--t:var(--hmt2)}
+.hm-d.lv3{--c:var(--hm3);--t:var(--hmt3)}
+.hm-d.lv4{--c:var(--hm4);--t:var(--hmt4)}
+.hm-d.lv5{--c:var(--hm5);--t:var(--hmt5)}
+.hm-d:hover{background:var(--c);filter:brightness(1.12)}
+.hm-n{font-size:10px;opacity:.85}
+.hm-h{font-size:clamp(9px,2.5vw,12px);font-weight:700;text-align:center;letter-spacing:-.2px;white-space:nowrap}
+.hm-k{position:absolute;top:3px;right:5px;font-size:9px;font-weight:800}
+.hm-d.today{box-shadow:0 0 0 2px var(--accent)}
+.hm-d.fut{opacity:.35;cursor:default}
+.hm-d.fut:hover{filter:none}
+.hm-d:focus-visible{outline:2px solid #3d6bff;outline-offset:2px}
+.sd-nav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sd-big{font-size:32px;font-weight:800;line-height:1.1;margin:10px 0 6px}
+.sd-big small{font-size:14px;font-weight:600}
+.sd-row{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:5px 8px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.sd-row:last-child{border-bottom:0}
+.sd-row .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sd-dot{width:12px;height:12px;border-radius:3px;display:block}
+.sd-bar{grid-column:2 / 4;height:6px;background:var(--track);border-radius:3px;overflow:hidden}
+.sd-bar i{display:block;height:100%;border-radius:3px}
+@media (min-width:701px){.hm-h{font-size:13px}.hm-n{font-size:11px}.hm-k{top:4px;right:7px;font-size:10px}}
+@media (max-width:700px){.hm-sum{grid-template-columns:1fr 1fr}.hm-d{height:auto;aspect-ratio:1;padding:4px 5px}.hm-k{top:3px;right:5px;font-size:9px}}
+@media (max-width:480px){.hm{padding:10px;gap:10px}.hm-w,.hm-g{gap:3px}.hm-d{padding:3px 4px;border-radius:7px}.hm-chip .big{font-size:17px}}
 .chips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
 .chips button{padding:3px 10px;font-size:12px;border-radius:999px}
 .chips button.on{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -1096,6 +1139,7 @@ function helpModal(){
       <li><b>🏖 Days off</b>: on Home, <b>🏖 Day off today</b> skips today for every subject and <b>⏭ Shift to next day</b> skips it for one. Add future days off in 📅 Plan. Plans move ahead to the next study day, unfinished parts carry over on their own (marked ↪), and days off don't break your streak.</li>
       <li><b>🤖 Smart coach</b> (Home) tells you today's mission across all subjects (easiest first), warns when a plan falls behind with a one-click catch-up, shows reviews due and when you study best. <b>🤖 Plan all my courses</b> shares your daily time across every course.</li>
       <li><b>⚡ Energy check-in</b> (Home): each day it asks how much energy and focus you have. <b>Low</b> is a lighter day (about 60%, easy parts first, short sessions), <b>Medium</b> is your plan, <b>High</b> is a bigger day (about 125%, hardest parts first, longer sessions). What is cut or added moves to the other days by itself. Press Change any time.</li>
+      <li><b>📆 Study calendar</b> (Home, under the week): a month view like YPT. Every day is coloured by how long you studied (darker blue is more) with the time written in it, and a ✓ means you reached your daily goal. Tap a day to see which subjects it was, use ◀ ▶ for other months, and Hide it if you want a shorter Home.</li>
       <li><b>🧠 Difficulty</b>: every chapter gets 🟢 easy, 🟡 medium or 🔴 hard from its title, length, place in the course and your own ratings. Click the dot to change it. Plans can go <b>🧠 Smart</b> (ideas first, then practice from easy to hard), <b>🧗 Easy → hard</b> or <b>📚 Course order</b>.</li>
       <li><b>😀 😐 😵</b> After a chapter, rate it in one tap. Hard ones come back for a <b>🔁 spaced review</b> (after 1, 3, 7, 16 and 35 days). Turn it off in ⋯.</li>
       <li><b>🍅 Focus timer</b> (top bar): 25, 50 or 90 minutes of focus, then it pauses the video for a break.</li>
@@ -1230,6 +1274,7 @@ function renderHome(){
       <div class="stat"><div class="big">${fmtDur(total)}</div><div class="muted">studied in total</div></div>
     </div>
     <div class="week">${week.map(x => `<div class="d ${dayKey(x.d) === dayKey() ? 'today' : ''}" title="${fmtDur(x.s)} studied"><span>${Math.round(x.s / 60)}m</span><div class="b" style="height:${Math.max(3, Math.round(x.s / top * 72))}px"></div>${DAYS[x.d.getDay()]}</div>`).join('')}</div>
+    ${hmHtml()}
     ${plans.length ? `<div class="sec-h"><h2>📅 Today's plan</h2><div class="row"><button class="small" id="wkBtn" title="Every session of the week with exact lengths, clock times and totals">📋 Week timetable</button><button class="small" id="calBtn" title="Plan around your calendar and put the study sessions in it">🗓 Auto-schedule</button><button class="small" id="chgBtn" title="Change today's study hours, start time or busy blocks. Any other day too">✏️ Change day</button><button class="small" id="dayOff" title="${offToday ? "Bring today's plans back" : 'No study today for any subject. Every plan moves ahead to the next study day'}">${offToday ? '↩ Undo day off' : '🏖 Day off today'}</button></div></div>` + energyCard() + schedCard() + energyOwners(plans).map(todayCard).join('') : ''}
     ${reviewSection()}
     ${cardsSection()}
@@ -1256,7 +1301,7 @@ function renderHome(){
     o.plan.off = [...s]; todayChanged(o); save(); render();
     toast(s.has(k) ? '⏭ Shifted. This plan moves ahead to the next study day' : "↩ Back on today's plan");
   });
-  bindCoach(el); bindReviews(el); bindHome8(el);
+  bindCoach(el); bindReviews(el); bindHome8(el); bindHm();
 }
 function ownerCard(o){
   const pr = ownerProgress(o), t = continueTarget(o), pct = pr.total ? Math.round(pr.done / pr.total * 100) : 0;
@@ -3131,6 +3176,78 @@ function cardsSection(){
   const ids = new Set(store.videos.map(v => v.id)), all = cards().filter(x => ids.has(x.v)); if(!all.length) return '';
   const due = dueCards();
   return `<div class="sec-h"><h2>🃏 Flashcards</h2><div class="row">${due.length ? `<button class="primary small" id="fcStart">▶ Review ${due.length} due</button>` : '<span class="muted" style="font-size:13px">All caught up ✅</span>'}<button class="small" id="fcAll">Practice all (${all.length})</button></div></div>`;
+}
+// ================= 📆 study calendar (like YPT): each day gets a colour by how long you studied, with the time written in it =================
+const HM_LV = [60, 3600, 7200, 14400, 21600];   // levels 1 to 5 start at 1 minute, 1 h, 2 h, 4 h and 6 h of study
+const HM_NAME = ['under 1h', '1–2h', '2–4h', '4–6h', '6h+'];
+const hmLevel = s => HM_LV.reduce((n, t) => n + (s >= t ? 1 : 0), 0);
+function hmFmt(s){ s = Math.floor(s || 0); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return h ? (m ? `${h}h ${m}m` : `${h}h`) : `${m}m`; }
+let hmView = null;   // the month on show as {y, m}. null is this month
+const hmCur = () => { const t = parseDay(dayKey()); return {y: t.getFullYear(), m: t.getMonth()}; };
+const hmMonth = () => hmView || hmCur();
+const hmFirst = () => Object.keys(store.stats).filter(k => studied(store.stats[k]) >= 60).sort()[0] || dayKey();
+const hmMon1 = d => new Date(d.getFullYear(), d.getMonth(), 1);
+function hmStep(n){   // a month back or forward, never past this month or before the first day you studied
+  const c = hmMonth(), t = hmCur(), d = new Date(c.y, c.m + n, 1);
+  if(d > new Date(t.y, t.m, 1) || d < hmMon1(parseDay(hmFirst()))) return;
+  hmView = d.getFullYear() === t.y && d.getMonth() === t.m ? null : {y: d.getFullYear(), m: d.getMonth()};
+}
+function hmDays(y, m){
+  const n = new Date(y, m + 1, 0).getDate(), now = dayKey(), off = gOffs(), rows = [];
+  for(let d = 1; d <= n; d++){ const k = dayKey(new Date(y, m, d)); rows.push({d, k, s: studied(store.stats[k]), off: !!off[k], fut: k > now}); }
+  return rows;
+}
+const hmLong = (k, o) => parseDay(k).toLocaleDateString('en-IN', o);
+function hmInner(){
+  const {y, m} = hmMonth(), rows = hmDays(y, m), goal = (store.settings.goal || 60) * 60, now = dayKey(), open = store.settings.hmOpen !== false, cur = !hmView;
+  const total = rows.reduce((a, r) => a + r.s, 0), days = rows.filter(r => r.s >= 60), past = Math.max(1, rows.filter(r => !r.fut).length);
+  const best = days.reduce((b, r) => !b || r.s > b.s ? r : b, null), first = new Date(y, m, 1), lead = first.getDay();
+  const mLong = first.toLocaleDateString('en-IN', {month: 'long'}), mShort = first.toLocaleDateString('en-IN', {month: 'short'}), canBack = first > hmMon1(parseDay(hmFirst()));
+  const head = `<div class="sec-h"><h2>📆 Study calendar</h2><div class="row">${open ? `<button class="small" id="hmPrev" title="Month before"${canBack ? '' : ' disabled'}>◀</button><b class="hm-mon">${mLong} ${y}</b><button class="small" id="hmNext" title="Month after"${cur ? ' disabled' : ''}>▶</button>${cur ? '' : '<button class="small" id="hmToday">This month</button>'}` : `<span class="muted" style="font-size:13px">${mLong}: ${hmFmt(total)} studied</span>`}<button class="small" id="hmTog" title="${open ? 'Hide the calendar' : 'Show the calendar'}">${open ? '▾ Hide' : '▸ Show'}</button></div></div>`;
+  if(!open) return head;
+  const cells = '<i class="hm-pad"></i>'.repeat(lead) + rows.map(r => {
+    const lv = hmLevel(r.s), tip = hmLong(r.k, {weekday: 'long', day: 'numeric', month: 'long'}) + (r.fut ? '' : ': ' + (lv ? hmFmt(r.s) + ' studied' : r.off ? 'day off' : 'nothing studied') + (lv && r.s >= goal ? ', goal reached' : ''));
+    return `<button class="hm-d lv${lv}${r.k === now ? ' today' : ''}${r.fut ? ' fut' : ''}" data-hmd="${r.k}" title="${esc(tip)}" aria-label="${esc(tip)}"${r.fut ? ' disabled' : ''}><span class="hm-n">${r.d}</span><span class="hm-h">${lv ? hmFmt(r.s) : r.off ? '🏖' : ''}</span>${lv && r.s >= goal ? '<span class="hm-k">✓</span>' : ''}</button>`;
+  }).join('');
+  const chips = `<div class="hm-sum"><div class="hm-chip"><div class="big">${hmFmt(total)}</div><div class="muted">studied in ${mLong}</div></div><div class="hm-chip"><div class="big">${hmFmt(total / past)}</div><div class="muted">average a day</div></div><div class="hm-chip"><div class="big">${days.length}<small> of ${past} days</small></div><div class="muted">days you studied</div></div><div class="hm-chip"><div class="big">${best ? hmFmt(best.s) : '–'}</div><div class="muted">${best ? `best day, ${best.d} ${mShort}` : 'best day'}</div></div></div>`;
+  const leg = `<div class="hm-leg"><span><i style="background:var(--hm0)"></i>none</span>${HM_NAME.map((t, i) => `<span><i style="background:var(--hm${i + 1})"></i>${t}</span>`).join('')}<span>✓ daily goal reached</span>${!days.length && cur ? '<span style="flex-basis:100%">Study for a minute and today turns blue. Every day you study adds a coloured square.</span>' : ''}</div>`;
+  return head + `<div class="hm">${chips}<div class="hm-grid"><div class="hm-w">${DAYS.map(d => `<span>${d}</span>`).join('')}</div><div class="hm-g">${cells}</div></div>${leg}</div>`;
+}
+const hmHtml = () => `<div id="hmBox">${hmInner()}</div>`;
+function bindHm(){
+  const box = $('#hmBox'); if(!box) return;
+  const draw = () => { box.innerHTML = hmInner(); bindHm(); };
+  box.querySelectorAll('[data-hmd]').forEach(b => b.onclick = () => dayStatModal(b.dataset.hmd));
+  if($('#hmPrev')) $('#hmPrev').onclick = () => { hmStep(-1); draw(); };
+  if($('#hmNext')) $('#hmNext').onclick = () => { hmStep(1); draw(); };
+  if($('#hmToday')) $('#hmToday').onclick = () => { hmView = null; draw(); };
+  if($('#hmTog')) $('#hmTog').onclick = () => { store.settings.hmOpen = store.settings.hmOpen === false; save(); draw(); };
+}
+// what each subject got on one day: watched time, its share of the pause and notes credit, and its practice. The rows add up to the day's total
+function hmSubjects(k){
+  const sd = store.stats[k]; if(!sd) return [];
+  const o = sd.o || {}, p = sd.p || {}, keys = [...new Set([...Object.keys(o), ...Object.keys(p)])];
+  const watched = keys.reduce((a, q) => a + (o[q] || 0), 0), prac = keys.reduce((a, q) => a + (p[q] || 0), 0), bonus = Math.max(0, (sd.x || 0) - prac);
+  return keys.map(q => ({key: q, owner: findOwner(q), s: (o[q] || 0) + (p[q] || 0) + (watched ? bonus * (o[q] || 0) / watched : 0)})).filter(r => r.s >= 30).sort((a, b) => b.s - a.s);
+}
+function hmOrder(){   // subjects in the order they were added, so each keeps its own colour
+  const first = o => Math.min(...ownerVideos(o).map(v => v.added || 0));
+  return [...store.courses.filter(c => courseVideos(c).length), ...store.videos.filter(v => !courseOf(v))].map(o => [ownerKey(o), first(o)]).sort((a, b) => a[1] - b[1] || (a[0] < b[0] ? -1 : 1)).map(x => x[0]);
+}
+function dayStatModal(k){
+  const sd = store.stats[k] || {}, tot = studied(sd), goal = (store.settings.goal || 60) * 60, now = dayKey(), off = !!gOffs()[k], d = parseDay(k), x = sd.x || 0;
+  const rows = hmSubjects(k), order = hmOrder(), top = Math.max(tot, 1);
+  const step = n => dayKey(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n));
+  const col = r => { const i = order.indexOf(r.key); return i < 0 ? 'var(--muted)' : `var(--cat${i % 8 + 1})`; };
+  const foot = [sd.c ? `✅ ${sd.c} chapter${sd.c === 1 ? '' : 's'} done` : '', sd.f ? `🍅 ${sd.f} focus session${sd.f === 1 ? '' : 's'}` : '', x >= 60 ? `includes ${hmFmt(x)} for pauses, notes and practice` : ''].filter(Boolean).join(' · ');
+  openModal(`<div class="sd-nav"><button class="small" id="sdPrev" title="Day before"${k <= hmFirst() ? ' disabled' : ''}>◀</button><h2 style="margin:0;font-size:16px;text-align:center">${esc(hmLong(k, {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'}))}</h2><button class="small" id="sdNext" title="Day after"${k >= now ? ' disabled' : ''}>▶</button></div>
+    <div class="sd-big">${tot >= 60 ? hmFmt(tot) : '0m'}<small class="muted"> studied</small></div>
+    ${tot >= 60 ? `<div class="bar ${tot >= goal ? 'green' : ''}"><i style="width:${Math.min(100, tot / goal * 100)}%"></i></div><div class="muted" style="font-size:12px;margin:4px 0 10px">${tot >= goal ? `🎯 Goal of ${goal / 60} min reached` : `${hmFmt(goal - tot)} short of your ${goal / 60} min goal`}</div>` : `<p class="muted">${off ? '🏖 Day off.' : 'Nothing studied this day.'}</p>`}
+    ${rows.length ? `<div class="sd-list">${rows.map(r => `<div class="sd-row"><i class="sd-dot" style="background:${col(r)}"></i><span class="nm">${r.owner ? (r.owner.order ? '📚 ' : '') + esc(r.owner.title) : 'Removed from your library'}</span><b>${hmFmt(r.s)}</b><div class="sd-bar"><i style="width:${Math.min(100, r.s / top * 100)}%;background:${col(r)}"></i></div></div>`).join('')}</div>` : tot >= 60 ? '<p class="muted">No subject details were saved for this day.</p>' : ''}
+    ${foot ? `<p class="muted" style="font-size:12px;margin:10px 0 0">${foot}</p>` : ''}
+    <div class="actions"><button onclick="closeModal()">Close</button></div>`);
+  $('#sdPrev').onclick = () => dayStatModal(step(-1));
+  $('#sdNext').onclick = () => dayStatModal(step(1));
 }
 function bindHome8(el){
   el.querySelectorAll('[data-ss]').forEach(r => r.onclick = () => withEnergy(() => { const s = todaySched().sessions[+r.dataset.ss], x = s && s.parts.find(q => !q.p.practice); if(x) goSlice(x.p.v, x.p.c.idx, x.at, x.p.to); else if(s) toast('✍️ Practice time: solve problems or revise your notes'); }));

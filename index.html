@@ -457,12 +457,132 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 @media (max-width:480px){.wm-c{width:30px;height:30px}.fy{padding:16px}}
 /* phones: the seek bar gets its own full-width row so the new ❓ button doesn't squeeze it */
 @media (max-width:520px){.cbar{flex-wrap:wrap;row-gap:2px}.cbar #cTime{flex:1}.cbar .cprog{order:9;flex:1 1 100%;margin:0 4px 2px;height:26px}}
+/* ===================== v19 · simple layout: a few clear pages instead of one long page ===================== */
+#pageNav{display:none}
+body.simple #homeBtn,body.simple #menuBtn,body.simple #themeBtn{display:none}
+body.simple #focusBtn:not(.on){display:none}
+body.simple #pageNav{display:flex;gap:2px;margin-left:6px}
+#pageNav button{position:relative;background:transparent;border:0;border-radius:10px;padding:7px 11px;color:var(--muted);font-weight:600;gap:6px}
+#pageNav button:hover{background:var(--hover);color:var(--text)}
+#pageNav button.on{background:var(--active);color:var(--text)}
+#pageNav .ni{font-size:16px;line-height:1}
+#pageNav i{font-style:normal;background:var(--accent);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 6px;margin-left:2px}
+body.simple .layout{grid-template-columns:minmax(0,1fr)}
+body.simple #library{display:none}
+body.simple main{width:100%;max-width:1180px;margin:0 auto}
+body.simple:not([data-page=watch]) main{max-width:980px}
+@media (min-width:1100px){body.simple[data-page=watch] .layout{grid-template-columns:270px minmax(0,1fr)}body.simple[data-page=watch] #library{display:block}body.simple[data-page=watch] main{max-width:none;margin:0}}
+@media (max-width:999px){
+  body.simple #pageNav{position:fixed;left:0;right:0;bottom:0;z-index:20;margin:0;gap:0;background:var(--bg);border-top:1px solid var(--line);padding:0 0 env(safe-area-inset-bottom)}
+  body.simple #pageNav button{flex:1;flex-direction:column;gap:1px;padding:7px 0 6px;border-radius:0;font-size:11px;min-width:0;justify-content:center}
+  body.simple #pageNav .ni{font-size:19px}
+  body.simple #pageNav button.on{background:transparent;color:var(--accent)}
+  body.simple #pageNav i{position:absolute;top:2px;left:calc(50% + 7px);margin:0}
+  body.simple main{padding-bottom:88px}
+  body.simple .toast{bottom:78px}
+  body.simple .ratebar,body.simple .fivepill{bottom:70px}
+  body.simple #clearBar{bottom:130px}
+  /* when the 5-minute pill is up, the rating bar and the clear bar stack above it instead of on top of it */
+  body.simple:has(#fivePill:not([hidden])) #rateBar{bottom:116px}
+  body.simple:has(#fivePill:not([hidden])):has(#rateBar:not([hidden])) #clearBar{bottom:190px}
+}
+@media (max-width:760px){body.simple header{position:static}}
+/* page headers and explained option rows */
+.pg-h{margin:2px 0 14px}
+.pg-h h1{font-size:24px;margin:0 0 4px}
+.pg-h p{margin:0;max-width:64ch}
+.hint5{font-size:13px;margin:-4px 0 4px}
+.stats.two{grid-template-columns:repeat(2,1fr)}
+.empty-note{background:var(--panel);border:1px dashed var(--line);border-radius:12px;padding:16px 18px;margin:10px 0}
+.empty-note .row{margin-top:10px}
+.opt-grp{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:22px 2px 8px;font-weight:700}
+.opt{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);margin-bottom:8px;flex-wrap:wrap}
+.opt-t{flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.opt-t b{font-size:14px}
+.opt-t .muted{font-size:13px}
+.opt-b{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.opt-b .on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.optm{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;white-space:normal;padding:10px 12px;border-radius:10px;margin-bottom:6px;font-weight:600}
+.optm span{font-size:12.5px;color:var(--muted);font-weight:400}
+.optm.danger{color:#ff8a80}
+.optm.danger span{color:var(--muted)}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0;text-align:left}
+.how > div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.how > div > b{display:block;margin-bottom:6px}
+.how .n{display:inline-flex;width:24px;height:24px;border-radius:999px;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-weight:700;font-size:13px;margin-right:6px}
+.how > div > span{display:block;color:var(--muted);font-size:13px;line-height:1.5}
+.how > div > span b{display:inline;margin:0;color:var(--text)}
+@media (max-width:700px){.how{grid-template-columns:1fr}}
+.empty-more{max-width:900px;margin:8px auto 0}
+.empty-more > summary{cursor:pointer;color:var(--muted);font-weight:600;text-align:center;padding:8px}
+/* lectures inside a playlist card */
+details.lecs{margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
+details.lecs > summary{cursor:pointer;color:var(--muted);font-weight:600;font-size:13px;padding:4px 0}
+.lec-row{display:flex;gap:8px;align-items:center;width:100%;text-align:left;white-space:normal;margin-top:4px;padding:6px 8px;border-radius:8px;font-size:13px}
+.lec-row .lt{flex:1;min-width:0}
+.lec-row .lnum{font-weight:700;color:var(--accent)}
+/* folded-away "more options" */
+details.adv{margin-top:10px}
+details.adv > summary{cursor:pointer;color:var(--text);font-weight:600;padding:8px 2px;list-style:none}
+details.adv > summary::-webkit-details-marker{display:none}
+details.adv > summary::before{content:'▸ ';color:var(--muted)}
+details.adv[open] > summary::before{content:'▾ '}
+details.adv > summary .muted{font-weight:400;font-size:12.5px}
+.exp{font-size:12.5px;color:var(--muted);margin:2px 0 6px}
+.stepbar{margin:12px 0 6px}
+.stepbar .seg{display:flex;flex-wrap:nowrap;max-width:100%;overflow-x:auto}
+.stepbar .seg button{padding:6px 11px;font-size:13px;white-space:nowrap;flex:1 0 auto}
+.pl-way label.chk.cOnRow{flex-wrap:wrap}
+.pl-way label.chk.cOnRow .muted{flex-basis:100%;margin-left:26px;font-size:12.5px}
+/* the watch page */
+.crumb.link{background:none;border:0;padding:0;color:var(--muted);font-size:13px;cursor:pointer;text-align:left}
+.crumb.link:hover{color:var(--text);text-decoration:underline}
+.now-top.simple{align-items:flex-start}
+.now-act{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.now-opts{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:4px 12px;background:var(--card)}
+.now-opts .o{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:10px 0;border-bottom:1px dashed var(--line)}
+.now-opts .o:last-child{border-bottom:0}
+.now-opts .o > div{flex:1 1 240px;min-width:0}
+.now-opts .o .muted{display:block;font-size:12.5px}
+.now-opts .rate-inline{display:inline-flex;gap:4px}
+details.dpc{margin-top:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:2px 10px}
+details.dpc > summary{cursor:pointer;padding:9px 0;font-size:13px;list-style:none}
+details.dpc > summary::-webkit-details-marker{display:none}
+details.dpc > summary::before{content:'▸ ';color:var(--muted)}
+details.dpc[open] > summary::before{content:'▾ '}
+details.dpc .dpc-b{display:flex;gap:8px;flex-wrap:wrap;padding:2px 0 10px}
+details.mtools{margin-top:6px}
+details.mtools > summary{cursor:pointer;color:var(--muted);font-size:13px;padding:6px 0;list-style:none;display:inline-block}
+details.mtools > summary::-webkit-details-marker{display:none}
+details.mtools .mt,details.dpc .mt{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:6px 0}
+details.mtools .mt .muted,details.dpc .mt .muted{font-size:12.5px;flex:1 1 200px;min-width:0}
+details.mtools .mt > button,details.dpc .mt > button{flex:0 0 auto;min-width:124px;text-align:left}
+body.simple #pageNav[hidden]{display:none}
+/* very long names (a title with no spaces) wrap instead of pushing the page sideways */
+body.simple :where(h1,h2,h3,.cont,.cb b,.plan-today,.pt-item,.opt-t,.lec-row .lt,.crumb,.coach .tip,.empty-note,.hello,.sec-h){overflow-wrap:anywhere}
+#modal :where(h2,p,.optm,.lec-row .lt){overflow-wrap:anywhere}
+body.simple #tbLecs{white-space:normal;text-align:left;overflow-wrap:anywhere;max-width:100%}
+/* the plan table scrolls sideways inside its box on a narrow phone, in both layouts */
+#planPreview{overflow-x:auto;max-width:100%}
+/* the full guide: folded sections */
+.gd{border:1px solid var(--line);border-radius:12px;margin:8px 0;background:var(--panel)}
+.gd > summary{cursor:pointer;padding:10px 12px;font-weight:600;list-style:none}
+.gd > summary::-webkit-details-marker{display:none}
+.gd > summary::before{content:'▸';display:inline-block;width:1.3em;color:var(--muted)}
+.gd[open] > summary::before{content:'▾'}
+.gd ul{margin:0;padding:0 14px 10px 32px;font-size:13.5px;line-height:1.55}
+.gd li{margin:7px 0}
+.adv > .pl-way{border:0;background:none;padding:0;margin:8px 0 0}
+.gd > summary .muted{font-weight:400;font-size:12.5px;margin-left:4px}
+.notice{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;justify-content:space-between;background:var(--panel);border:1px solid var(--accent);border-radius:12px;padding:10px 12px;margin:0 0 14px;font-size:13.5px;line-height:1.5}
+.notice > div:first-child{flex:1 1 260px;min-width:0}
 </style>
 </head>
 <body>
 <header>
   <div class="logo" id="logo" title="Home">Chapter<span>Box</span></div>
   <button id="homeBtn" title="Home">🏠 Home</button>
+  <nav id="pageNav" aria-label="Pages"></nav>
   <div class="search"><input id="q" type="search" placeholder="🔍 Search chapters, notes, PDFs &amp; transcripts   ( / )" autocomplete="off"><div class="sres" id="sres" hidden></div></div>
   <div class="spacer"></div>
   <button class="primary" id="addBtn">+ Add</button>
@@ -884,7 +1004,7 @@ function renderLibrary(){
 }
 function open0(el){ return !(store.settings.collapsed || {})[el.dataset.course]; }
 
-function renderEmpty(){
+function renderEmptyClassic(){
   $('#emptyView').innerHTML = `<div class="hero"><h1>Turn long lectures into bite-size chapter videos 🎬</h1>
     <p class="muted">Add a YouTube lecture or a whole playlist. Every chapter plays like its own short video, and your progress, notes and study plan are saved in this browser.</p>
     <div class="row" style="margin-top:14px"><button class="primary" id="emptyAdd">+ Add a video</button><button id="emptyPl">📚 Add a playlist</button></div></div>
@@ -903,10 +1023,14 @@ function renderEmpty(){
 let view = 'home';
 function render(){
   renderLibrary();
-  const v = cur(), any = store.videos.length > 0, watch = view === 'watch' && !!v;
-  $('#emptyView').hidden = any; $('#homeView').hidden = !any || watch; $('#watchView').hidden = !watch;
+  const v = cur(), any = store.videos.length > 0, watch = view === 'watch' && !!v, sm = simple();
+  const pg = watch ? 'watch' : sm ? pageOf() : 'home';
+  document.body.classList.toggle('simple', sm); document.body.dataset.page = pg;
+  const empty = !any && pg === 'home';
+  $('#emptyView').hidden = !empty; $('#homeView').hidden = empty || watch; $('#watchView').hidden = !watch;
   $('#homeBtn').classList.toggle('on', any && !watch);
-  if(!any){ renderEmpty(); return; }
+  try{ drawNav(); }catch(e){ console.error(e); }
+  if(empty){ renderEmpty(); return; }
   if(!watch){ renderHome(); return; }
   renderTitlebar(); renderPlaylist(); renderNow(); renderPlayerNote(); renderBar();
 }
@@ -916,7 +1040,7 @@ function showHome(){
   render(); window.scrollTo(0, 0);
 }
 
-function renderTitlebar(){
+function renderTitlebarClassic(){
   const v = cur(); const p = progressOf(v);
   const left = chapters(v).filter(c => !v.done[c.key] && c.len != null).reduce((a, c) => a + Math.max(0, c.len - reachOf(v, c)), 0);
   const course = courseOf(v), o = ownerOf(v), nx = nextLecture(v), lnum = course ? courseVideos(course).indexOf(v) + 1 : 0, whole = isWhole(v);
@@ -1000,7 +1124,7 @@ function renderNow(){
   const chs = chapters(v); const c = curChapter(v); const i = c.idx;
   const done = !!v.done[c.key], star = !!(v.stars || {})[c.key];
   if(!$('#nowTop')) $('#now').innerHTML = '<div id="nowTop"></div><div id="nowDocs"></div><div class="ntabs" id="nTabs"></div><div id="tabNotes"><div class="notes" id="nowNotes"></div></div><div id="tabPdf" hidden></div><div id="tabDbt" hidden></div>';
-  $('#nowTop').innerHTML = `<div class="now-top">
+  $('#nowTop').innerHTML = simple() ? nowTopSimple(v, c, i, chs, done, star) : `<div class="now-top">
       <div style="flex:1;min-width:180px"><h3>${i + 1}. ${esc(c.title)}</h3>
       <div class="meta">Part ${i + 1} of ${chs.length}${c.len != null ? ' · ' + fmt(c.len) + ' long' : ''} · ${diffLabel(v, c)}</div></div>
       <button id="nPrev" ${i === 0 ? 'disabled' : ''}>⏮ Prev</button>
@@ -1022,6 +1146,7 @@ function renderNow(){
   $('#autoNext').onchange = e => { store.settings.autoNext = e.target.checked; save(); };
   $('#feynChk').onchange = e => { store.settings.feyn = e.target.checked; save(); };
   $('#nowTop').querySelectorAll('[data-rate]').forEach(b => b.onclick = () => setRate(v, c.key, +b.dataset.rate));
+  try{ if(simple()) bindNowSimple(v, c, i); }catch(e){ console.error(e); }
   try{ nowExtras(v, c); }catch(e){ console.error(e); }
   // the notes box is only rebuilt when the chapter changes, so typing is never interrupted
   const ta = $('#notes'), key = v.id + ':' + c.key;
@@ -1050,6 +1175,7 @@ function renderNow(){
   $('#nAI').onclick = () => aiReady() ? openAIBox(v, c) : aiModal();
   $('#nTr').onclick = () => openTrBox(v, c);
   $('#nCards').onclick = () => cardsModal(v, c);
+  try{ if(simple()) simpleNotesTools(); }catch(e){ console.error(e); }
 }
 function saveNote(v, key, val){ if(val.trim()) v.notes[key] = val; else delete v.notes[key]; save(); }
 function jumpInChapter(v, c, rel){
@@ -1139,15 +1265,15 @@ function renameModal(){
 function addVideoModal(tab){
   if(tab === 'playlist') return addPlaylistModal();
   openModal(`<div class="tabs"><button class="on">🎬 Video</button><button id="toPl">📚 Playlist</button></div>
-    <h2>Add a YouTube video</h2><p class="muted" style="margin:0">Long lectures, courses, one-shots... anything.</p>
-    <label>YouTube link</label><input id="mUrl" placeholder="https://www.youtube.com/watch?v=...">
+    <h2>Add a YouTube video</h2><p class="muted" style="margin:0">${simple() ? 'Paste a YouTube link. ChapterBox splits the lecture into chapters, and you watch one chapter at a time. A playlist link works too.' : 'Long lectures, courses, one-shots... anything.'}</p>
+    <label>YouTube link</label><input id="mUrl" placeholder="https://www.youtube.com/watch?v=...">${simple() ? '<details class="adv" id="mAdv"><summary>⚙ More options <span class="muted">name · chapters · auto-split</span></summary><div class="exp">All of this is optional. With nothing filled in, the whole video is added as one part, and you can make chapters later (⚙ Options → Edit chapters).</div>' : ''}
     <label>Name (optional, taken from YouTube if empty)</label><input id="mTitle" placeholder="e.g. C Programming L2: If Else">
     <label>Chapters / timestamps (optional)</label>
     <textarea id="mChaps" rows="8" placeholder="Paste the timestamps from the description, one per line:\n0:00 Introduction\n12:45 If statement\n54:00 Problem 8 - divisible by 5 or 3\n1:04:08 Homework 3"></textarea>
     <div class="hint">Any line with a time works (<code>1:04:08 Title</code> or <code>Title - 54:00</code>). Copying YouTube's chapter list (title line, then time line) works too. Leave it empty to add chapters later.</div>
     <label>…or auto-split every N minutes (needs the video length)</label>
     <div class="row"><input id="mEvery" type="number" min="1" placeholder="minutes, e.g. 20" style="width:150px">
-    <input id="mLen" placeholder="video length, e.g. 2:55:23" style="width:200px"></div>
+    <input id="mLen" placeholder="video length, e.g. 2:55:23" style="width:200px"></div>${simple() ? '</details>' : ''}
     <div class="actions"><button onclick="closeModal()">Cancel</button><button class="primary" id="mSave">Add video</button></div>`);
   $('#toPl').onclick = () => addPlaylistModal();
   $('#mSave').onclick = () => {
@@ -1165,7 +1291,7 @@ function addVideoModal(tab){
       duration: len || null, chapters: chs, done: {}, notes: {}, lastChapter: 0, lastTime: urlStart(url), added: Date.now()};
     if(v.lastTime){ const ci = chapters(v).findIndex(c => v.lastTime >= c.start && (c.end == null || v.lastTime < c.end)); v.lastChapter = Math.max(0, ci); }
     store.videos.push(v); closeModal(); openVideo(v.id);
-    toast(chs.length ? `Added with ${chs.length} chapters` : 'Added! Now click ✂️ Edit chapters');
+    toast(chs.length ? `Added with ${chs.length} chapters` : simple() ? 'Added! To make chapters, open ⚙ Options → Edit chapters' : 'Added! Now click ✂️ Edit chapters');
   };
 }
 
@@ -1251,9 +1377,10 @@ function addPlaylistModal(prefill){
       openVideo(store.currentId);
     }catch(e){ btn.disabled = false; btn.textContent = 'Add playlist'; toast("Couldn't read that playlist. Is it public?"); }
   };
+  try{ if(simple()) playlistSimple(); }catch(e){ console.error(e); }
 }
 
-function helpModal(){
+function helpModalFull(){
   openModal(`<h2>How ChapterBox works</h2>
     <ul style="padding-left:18px">
       <li>Each chapter plays <b>only its part</b> of the YouTube video and stops at its end, like a separate video. When it finishes, it gets a ✓ and the next one starts (if auto-play is on).</li>
@@ -1334,7 +1461,7 @@ $('#addBtn').onclick = () => addVideoModal();
 $('#homeBtn').onclick = showHome;
 $('#logo').onclick = showHome;
 $('#themeBtn').onclick = () => { store.settings.theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; save(); applyTheme(); };
-$('#menuBtn').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [['🤖 Plan all my courses', autoPlanModal], ['🔑 AI helper (optional)', aiModal], ['📋 Week timetable', () => weekModal(0)], ['🗓 Auto-schedule & calendar', () => calModal()], ['✨ Smart timetable', () => smartModal()], ['🔥 Weak-spot map', () => weakModal()], ['❓ Confusion queue', () => queueModal()], [`🧠 Explain before next: ${feynOn() ? 'on' : 'off'}`, toggleFeyn], [`🔁 Spaced review: ${store.settings.revise === false ? 'off' : 'on'}`, toggleRevise], ['⬇️ Export backup', exportBackup], ['⬆️ Import backup', () => $('#importFile').click()], ['❓ Help & shortcuts', helpModal]]); };
+$('#menuBtn').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [['🤖 Plan all my courses', autoPlanModal], ['🔑 AI helper (optional)', aiModal], ['📋 Week timetable', () => weekModal(0)], ['🗓 Auto-schedule & calendar', () => calModal()], ['✨ Smart timetable', () => smartModal()], ['🔥 Weak-spot map', () => weakModal()], ['❓ Confusion queue', () => queueModal()], [`🧠 Explain before next: ${feynOn() ? 'on' : 'off'}`, toggleFeyn], [`🔁 Spaced review: ${store.settings.revise === false ? 'off' : 'on'}`, toggleRevise], ['⬇️ Export backup', exportBackup], ['⬆️ Import backup', () => $('#importFile').click()], ['❓ Help & shortcuts', helpModal], ['🧩 Use the simple layout (separate pages)', () => setLayout('simple')]]); };
 $('#focusBtn').onclick = focusMenu;
 function applyTheme(){
   const t = store.settings.theme === 'light' ? 'light' : 'dark';
@@ -1382,7 +1509,7 @@ function streak(){
   for(let guard = 0; guard < 4000; guard++){ const k = dayKey(d); if(ok(k)) n++; else if(!off(k)) break; d.setDate(d.getDate() - 1); }
   return n;
 }
-function renderHome(){
+function renderHomeClassic(){
   try{ smartWeek(); }catch(e){}
   const el = $('#homeView'), today = statDay(), ts = studied(today), goal = (store.settings.goal || 60) * 60, offToday = !!gOffs()[dayKey()];
   const recent = o => Math.max(0, ...ownerVideos(o).map(v => v.opened || v.added || 0));
@@ -1674,7 +1801,7 @@ function dayCfg(k){
 const energyButtons = () => `<div class="en-grid">${['low', 'med', 'high'].map(l => `<button class="en-btn" data-en="${l}"><span class="en-i">${ENERGY[l].icon}</span><b>${ENERGY[l].name}</b><span class="muted">${ENERGY[l].short}</span></button>`).join('')}</div>`;
 function energyOpen(){ const k = dayKey(); return !energyToday() && !gOffs()[k] && planOwners().some(o => !offKind(o, k) && todayPlan(o).some(x => !x.done)); }
 function energyModal(then){
-  openModal(`<h2>⚡ How much energy and focus do you have today?</h2><p class="muted" style="margin:4px 0 10px">I'll plan today's lectures to match. You can change it any time on Home.</p>${energyButtons()}
+  openModal(`<h2>⚡ How much energy and focus do you have today?</h2><p class="muted" style="margin:4px 0 10px">I'll plan today's lectures to match. You can change it any time on ${simple() ? 'the Plan page' : 'Home'}.</p>${energyButtons()}
     <div class="actions"><button id="enSkipM">Skip, use my normal plan</button></div>`);
   const go = lv => { closeModal(); energyApply(lv); if(then) then(); };
   $('#modal').querySelectorAll('[data-en]').forEach(b => b.onclick = () => go(b.dataset.en));
@@ -1755,14 +1882,16 @@ function planModal(o){
       <label class="chk" style="margin:0"><input type="radio" name="pm" value="minutes" ${p0.mode !== 'date' ? 'checked' : ''}> Study <input id="pMin" type="number" min="5" max="600" value="${p0.minutes || 60}" style="width:80px"> minutes a day</label>
       <label class="chk" style="margin:0"><input type="radio" name="pm" value="date" ${p0.mode === 'date' ? 'checked' : ''}> Finish by <input id="pDate" type="date" value="${p0.date || dayKey(new Date(Date.now() + 30 * 864e5))}" min="${today}" style="width:165px"></label>
     </div>
+    ${simple() ? '<div class="exp">Choose one: study the same number of minutes every day, or pick the date you want to finish by. The schedule below updates as you change things.</div>' : ''}
     <label>Study days</label>
     <div class="daychips">${[1, 2, 3, 4, 5, 6, 0].map(d => `<label><input type="checkbox" value="${d}" ${(p0.days || []).includes(d) ? 'checked' : ''}> ${DAYS[d]}</label>`).join('')}</div>
-    <label>📈 Easy → difficult: start slowly, then study a bit longer each week</label>
+    ${simple() ? '<div class="exp">The plan only uses the days you tick.</div><details class="adv" id="pAdv"><summary>⚙ More options <span class="muted">start slowly · real study time · order · days off</span></summary>' : ''}
+    <label>📈 Easy → difficult: start slowly, then study a bit longer each week</label>${simple() ? '<div class="exp">Begin with a small daily time and add a few minutes each week. It is easier to get going this way.</div>' : ''}
     <div class="row" style="gap:8px"><label class="chk" style="margin:0"><input type="checkbox" id="pSlow" ${sl0 ? 'checked' : ''}> Start at</label>
       <span id="pSlowOpts" class="row" style="gap:6px;flex-shrink:1;min-width:0"><input id="pS" type="number" min="5" max="600" value="${sl0 ? sl0.s : defS}" style="width:70px"> min a day, add <input id="pD" type="number" min="0" max="120" value="${sl0 ? sl0.d : 5}" style="width:62px"> min every <select id="pE">${[[1, 'day'], [3, '3 days'], [7, 'week'], [14, '2 weeks']].map(([v, l]) => `<option value="${v}" ${+(sl0 ? sl0.e : 7) === v ? 'selected' : ''}>${l}</option>`).join('')}</select></span></div>
-    <label>⏳ Real study time <span class="muted" style="font-weight:400">(your daily time covers pausing, notes and practice)</span></label>
+    <label>⏳ Real study time <span class="muted" style="font-weight:400">(your daily time covers pausing, notes and practice)</span></label>${simple() ? '<div class="exp">An hour of video usually takes longer than an hour: you pause, rewind and take notes. Say how long it takes you, so each day fits your real time.</div>' : ''}
     <div class="row" style="gap:6px">A 1-hour lecture takes me <select id="pPace">${paceOpts(paceOf(p0))}</select> plus <input id="pPrac" type="number" min="0" max="240" step="5" value="${p0.practice || 0}" style="width:64px"> min of practice a day</div>
-    <label>🧠 Order</label>
+    <label>🧠 Order</label>${simple() ? '<div class="exp">Which parts come first. Course order follows the playlist; the others start with the easier parts.</div>' : ''}
     <div class="row" style="gap:10px"><select id="pOrder">${orderOpts(p0.order || 'course')}</select>
       ${aiReady() ? '<button class="small" id="pAI" title="Let the AI rate how hard each chapter is">🤖 Rate difficulty with AI</button>' : ''}</div>
     <div class="hint" id="pHint"></div>
@@ -1770,7 +1899,7 @@ function planModal(o){
     <div class="row" style="gap:10px"><input id="offDate" type="date" min="${today}" value="${today}" style="width:165px">
       <label class="chk" style="margin:0"><input type="checkbox" id="offAll" checked> for all subjects</label>
       <button class="small" id="offAdd">+ Add day off</button></div>
-    <div class="offchips" id="offList"></div>
+    <div class="offchips" id="offList"></div>${simple() ? '</details>' : ''}
     <div id="planPreview"></div>
     <div class="actions">${o.plan ? '<button class="danger" id="pDel">Remove plan</button>' : ''}<button id="pCal">🗓 Calendar</button><button onclick="closeModal()">Cancel</button><button class="primary" id="pSave">Save plan</button></div>`, true);
   const clamp = (x, a, b, dflt) => Math.min(b, Math.max(a, Math.round(+x || dflt)));
@@ -1940,7 +2069,7 @@ function setRate(v, key, r){
   v.rate = v.rate || {}; v.rate[key] = r; if(v.diffSet) delete v.diffSet[key];
   const rev = store.settings.revise !== false;
   if(v.done[key] && rev) schedule(v, key, reviewKind(v, key));
-  save(); if(cur() === v && view === 'watch'){ renderPlaylist(); renderNow(); } else if(view === 'home') renderHome();
+  save(); if(cur() === v && view === 'watch'){ renderPlaylist(); renderNow(); } else if(onPage()) renderHome();
   toast(r === 3 ? `😵 Marked hard${rev && v.done[key] ? ". It'll come back for a quick review tomorrow" : ''}` : r === 2 ? `😐 Got it${rev && v.done[key] ? '. A quick review in 2 days' : ''}` : '😀 Nice, marked easy');
 }
 function dueReviews(){
@@ -2074,10 +2203,10 @@ function coachTips(){
   // 8. real study time, auto-schedule and the calendar
   const cst = calSet(), gh = ghCfg();
   if(gh.err) tips.push({icon: '⚠️', html: `Your live calendar stopped updating: ${esc(gh.err)}.`, btns: [['Fix', calModal]]});
-  if(!cst.on && planOwners().length && !store.settings.calHintOff) tips.push({icon: '🗓', html: 'New: I can schedule your study around your <b>Apple Calendar</b> and put the sessions in it.', btns: [['Set up', calModal], ['Hide', () => { store.settings.calHintOff = true; save(); render(); }]]});
+  if(!cst.on && planOwners().length && !store.settings.calHintOff) tips.push({hint: true, icon: '🗓', html: 'New: I can schedule your study around your <b>Apple Calendar</b> and put the sessions in it.', btns: [['Set up', calModal], ['Hide', () => { store.settings.calHintOff = true; save(); render(); }]]});
   if(cst.on && calData.src.length && Math.max(...calData.src.map(s => s.at)) < Date.now() - 21 * 864e5) tips.push({icon: '🗓', html: 'Your calendar copy is over 3 weeks old. Export it again if your events changed.', btns: [['Update', calModal]]});
   // 9. optional real AI
-  if(!aiReady() && store.videos.length && !store.settings.aiHintOff) tips.push({icon: '🤖', html: 'Want a real AI too? Add a free Gemini key to ask about any chapter, get quizzes, flashcards, translations and AI difficulty ratings.', btns: [['Set up', aiModal], ['Hide', () => { store.settings.aiHintOff = true; save(); render(); }]]});
+  if(!aiReady() && store.videos.length && !store.settings.aiHintOff) tips.push({hint: true, icon: '🤖', html: 'Want a real AI too? Add a free Gemini key to ask about any chapter, get quizzes, flashcards, translations and AI difficulty ratings.', btns: [['Set up', aiModal], ['Hide', () => { store.settings.aiHintOff = true; save(); render(); }]]});
   return tips;
 }
 function coachCard(){
@@ -2178,7 +2307,7 @@ function tickFocus(){
       <div class="actions"><button id="brkStop">Stop timer</button><button class="primary" id="brkSkip">Skip break</button></div>`);
     $('#brkSkip').onclick = () => { closeModal(); if(focus) focus.end = Date.now(); tickFocus(); };
     $('#brkStop').onclick = () => { closeModal(); focus = null; tickFocus(); };
-    if(view === 'home') renderHome();
+    if(onPage()) renderHome();
   } else {
     focus = {phase: 'focus', end: Date.now() + focus.f * 6e4, f: focus.f, b: focus.b};
     if($('#brkLeft')) closeModal();
@@ -2207,7 +2336,7 @@ async function aiModel(key){
   return names.filter(n => /^gemini-/.test(n) && /flash|pro/.test(n)).sort((a, b) => score(b) - score(a))[0] || 'gemini-2.5-flash';
 }
 async function askAI(prompt, json){
-  const c = aiCfg(); if(!c.key) throw new Error('add your key first (⋯ → AI helper)');
+  const c = aiCfg(); if(!c.key) throw new Error('add your key first (' + menuName() + ' → AI helper)');
   let model = c.model; if(!model){ model = await aiModel(c.key); aiSet({...c, model}); }
   const body = {contents: [{role: 'user', parts: [{text: prompt}]}], generationConfig: Object.assign({temperature: 0.4}, json ? {responseMimeType: 'application/json'} : {})};
   let j;
@@ -2613,7 +2742,7 @@ let calData = {src: []}, calMemo = null, calT = 0;
 try{ const j = JSON.parse(localStorage.getItem(CALK)); if(j && Array.isArray(j.src)) calData = j; }catch(e){}
 function calSave(){ try{ localStorage.setItem(CALK, JSON.stringify(calData)); return true; }catch(e){ return false; } }
 function calBump(){   // forget what was worked out; Home (behind the window) follows along
-  calMemo = null; clearTimeout(calT); calT = setTimeout(() => { if(view === 'home' && $('#modalBg').classList.contains('show')) renderHome(); }, 400);
+  calMemo = null; clearTimeout(calT); calT = setTimeout(() => { if(onPage() && $('#modalBg').classList.contains('show')) renderHome(); }, 400);
 }
 
 // ---- reading a calendar file ----
@@ -3157,6 +3286,7 @@ function calModal(){
   $('#cDone').onclick = () => { closeModal(); render(); liveTick(); };
   $('#cWeek').onclick = () => weekModal(0);
   drawSrc(); drawLive(); drawPrev();
+  try{ if(simple()) calTabs(); }catch(e){ console.error(e); }
 }
 
 // ================= 📜 transcripts =================
@@ -3263,7 +3393,7 @@ async function trTranslate(v, tr, idxs, onp){
       }
     }catch(e){}
   }
-  if(!aiReady()) throw new Error("this browser can't translate by itself. Add your free AI key (⋯ → AI helper) and try again");
+  if(!aiReady()) throw new Error("this browser can't translate by itself. Add your free AI key (" + menuName() + " → AI helper) and try again");
   const rest = todo.filter(n => !tr.en[n]);
   for(let i = 0; i < rest.length; i += 80){
     const part = rest.slice(i, i + 80);
@@ -3379,7 +3509,7 @@ function cardPicker(out, v, c, list){
     <div class="row" style="margin-top:8px"><button class="primary small" id="cpSave">Save these cards</button></div>`;
   out.querySelector('#cpSave').onclick = () => {
     const keep = [...out.querySelectorAll('[data-ci]')].filter(x => x.checked).map(x => list[+x.dataset.ci]);
-    const n = addCards(v, c.key, keep, 'ai'); out.innerHTML = `<span>🃏 Saved ${n} card${n === 1 ? '' : 's'}. Review them from Home.</span>`; refreshCardsBtn(v, c);
+    const n = addCards(v, c.key, keep, 'ai'); out.innerHTML = `<span>🃏 Saved ${n} card${n === 1 ? '' : 's'}. Review them from ${simple() ? 'the Review page' : 'Home'}.</span>`; refreshCardsBtn(v, c);
   };
 }
 function refreshCardsBtn(v, c){ const b = $('#nCards'); if(b && cur() === v){ const n = cardsFor(v, c.key).length; b.textContent = '🃏 Cards' + (n ? ` (${n})` : ''); } }
@@ -3532,7 +3662,7 @@ function smartCard_(){
   if(!(sm && sm.on)){
     if(store.settings.smartHintOff) return '';
     const hint = r.base != null ? `So far I see about ${fmtDur(r.base * 60)} on your study days${r.start != null ? `, usually starting around ${fmtClock(r.start)}` : ''}.` : 'Study a few days and I will learn your pattern.';
-    return `<div class="sm"><div class="sm-h"><b>✨ Smart timetable</b><span class="muted"></span><button class="small primary" id="smOn">Turn on</button><button class="small" id="smHide" title="Hide this card. You can still turn it on from the ⋯ menu">✕</button></div>
+    return `<div class="sm"><div class="sm-h"><b>✨ Smart timetable</b><span class="muted"></span><button class="small primary" id="smOn">Turn on</button><button class="small" id="smHide" title="Hide this card. You can still turn it on from ${simple() ? 'the Plan page' : 'the ⋯ menu'}">✕</button></div>
       <div class="sm-line muted">It notes when and for how long you really study, builds your daily timetable at those times, and adds a little study time each week you hit it. It stays on this device.</div>
       <div class="muted" style="font-size:12px">${hint}</div></div>`;
   }
@@ -4336,7 +4466,7 @@ const pdfView = {id: null, page: 1, q: '', mode: 'page', form: null, hit: -1};
 // redraws the summary panel and the tabs, but only when something they show has changed (so typing is never interrupted)
 function nowExtras(v, c, force){
   v = v || cur(); if(!v || !$('#nowDocs')) return; c = c || curChapter(v);
-  const dbs = v.doubts || [], sig = [v.id, c.key, docRev, dbs.length, dbs.filter(d => d.ok).length, ((v.outl || {})[c.key] || {}).at || 0, ((v.expl || {})[c.key] || {}).at || 0, nowTab, dpMode, store.settings.dpOpen === false ? 0 : 1, v.done[c.key] ? 1 : 0].join('|');
+  const dbs = v.doubts || [], sig = [v.id, c.key, docRev, dbs.length, dbs.filter(d => d.ok).length, ((v.outl || {})[c.key] || {}).at || 0, ((v.expl || {})[c.key] || {}).at || 0, nowTab, dpMode, dpIsOpen() ? 1 : 0, v.done[c.key] ? 1 : 0].join('|');
   if(!force && sig === nowSig) return;
   nowSig = sig; drawDocs(v, c); drawTabs(v, c);
 }
@@ -4359,9 +4489,9 @@ function outlineHtml(o, c){
 const srcName = s => s === 'ai' ? '🤖 AI summary' : s === 'auto' ? '✨ quick summary' : s === 'pdf' ? 'from a PDF' : s === 'file' ? 'uploaded file' : 'pasted';
 async function drawDocs(v, c){
   const box = $('#nowDocs'); if(!box) return;
-  const tok = ++dpTok, sums = docsFor(v, c, 'sum'), ol = (v.outl || {})[c.key], me = explOf(v, c.key), open = store.settings.dpOpen !== false;
+  const tok = ++dpTok, sums = docsFor(v, c, 'sum'), ol = (v.outl || {})[c.key], me = explOf(v, c.key), open = dpIsOpen();
   if(!sums.length && !ol && !me){
-    box.innerHTML = `<div class="dp compact"><b>📑 Summary &amp; outline</b><span class="muted" style="flex:1;min-width:150px">${v.done[c.key] ? 'Chapter done! Make a quick outline to revise from.' : 'Add the official summary, or let ChapterBox make a quick one.'}</span><button class="small" id="dpAdd">＋ Summary</button><button class="small" id="dpGen">✨ Quick summary</button><button class="small" id="dpOut">🗂 Outline</button><button class="small" id="dpMe" title="Explain this chapter in your own words">🧠 Explain it</button></div>`;
+    box.innerHTML = simple() ? dpCompactSimple(v, c) : `<div class="dp compact"><b>📑 Summary &amp; outline</b><span class="muted" style="flex:1;min-width:150px">${v.done[c.key] ? 'Chapter done! Make a quick outline to revise from.' : 'Add the official summary, or let ChapterBox make a quick one.'}</span><button class="small" id="dpAdd">＋ Summary</button><button class="small" id="dpGen">✨ Quick summary</button><button class="small" id="dpOut">🗂 Outline</button><button class="small" id="dpMe" title="Explain this chapter in your own words">🧠 Explain it</button></div>`;
     bindDp(v, c); return;
   }
   if(dpMode === 'me' && !me) dpMode = 'sum';
@@ -4406,7 +4536,7 @@ function bindDp(v, c){
   if(q('dpGen')) q('dpGen').onclick = () => quickModal(v, c, 'sum');
   if(q('dpOut')) q('dpOut').onclick = () => quickModal(v, c, 'out');
   if(q('dpMe')) q('dpMe').onclick = () => explainModal(v, c);
-  if(q('dpTg')) q('dpTg').onclick = () => { store.settings.dpOpen = store.settings.dpOpen === false; save(); nowSig = ''; nowExtras(v, c); };
+  if(q('dpTg')) q('dpTg').onclick = () => { store.settings.dpOpen = !dpIsOpen(); save(); nowSig = ''; nowExtras(v, c); };
   document.querySelectorAll('#dpSeg [data-m]').forEach(b => b.onclick = () => { dpMode = b.dataset.m; store.settings.dpOpen = true; nowSig = ''; nowExtras(v, c); });
 }
 async function editSumModal(d){
@@ -4612,7 +4742,7 @@ async function quickModal(v, c, mode, pre){
     try{
       result = out ? await genOutline(v, c, ids(), ai) : await genSummary(v, c, ids(), nBul, ai);
       if(!result){ o.innerHTML = '<span style="color:var(--warn)">There was not enough text to make something useful. Try another source or add more notes.</span>'; return; }
-      o.innerHTML = out ? `${outlineHtml(result, c)}<div class="hint">${ai ? '🤖 Made by AI. Double-check anything important.' : 'Made on this device. It picks sentences from your text, so add an AI key (⋯ → AI helper) for smarter ones.'}</div>`
+      o.innerHTML = out ? `${outlineHtml(result, c)}<div class="hint">${ai ? '🤖 Made by AI. Double-check anything important.' : 'Made on this device. It picks sentences from your text, so add an AI key (' + menuName() + ' → AI helper) for smarter ones.'}</div>`
         : `<textarea id="qmTxt" rows="9">${esc(result.text)}</textarea><div class="hint">${ai ? '🤖 Made by AI. Double-check anything important. ' : 'Made on this device. '}You can edit it before saving.</div>`;
       o.innerHTML += `<div class="row" style="margin-top:8px"><button class="primary small" id="qmSave">💾 Save to this chapter</button><button class="small" id="qmCopy">📋 Copy</button></div>`;
       $('#qmCopy').onclick = () => copyText(out ? outlineText(result, c.start) : $('#qmTxt').value, 'Copied');
@@ -4671,7 +4801,7 @@ function doubtsChanged(){
   save();
   try{
     if(view === 'watch' && cur()){ nowSig = ''; nowExtras(); renderPlaylist(); }
-    else if(view === 'home') renderHome();
+    else if(onPage()) renderHome();
   }catch(e){}
 }
 // one click (or the C key) while watching: remember this exact second as "confused here"
@@ -4927,6 +5057,493 @@ function bindWeak(el){
 }
 
 
+// ================= v19 · simple layout: a few clear pages instead of one long page =================
+// The old one-long-page layout still exists as "Classic" (More → Layout). Everything below only runs in the simple layout.
+const DEFAULT_LAYOUT = 'simple';
+const PAGES = [['home', '🏠', 'Home'], ['courses', '📚', 'Courses'], ['plan', '📅', 'Plan'], ['review', '🔁', 'Review'], ['progress', '📊', 'Progress'], ['more', '⚙️', 'More']];
+const simple = () => ((typeof store !== 'undefined' && store && store.settings && store.settings.layout) || DEFAULT_LAYOUT) !== 'classic';
+const onPage = () => view !== 'watch';
+const pageOf = () => PAGES.some(p => p[0] === view) ? view : 'home';
+function showPage(name){
+  view = name;
+  try{ if([1, 3].includes(playerState())) player.pauseVideo(); }catch(e){}
+  closeMenus(); render(); window.scrollTo(0, 0);
+}
+function setLayout(x){
+  store.settings.layout = x; save(); view = 'home'; closeMenus(); render(); window.scrollTo(0, 0);
+  toast(x === 'simple' ? '🧩 Simple layout: one page for each thing' : '🧩 Classic layout: everything on one Home page');
+}
+function drawNav(){
+  const nav = $('#pageNav'); if(!nav) return;
+  const pg = onPage() ? pageOf() : '';
+  nav.hidden = !store.videos.length && pg === 'home';
+  let n = 0; try{ n = dueReviews().length + allDoubts().filter(x => !x.d.ok).length; }catch(e){}
+  nav.innerHTML = PAGES.map(([k, ic, lb]) => `<button data-page="${k}" class="${pg === k ? 'on' : ''}" ${pg === k ? 'aria-current="page"' : ''}><span class="ni">${ic}</span><span class="nl">${lb}</span>${k === 'review' && n ? `<i title="${n} to review">${n > 99 ? '99+' : n}</i>` : ''}</button>`).join('');
+  nav.querySelectorAll('button').forEach(b => b.onclick = () => showPage(b.dataset.page));
+}
+function toggleTheme(){
+  store.settings.theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; save(); applyTheme();
+  if(onPage() && simple()) renderHome();
+}
+
+// ---------- small building blocks ----------
+const pgHead = (title, text) => `<div class="pg-h"><h1>${title}</h1><p class="muted">${text}</p></div>`;
+const optRow = (t, d, btns) => `<div class="opt"><div class="opt-t"><b>${t}</b><span class="muted">${d}</span></div><div class="opt-b">${btns}</div></div>`;
+const optGrp = t => `<div class="opt-grp">${t}</div>`;
+const pgBtn = (act, label, cls) => `<button class="small ${cls || ''}" data-pg="${act}">${label}</button>`;
+const toggleBtn = (act, on) => `<button class="small ${on ? 'on' : ''}" data-pg="${act}" aria-pressed="${on}">${on ? 'On' : 'Off'}</button>`;
+const emptyNote = (text, adds) => `<div class="empty-note">${text}${adds ? `<div class="row"><button class="primary" data-pg="add">+ Add a video</button><button data-pg="addpl">📚 Add a playlist</button></div>` : ''}</div>`;
+
+function homeData(){
+  const today = statDay(), ts = studied(today), goal = (store.settings.goal || 60) * 60, offToday = !!gOffs()[dayKey()];
+  const recent = o => Math.max(0, ...ownerVideos(o).map(v => v.opened || v.added || 0));
+  const owners = [...store.courses.filter(c => courseVideos(c).length), ...store.videos.filter(v => !courseOf(v))].sort((a, b) => recent(b) - recent(a));
+  const last = store.videos.find(v => v.id === store.currentId) || owners.length && continueTarget(owners[0]) || null;
+  const lc = last ? chapters(last)[resumeIdx(last)] : null;
+  const total = Object.values(store.stats).reduce((a, x) => a + studied(x), 0);
+  const week = [...Array(7)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() - 6 + i); return {d, s: studied(store.stats[dayKey(d)])}; });
+  const top = Math.max(goal, ...week.map(x => x.s), 1);
+  const stars = []; for(const v of store.videos) for(const c of chapters(v)) if((v.stars || {})[c.key]) stars.push({v, c});
+  const courses = owners.filter(o => o.order), singles = owners.filter(o => !o.order), plans = owners.filter(o => o.plan);
+  return {today, ts, goal, offToday, owners, last, lc, total, week, top, stars, courses, singles, plans};
+}
+const contCard = d => d.last && d.lc ? `<div class="cont" id="contCard"><img src="${thumb(d.last.ytId)}" alt="" onerror="this.remove()"><div style="flex:1;min-width:0">
+      <div class="muted" style="font-size:12px">Continue watching${courseOf(d.last) ? ' · 📚 ' + esc(courseOf(d.last).title) : ''}</div>
+      <h3 style="margin:4px 0">${esc(d.last.title)}</h3><div>${d.lc.idx + 1}. ${esc(d.lc.title)} <span class="muted">${d.lc.len != null ? '· ' + fmt(d.lc.len) : ''}</span></div>
+      <div class="bar"><i style="width:${progressOf(d.last).done / progressOf(d.last).total * 100}%"></i></div></div>
+      <button class="primary">▶ Continue</button></div>` : '';
+const goalTile = d => `<div class="stat" id="goalCard" title="Click to change your daily goal"><div class="big">${Math.floor(d.ts / 60)}<small> / ${d.goal / 60} min</small></div>
+        <div class="muted">today's goal (click to change)</div><div class="bar ${d.ts >= d.goal ? 'green' : ''}"><i style="width:${Math.min(100, d.ts / d.goal * 100)}%"></i></div></div>`;
+const streakTile = () => `<div class="stat"><div class="big">🔥 ${streak()}</div><div class="muted">day streak (1+ min a day)</div></div>`;
+const statTiles = d => `<div class="stats">${goalTile(d)}${streakTile()}
+      <div class="stat"><div class="big">${d.today.c}${d.today.f ? `<small> · 🍅 ${d.today.f}</small>` : ''}</div><div class="muted">chapters done today${d.today.f ? ' · focus sessions' : ''}</div></div>
+      <div class="stat"><div class="big">${fmtDur(d.total)}</div><div class="muted">studied in total</div></div></div>`;
+const weekBars = d => `<div class="week">${d.week.map(x => `<div class="d ${dayKey(x.d) === dayKey() ? 'today' : ''}" title="${fmtDur(x.s)} studied"><span>${Math.round(x.s / 60)}m</span><div class="b" style="height:${Math.max(3, Math.round(x.s / d.top * 72))}px"></div>${DAYS[x.d.getDay()]}</div>`).join('')}</div>`;
+const starsList = d => d.stars.length ? `<div class="sec-h"><h2>⭐ Chapters you starred (${d.stars.length})</h2><span class="muted" style="font-size:12px">Tap one to rewatch it.</span></div><div class="plan-today">${d.stars.slice(0, 20).map(x => `<div class="pt-item" data-sv="${x.v.id}" data-si="${x.c.idx}">⭐ ${esc(x.c.title)} <span class="muted">· ${esc(x.v.title.slice(0, 50))}${x.c.len != null ? ' · ' + fmt(x.c.len) : ''}</span></div>`).join('')}</div>` : '';
+
+// the coach, but short: the first tips only, and no "set up AI / calendar" nudges (those live on the More and Plan pages)
+function coachLite(n, head){
+  const tips = coachTips().filter(t => !t.hint).slice(0, n); if(!tips.length) return '';
+  const btn = (label, fn) => { coachActs.push(fn); return `<button class="small" data-coach="${coachActs.length - 1}">${esc(label)}</button>`; };
+  const fix = ([l, f]) => l === 'Show' ? ['Open Review', () => showPage('review')] : [l, f];
+  return `<div class="coach">${head ? `<div class="coach-h"><b>🤖 Smart coach</b><span class="muted">reads your plans, pace and ratings</span></div>` : ''}${tips.map(t => `<div class="tip"><span>${t.icon}</span><div>${t.html}</div>${t.btns && t.btns.length ? `<div class="tip-b">${t.btns.filter(([l]) => !/Just 5 minutes/.test(l)).map(fix).map(([l, f]) => btn(l, f)).join('')}</div>` : ''}</div>`).join('')}</div>`;
+}
+function ownerCardS(o){
+  const base = ownerCard(o); if(!o.order) return base;
+  const vids = courseVideos(o);
+  const rows = vids.map((v, i) => { const p = progressOf(v); return `<button class="lec-row" data-lec="${v.id}"><span class="lnum">L${i + 1}</span><span class="lt">${esc(v.title)}</span><span class="muted">${p.done}/${p.total}${p.total && p.done === p.total ? ' ✅' : ''}</span></button>`; }).join('');
+  const add = `<details class="lecs"><summary>Lectures (${vids.length})</summary>${rows}</details></div></div>`;
+  return base.replace(/<\/div><\/div>$/, () => add);
+}
+
+// today's plan, short: what is next and one button. The full card with every part lives on the Plan page
+function todayLite(o){
+  const k = dayKey(), kind = offKind(o, k), key = esc(ownerKey(o)), title = `<b>${o.order ? '📚 ' : '🎬 '}${esc(o.title)}</b>`;
+  if(kind) return `<div class="plan-today off"><div class="row" style="justify-content:space-between">${title}</div><div class="muted" style="margin-top:6px">${kind === 'all' ? '🏖 Day off today.' : '⏭ Moved to the next study day.'}</div></div>`;
+  const items = todayPlan(o), done = items.filter(x => x.done).length, secs = items.reduce((a, x) => a + x.len, 0), next = items.find(x => !x.done);
+  return `<div class="plan-today"><div class="row" style="justify-content:space-between">${title}${items.length ? `<span class="muted">${done}/${items.length} parts · ${fmt(secs)}</span>` : ''}</div>`
+    + (next ? `<div class="muted" style="margin:6px 0 8px;font-size:13px">Up next: ${esc(partTitle(o, next.v, next.c))}</div><button class="primary small" data-tp="${key}|${items.indexOf(next)}">▶ ${done ? 'Keep going' : "Start today's plan"}</button>`
+      : `<div class="muted" style="margin-top:6px">${items.length ? "🎉 Today's plan is done!" : 'Nothing to study today 😌'}</div>`) + '</div>';
+}
+
+// a one-time, dismissible heads-up for people who already had lectures before the pages existed
+const layoutNote = () => store.settings.layoutNote === 'show' ? `<div class="notice" id="layoutNote"><div>✨ <b>ChapterBox is now split into pages</b> (Home, Courses, Plan, Review, Progress, More), so each screen shows less. Prefer the old single page? You can switch any time in More → Layout.</div><div class="row"><button class="small" data-pg="note:classic">Use the old layout</button><button class="small primary" data-pg="note:ok">Got it</button></div></div>` : '';
+
+// ---------- the six pages ----------
+function pgHome(d){
+  const hr = new Date().getHours();
+  const status = d.offToday ? '🏖 Day off today. Your plans moved ahead and your streak is safe.' : d.ts >= d.goal ? "Today's goal is done. Nice work! 🎉" : `${fmtDur(d.goal - d.ts)} more to reach today's goal.`;
+  return layoutNote() + `<div class="hello"><div><h1>${['Good morning', 'Good afternoon', 'Good evening'][hr < 12 ? 0 : hr < 17 ? 1 : 2]}! 👋</h1><p class="muted">${status}</p></div><button class="primary" id="fiveBtn" title="Starts the easiest next part. You can stop after 5 minutes">⏱ Just 5 minutes</button></div>
+    <p class="hint5 muted">Short on time or motivation? <b>Just 5 minutes</b> opens the easiest next part. You can stop after 5.</p>
+    ${contCard(d)}
+    ${d.plans.length ? `<div class="sec-h"><h2>📅 Today's plan</h2><button class="small" data-pg="go:plan">See the whole plan</button></div>${energyOwners(d.plans).slice(0, 3).map(todayLite).join('')}${d.plans.length > 3 ? `<p class="muted" style="font-size:13px;margin:6px 2px">+ ${d.plans.length - 3} more on the Plan page.</p>` : ''}` : ''}
+    ${coachLite(2)}
+    <div class="stats two">${goalTile(d)}${streakTile()}</div>`;
+}
+function pgCourses(d){
+  let h = pgHead('📚 Courses', 'Everything you added. Press <b>Continue</b> to pick up where you stopped.')
+    + `<div class="row" style="margin-bottom:6px"><button class="primary" data-pg="add">+ Add a video</button><button data-pg="addpl">📚 Add a playlist</button></div>`;
+  if(d.courses.length) h += `<div class="sec-h"><h2>📚 Playlists</h2><span class="muted" style="font-size:12px">A playlist is a full course made of several lectures.</span></div><div class="cards">${d.courses.map(ownerCardS).join('')}</div>`;
+  if(d.singles.length) h += `<div class="sec-h"><h2>🎬 Videos</h2></div><div class="cards">${d.singles.map(ownerCardS).join('')}</div>`;
+  return h;
+}
+function pgPlan(d){
+  let h = pgHead('📅 Plan', 'A plan splits a course into small daily sessions, so you finish by a date you pick or study a set time each day. This page shows what to study today and has the tools to schedule it.');
+  if(d.plans.length) h += `<div class="sec-h"><h2>Today</h2></div>` + energyCard() + schedCard() + energyOwners(d.plans).map(todayCard).join('');
+  else h += `<div class="empty-note"><b>You don't have a plan yet.</b><div class="muted" style="margin-top:4px">Pick a course and tell ChapterBox how many minutes a day you can study, or the date you want to finish. You get a day-by-day schedule with exact times.</div><div class="row">${d.owners.slice(0, 4).map(o => `<button class="primary small" data-plan="${esc(ownerKey(o))}">📅 Make a plan for ${esc(shortText(o.title, 26))}</button>`).join('')}${d.owners.length > 1 ? '<button class="small" data-pg="autoplan">🤖 Plan all my courses</button>' : ''}</div></div>`;
+  if(d.plans.length) h += coachLite(5, true);
+  h += optGrp('Tools');
+  if(d.plans.length) h += optRow('📋 Week timetable', 'Every study session of the week with its clock time, exact video length and study time. You can download or print it.', '<button class="small" id="wkBtn">Open</button>')
+    + optRow('🗓 Auto-schedule & calendar', 'Tell ChapterBox the hours you are free and bring in your calendar. It gives every session a clock time inside your free time.', '<button class="small" id="calBtn">Set up</button>')
+    + optRow('✏️ Change today', "Change today's study hours, start time or busy blocks. You can change any other day too.", '<button class="small" id="chgBtn">Change</button>')
+    + optRow('🏖 Day off today', d.offToday ? "Today is a day off for every course. Undo it to bring today's plan back." : 'Skip today for every course. Plans move ahead to the next study day and your streak stays safe.', `<button class="small" id="dayOff">${d.offToday ? '↩ Undo day off' : 'Take a day off'}</button>`);
+  h += optRow('✨ Smart timetable', 'Notices when and for how long you really study, then builds your daily timetable at those times. It adds a little study time each week you manage it.', pgBtn('smart', smartOn() ? 'Settings' : 'Turn on', smartOn() ? '' : 'primary'))
+    + (d.owners.length > 1 ? optRow('🤖 Plan all my courses', 'Makes one plan for every course and shares your daily time between them, easiest parts first.', pgBtn('autoplan', 'Plan everything')) : '');
+  if(smartOn()) h += smartCard();
+  return h;
+}
+function pgReview(d){
+  const rs = reviewSection(), cs = cardsSection(), weak = weakCard(), nq = allDoubts().filter(x => !x.d.ok).length, st = starsList(d);
+  let h = pgHead('🔁 Review', 'Things worth another look: chapters you found hard, chapters you starred ⭐ and moments you marked as confusing ❓. A little review now saves a lot of re-learning later.');
+  if(!(rs || cs || weak || nq || st)) h += `<div class="empty-note"><b>Nothing to review yet 🎉</b><div class="muted" style="margin-top:4px">After you finish a chapter, rate it 😀 😐 😵. Hard ones come back here after a day or two. You can also press <b>⭐ Revise</b> on any chapter, or <b>❓</b> while watching when something doesn't click.</div></div>`;
+  else h += rs + cs + weak + (nq && !weak ? optRow('❓ Confusion queue', `Moments you marked as confusing while watching (${nq} open). Tap one to jump straight back to it.`, pgBtn('queue', 'Open the queue')) : '') + st;
+  h += optGrp('Setting') + optRow('🔁 Spaced review', 'Chapters you rate 😵 Hard come back for review after 1, 3, 7, 16 and 35 days, right when memory needs a refresh.', toggleBtn('rev', store.settings.revise !== false));
+  return h;
+}
+function pgProgress(d){
+  return pgHead('📊 Progress', "How much you studied: today's goal, your streak, the last 7 days and a calendar of every day.") + statTiles(d) + weekBars(d) + hmHtml();
+}
+function pgMore(){
+  const light = document.documentElement.dataset.theme === 'light', goal = store.settings.goal || 60, lay = simple() ? 'simple' : 'classic';
+  return pgHead('⚙️ More', 'Settings, backup and help. Every option says what it does.')
+    + optGrp('Study tools')
+    + optRow('🍅 Focus timer', 'Study in focused blocks with breaks, like 25 minutes of focus and then a 5 minute break. The video pauses when a break starts.', pgBtn('focus', typeof focus !== 'undefined' && focus ? '⏹ Timer options' : 'Start a timer'))
+    + optRow(`🎯 Daily goal: ${goal} min`, 'How many minutes you want to study every day. Your 🔥 streak counts every day you study at least 1 minute.', pgBtn('goal', 'Change'))
+    + optRow('🧠 Explain before next', 'After each chapter you write 2–3 sentences in your own words before the next chapter unlocks. It takes a minute and makes things stick.', toggleBtn('feyn', feynOn()))
+    + optRow('🔁 Spaced review', 'Chapters you rate 😵 Hard come back for review after 1, 3, 7, 16 and 35 days, right when memory needs a refresh.', toggleBtn('rev', store.settings.revise !== false))
+    + optGrp('Look and feel')
+    + optRow(light ? '☀️ Light theme' : '🌙 Dark theme', `Now using the ${light ? 'light' : 'dark'} look. Switch if the screen is too bright or too dark for you.`, pgBtn('theme', light ? 'Use dark theme' : 'Use light theme'))
+    + optRow('🧩 Layout', '<b>Simple</b> (what you are using) puts each thing on its own page. <b>Classic</b> puts everything on one long Home page, like before.', pgBtn('layout:simple', 'Simple', lay === 'simple' ? 'on' : '') + pgBtn('layout:classic', 'Classic', lay === 'classic' ? 'on' : ''))
+    + optGrp('AI helper (optional)')
+    + optRow('🔑 AI helper', 'Add your own free Gemini key to ask questions about a chapter, make quizzes and flashcards, and rate how hard chapters are. The key stays in this browser.', pgBtn('ai', aiReady() ? 'Change key' : 'Set up'))
+    + optGrp('Backup and your data')
+    + optRow('⬇️ Export backup', 'Downloads one file with everything: courses, notes, PDFs, progress and settings. Keep it safe, because ChapterBox only stores your data in this browser.', pgBtn('export', 'Download backup'))
+    + optRow('⬆️ Import backup', 'Load a backup file you saved earlier, on this or another device. Lectures in the file are added, and ones you already have are replaced by the saved copy.', pgBtn('import', 'Choose a file'))
+    + optGrp('Help')
+    + optRow('❓ How ChapterBox works', 'A 2 minute guide: add a lecture, watch chapter by chapter, make a plan. It also lists the keyboard shortcuts.', pgBtn('help', 'Open the guide'));
+}
+function pgNone(pg){
+  const t = {courses: ['📚 Courses', 'Everything you added will show up here.'], plan: ['📅 Plan', 'A plan splits a course into small daily sessions.'], review: ['🔁 Review', 'Chapters worth another look will show up here.'], progress: ['📊 Progress', 'Your goal, streak and study calendar will show up here.']}[pg] || ['ChapterBox', ''];
+  return pgHead(t[0], t[1]) + emptyNote('<b>Nothing here yet.</b><div class="muted" style="margin-top:4px">Add a YouTube video or playlist first. ChapterBox splits it into chapters, and then this page fills up.</div>', true);
+}
+
+// ---------- drawing a page and wiring its buttons ----------
+function renderPage(){
+  const el = $('#homeView'), pg = pageOf(), any = store.videos.length > 0;
+  try{ smartWeek(); }catch(e){}
+  coachActs = [];
+  const d = any ? homeData() : null, f = {home: pgHome, courses: pgCourses, plan: pgPlan, review: pgReview, progress: pgProgress, more: pgMore}[pg];
+  el.innerHTML = `<div class="home pg pg-${pg}">${any || pg === 'more' ? f(d) : pgNone(pg)}</div>`;
+  bindPage(el, d);
+}
+function renderHome(){ return simple() ? renderPage() : renderHomeClassic(); }
+function pgAct(a, e){
+  if(a.startsWith('layout:')) return setLayout(a.slice(7));
+  if(a.startsWith('go:')) return showPage(a.slice(3));
+  if(a === 'note:ok'){ store.settings.layoutNote = 'done'; save(); return renderHome(); }
+  if(a === 'note:classic'){ store.settings.layoutNote = 'done'; save(); return setLayout('classic'); }
+  switch(a){
+    case 'add': return addVideoModal();
+    case 'addpl': return addPlaylistModal();
+    case 'autoplan': return autoPlanModal();
+    case 'smart': return smartOn() ? smartModal() : smartToggle(true);
+    case 'queue': return queueModal('all');
+    case 'focus': return focusMenu(e);
+    case 'goal': return goalModal();
+    case 'feyn': toggleFeyn(); return renderHome();   // toggleFeyn only redraws the watch page, so redraw this page too
+    case 'rev': return toggleRevise();
+    case 'theme': return toggleTheme();
+    case 'ai': return aiModal();
+    case 'export': return exportBackup();
+    case 'import': return $('#importFile').click();
+    case 'help': return helpModal();
+  }
+}
+function bindPage(el, d){
+  const last = d && d.last;
+  if($('#contCard')) $('#contCard').onclick = () => goWatch(last);
+  if($('#goalCard')) $('#goalCard').onclick = goalModal;
+  el.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { const o = findOwner(b.dataset.open); if(o) goWatch(continueTarget(o)); });
+  el.querySelectorAll('[data-plan]').forEach(b => b.onclick = () => { const o = findOwner(b.dataset.plan); if(o) planModal(o); });
+  el.querySelectorAll('[data-sv]').forEach(r => r.onclick = () => { const v = store.videos.find(x => x.id === r.dataset.sv); if(v){ openVideo(v.id); playChapter(+r.dataset.si, false); } });
+  el.querySelectorAll('[data-tv]').forEach(r => r.onclick = () => { const v = store.videos.find(x => x.id === r.dataset.tv); if(v) goWatch(v, +r.dataset.ti); });
+  el.querySelectorAll('[data-lec]').forEach(b => b.onclick = () => openVideo(b.dataset.lec));
+  if($('#dayOff')) $('#dayOff').onclick = () => {
+    const k = dayKey(), g = store.settings.offDays = Object.assign({}, store.settings.offDays);
+    if(g[k]) delete g[k]; else g[k] = true;
+    planOwners().forEach(todayChanged); save(); render();
+    toast(g[k] ? '🏖 Day off! Every plan moved ahead to the next study day' : "↩ Day off removed. Today's plans are back");
+  };
+  el.querySelectorAll('[data-skip]').forEach(b => b.onclick = () => {
+    const o = findOwner(b.dataset.skip); if(!o || !o.plan) return;
+    const k = dayKey(), s = new Set(o.plan.off || []);
+    if(s.has(k)) s.delete(k); else s.add(k);
+    o.plan.off = [...s]; todayChanged(o); save(); render();
+    toast(s.has(k) ? '⏭ Shifted. This plan moves ahead to the next study day' : "↩ Back on today's plan");
+  });
+  bindCoach(el); bindReviews(el); bindHome8(el); bindHm(); bindSmart(); try{ bindWeak(el); }catch(e){}
+  el.querySelectorAll('[data-pg]').forEach(b => b.onclick = e => { e.stopPropagation(); pgAct(b.dataset.pg, e); });
+}
+
+// ---------- first visit ----------
+function renderEmpty(){ return simple() ? renderEmptySimple() : renderEmptyClassic(); }
+function renderEmptySimple(){
+  $('#emptyView').innerHTML = `<div class="hero"><h1>Turn long lectures into bite-size chapter videos 🎬</h1>
+    <p class="muted">Add a YouTube lecture or a whole playlist. Every chapter plays like its own short video, and your progress, notes and study plan are saved in this browser.</p>
+    <div class="row" style="margin-top:14px"><button class="primary" id="emptyAdd">+ Add a video</button><button id="emptyPl">📚 Add a playlist</button></div></div>
+    <div class="how">
+      <div><b><span class="n">1</span>Paste a YouTube link</b><span>Press <b>+ Add</b>. One lecture or a whole playlist both work.</span></div>
+      <div><b><span class="n">2</span>Watch chapter by chapter</b><span>Each chapter plays like its own short video and stops by itself. Press <b>✓ Mark done</b> when you finish.</span></div>
+      <div><b><span class="n">3</span>Make a plan</b><span>Pick the minutes you can study a day, or a finish date. You get a day-by-day schedule.</span></div>
+    </div>
+    <p class="muted" style="text-align:center">Used ChapterBox before? <button class="small" id="emptyImp">⬆️ Import my backup</button></p>
+    <details class="empty-more"><summary>What else can ChapterBox do?</summary><div class="features">
+      <div><b>✂️ Chapter videos</b><span>Each chapter shows its own time, like 0:00 / 3:03, then stops or moves on by itself.</span></div>
+      <div><b>📚 Whole playlists</b><span>Grab a full course with every lecture's chapters in one click, or keep the videos whole.</span></div>
+      <div><b>📅 Study planner</b><span>Pick a finish date or minutes a day and get a day-by-day plan with exact times. Take a day off and it shifts.</span></div>
+      <div><b>📝 Notes &amp; ⭐ revise</b><span>Notes for every chapter with clickable timestamps, plus a revise list.</span></div>
+      <div><b>🔥 Goals &amp; streaks</b><span>A daily study goal and your streak on Home, plus a study calendar on the Progress page.</span></div>
+      <div><b>🤖 Smart coach</b><span>Rates every chapter 🟢🟡🔴, plans all your courses from easy to hard and warns you when you fall behind.</span></div>
+    </div></details>`;
+  $('#emptyAdd').onclick = () => addVideoModal();
+  $('#emptyPl').onclick = () => addPlaylistModal();
+  $('#emptyImp').onclick = () => $('#importFile').click();
+}
+
+// ---------- help ----------
+function helpModal(){ return simple() ? helpSimple() : helpModalFull(); }
+function helpSimple(){
+  openModal(`<h2>How ChapterBox works</h2>
+    <div class="how" style="grid-template-columns:1fr;margin:10px 0">
+      <div><b><span class="n">1</span>Add a lecture</b><span>Press <b>+ Add</b> and paste a YouTube link: one video or a whole playlist. ChapterBox splits it into chapters.</span></div>
+      <div><b><span class="n">2</span>Watch one chapter at a time</b><span>Each chapter plays like its own short video and stops at its end. Press <b>✓ Mark done</b> when you finish it.</span></div>
+      <div><b><span class="n">3</span>Make a plan</b><span>Open <b>📅 Plan</b>. Pick the minutes you can study a day, or a finish date, and get a day-by-day schedule.</span></div>
+    </div>
+    <h3 style="font-size:15px;margin:14px 0 6px">Where things are</h3>
+    <div style="font-size:13.5px;line-height:1.9">
+      <div>🏠 <b>Home</b> <span class="muted">Continue watching and what to do today.</span></div>
+      <div>📚 <b>Courses</b> <span class="muted">Everything you added, and the lectures inside each playlist.</span></div>
+      <div>📅 <b>Plan</b> <span class="muted">Daily plans, week timetable, calendar and smart timetable.</span></div>
+      <div>🔁 <b>Review</b> <span class="muted">Hard chapters, ⭐ starred chapters and ❓ confusing moments.</span></div>
+      <div>📊 <b>Progress</b> <span class="muted">Your goal, streak and study calendar.</span></div>
+      <div>⚙️ <b>More</b> <span class="muted">Settings, backup, AI helper and this guide.</span></div>
+    </div>
+    <h3 style="font-size:15px;margin:14px 0 6px">⌨️ Keyboard shortcuts</h3>
+    <div class="muted" style="font-size:13px;line-height:2">
+      <kbd>Space</kbd> / <kbd>K</kbd> play/pause · <kbd>←</kbd> <kbd>→</kbd> 5 seconds · <kbd>F</kbd> full screen · <kbd>M</kbd> mute · <kbd>C</kbd> mark confusing<br>
+      <kbd>Shift</kbd>+<kbd>N</kbd> next chapter · <kbd>Shift</kbd>+<kbd>P</kbd> previous · <kbd>Shift</kbd>+<kbd>D</kbd> mark done · <kbd>Shift</kbd>+<kbd>S</kbd> revise<br>
+      <kbd>/</kbd> search · <kbd>?</kbd> this help · <kbd>Esc</kbd> close
+    </div>
+    <div class="actions"><button id="hpFull">📖 Full guide (everything it can do)</button><button class="primary" onclick="closeModal()">Got it</button></div>`);
+  $('#hpFull').onclick = helpGuide;
+}
+
+// ================= v19 · the watch page and the big windows, made simpler =================
+// ---------- title bar: the title and ONE button. Everything else lives in "Options", each with a plain explanation ----------
+function renderTitlebar(){ return simple() ? renderTitlebarSimple() : renderTitlebarClassic(); }
+function renderTitlebarSimple(){
+  const v = cur(), p = progressOf(v);
+  const left = chapters(v).filter(c => !v.done[c.key] && c.len != null).reduce((a, c) => a + Math.max(0, c.len - reachOf(v, c)), 0);
+  const course = courseOf(v), lnum = course ? courseVideos(course).indexOf(v) + 1 : 0;
+  $('#titlebar').innerHTML = `${course ? `<button class="crumb link" id="tbLecs" style="flex-basis:100%" title="See all the lectures of this playlist">📚 ${esc(course.title)} · Lecture ${lnum} of ${courseVideos(course).length} ▾</button>` : ''}<h2 id="vtitle" title="Click to rename">${esc(v.title)}</h2>
+    <span class="muted">${p.done}/${p.total} done${left ? ' · ' + fmtLen(left) + ' left' : (p.done === p.total ? ' ✅' : '')}</span>
+    <button id="tbMore" title="Edit chapters, make a plan, share, rename and more">⚙ Options</button>`;
+  $('#vtitle').onclick = renameModal;
+  if($('#tbLecs')) $('#tbLecs').onclick = () => lecturesModal(course);
+  $('#tbMore').onclick = () => lectureOptions();
+}
+function lecturesModal(course){
+  const vids = courseVideos(course), cv = cur();
+  openModal(`<h2>📚 ${esc(course.title)}</h2><p class="muted" style="margin:0">${vids.length} lecture${vids.length === 1 ? '' : 's'}. Pick one to watch.</p>
+    <div style="margin-top:10px">${vids.map((v, i) => { const p = progressOf(v); return `<button class="lec-row" data-lec="${esc(v.id)}" ${cv === v ? 'aria-current="true" style="border-color:var(--accent)"' : ''}><span class="lnum">L${i + 1}</span><span class="lt">${esc(v.title)}</span><span class="muted">${p.done}/${p.total}${p.total && p.done === p.total ? ' ✅' : ''}</span></button>`; }).join('')}</div>
+    <div class="actions"><button onclick="closeModal()">Close</button></div>`);
+  $('#modal').querySelectorAll('[data-lec]').forEach(b => b.onclick = () => { closeModal(); openVideo(b.dataset.lec); });
+}
+function lectureOptions(){
+  const v = cur(); if(!v) return;
+  const course = courseOf(v), o = ownerOf(v), nx = nextLecture(v), whole = isWhole(v), what = course ? 'playlist' : 'video';
+  const hasCh = ownerVideos(o).some(x => x.chapters && x.chapters.length);
+  const groups = [
+    ['Chapters', [
+      ['✂️ Edit chapters', 'Fix where each chapter starts and ends, rename them, or add your own.', editChaptersModal],
+      ...(hasCh ? [[whole ? '✂️ Use chapters' : '🎞 Play without chapters', whole ? `Split the ${what}${course ? 's' : ''} into chapters again.` : `Play ${course ? 'every video of this playlist' : 'this video'} whole, as one long video.`, () => toggleWhole(v)]] : [])]],
+    ['Study', [
+      [o.plan ? '📅 Your plan' : '📅 Make a plan', o.plan ? `See or change the study plan for this ${what}.` : `Get a day-by-day schedule for this ${what}: pick minutes a day or a finish date.`, () => planModal(o)],
+      ...(nx ? [['⏭ Next lecture', 'Open the next lecture of this playlist.', () => openVideo(nx.id)]] : []),
+      ['📎 PDFs & summaries', 'Attach PDF notes or a summary, and read or search them here.', () => docsModal(v)],
+      ['🗂 Outline of this lecture', 'A short outline (main idea → points → examples), made on this device.', () => lectureOutlineModal(v)]]],
+    ['Share and save', [
+      [`🔗 Share this ${what}`, course ? 'Copy a link. Whoever opens it gets every lecture with its chapters.' : 'Copy a link. Whoever opens it gets this video split into the same chapters.', async () => copyLink(await shareLink(v), course ? 'Playlist link copied! It adds every lecture with its chapters' : 'Link copied! Whoever opens it gets this video split into the same chapters')],
+      [course ? '📝 Download playlist notes' : '📝 Download notes', 'Save all your notes as a text file.', () => downloadNotes(o)],
+      ['▶ Open on YouTube', 'Watch this video on youtube.com at the same moment.', () => window.open(watchUrl(v.ytId, playerTime() ?? resumePoint(v).start), '_blank', 'noopener')]]],
+    ['Manage', [
+      ['✏️ Rename', 'Change the title shown in ChapterBox.', renameModal],
+      ['↺ Reset progress', 'Mark every chapter as not done again. Your notes stay.', resetProgress, 'danger'],
+      ['🗑 Delete', `Remove this ${what} from ChapterBox, with its notes and progress.`, deleteVideo, 'danger']]]];
+  const flat = []; let html = `<h2>⚙ Options</h2><p class="muted" style="margin:0">${esc(shortText(v.title, 80))}</p>`;
+  for(const [g, items] of groups){
+    html += `<div class="opt-grp">${g}</div>`;
+    for(const it of items){ flat.push(it[2]); html += `<button class="optm ${it[3] || ''}" data-i="${flat.length - 1}">${it[0]}<span>${it[1]}</span></button>`; }
+  }
+  openModal(html + '<div class="actions"><button onclick="closeModal()">Close</button></div>');
+  $('#modal').querySelectorAll('.optm').forEach(b => b.onclick = () => { const f = flat[+b.dataset.i]; closeModal(); f(); });
+}
+
+// ---------- the chapter panel: Mark done / Next / Prev, and one fold for the rest ----------
+function nowTopSimple(v, c, i, chs, done, star){
+  const last = i === chs.length - 1, nx = nextLecture(v), open = store.settings.optOpen === true, rate = (v.rate || {})[c.key];
+  return `<div class="now-top simple"><div style="flex:1;min-width:180px"><h3>${i + 1}. ${esc(c.title)}</h3>
+      <div class="meta">Part ${i + 1} of ${chs.length}${c.len != null ? ' · ' + fmt(c.len) + ' long' : ''} · ${diffLabel(v, c)}</div></div></div>
+    <div class="now-act">
+      <button id="nDone" class="${done ? '' : 'primary'}" title="Mark this chapter as finished (Shift+D)">${done ? '✓ Done' : '✓ Mark done'}</button>
+      <button id="nNext" ${last ? 'disabled' : ''} title="Go to the next chapter (Shift+N)">Next ⏭</button>
+      <button id="nPrev" ${i === 0 ? 'disabled' : ''} title="Go to the previous chapter (Shift+P)">⏮ Prev</button>
+      ${last && nx ? '<button id="nNextLec" class="primary" title="Open the next lecture of this playlist">Next lecture ⏭</button>' : ''}
+      <button id="nOptTg" aria-expanded="${open}" aria-controls="nowOpts" title="Auto-play, explain first, rate, revise and more">⚙ This chapter ${open ? '▴' : '▾'}</button>
+    </div>
+    <div class="now-opts" id="nowOpts" ${open ? '' : 'hidden'}>
+      <div class="o"><div><label class="chk" style="margin:0;color:var(--text)"><input type="checkbox" id="autoNext" ${store.settings.autoNext ? 'checked' : ''}> <b>Auto-play next chapter</b></label><span class="muted">When a chapter ends, the next one starts by itself.</span></div></div>
+      <div class="o"><div><label class="chk" style="margin:0;color:var(--text)"><input type="checkbox" id="feynChk" ${feynOn() ? 'checked' : ''}> <b>🧠 Explain before next</b></label><span class="muted">After each chapter, write 2–3 sentences in your own words before the next one unlocks.</span></div></div>
+      <div class="o"><div><b>How hard was this chapter?</b><span class="muted">Your answer tunes your plan, and hard chapters come back for review.</span></div><span class="rate-inline">${[[1, '😀', 'Easy'], [2, '😐', 'OK'], [3, '😵', 'Hard']].map(([r, e, t]) => `<button class="${rate === r ? 'on' : ''}" data-rate="${r}" title="${t}">${e} ${t}</button>`).join('')}</span></div>
+      <div class="o"><div><b>⭐ Revise later</b><span class="muted">Adds this chapter to your Review page. (Shift+S)</span></div><button id="nStar" class="small ${star ? 'on' : ''}">${star ? '⭐ In my revise list' : '☆ Add to revise list'}</button></div>
+      <div class="o"><div><b>↺ Start this chapter again</b><span class="muted">Jump back to the beginning of the chapter.</span></div><button id="nRestart" class="small">Restart</button></div>
+      <div class="o"><div class="muted">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd><kbd>→</kbd> 5s · <kbd>C</kbd> mark confusing · <kbd>?</kbd> all keys</div></div>
+    </div>`;
+}
+function bindNowSimple(v, c, i){
+  const tg = $('#nOptTg'), box = $('#nowOpts');
+  if(tg && box) tg.onclick = () => {
+    const open = box.hidden; box.hidden = !open; store.settings.optOpen = open; save();
+    tg.setAttribute('aria-expanded', open); tg.textContent = '⚙ This chapter ' + (open ? '▴' : '▾');
+  };
+  const nl = $('#nNextLec'); if(nl) nl.onclick = () => { const nx = nextLecture(v); if(nx) openVideo(nx.id); };
+}
+
+// ---------- summary & outline: folded away until you want it ----------
+const dpIsOpen = () => simple() ? store.settings.dpOpen === true : store.settings.dpOpen !== false;
+function dpCompactSimple(v, c){
+  return `<details class="dpc"><summary><b>📑 Summary &amp; outline</b> <span class="muted">· ${v.done[c.key] ? 'chapter done: make a quick outline to revise from' : 'add the official summary or let ChapterBox make one'}</span></summary>
+    <div class="dpc-b" style="display:block">
+      <div class="mt"><button class="small" id="dpAdd">＋ Add a summary</button><span class="muted">Upload or paste the official summary (PDF, text or Markdown).</span></div>
+      <div class="mt"><button class="small" id="dpGen">✨ Quick summary</button><span class="muted">Picks the key sentences from your notes, a PDF or the transcript.</span></div>
+      <div class="mt"><button class="small" id="dpOut">🗂 Outline</button><span class="muted">Main idea → sub-points → examples, made on this device.</span></div>
+      <div class="mt"><button class="small" id="dpMe">🧠 Explain it</button><span class="muted">Write the chapter in your own words. It is the best way to check you got it.</span></div>
+    </div></details>`;
+}
+
+// ---------- notes: the Insert time button stays, the rest folds into "More note tools" ----------
+function simpleNotesTools(){
+  const row = document.querySelector('#nowNotes .notes-tools'); if(!row || document.querySelector('#nowNotes details.mtools')) return;
+  const ai = $('#nAI'), tr = $('#nTr'), cd = $('#nCards'); if(!ai || !tr || !cd) return;
+  const det = document.createElement('details'); det.className = 'mtools'; det.innerHTML = '<summary>More note tools ▾</summary>';
+  const mk = (btn, text) => { const r = document.createElement('div'); r.className = 'mt'; r.appendChild(btn); const s = document.createElement('span'); s.className = 'muted'; s.textContent = text; r.appendChild(s); return r; };
+  det.appendChild(mk(ai, 'Ask the AI helper about this chapter (needs your free Gemini key in More).'));
+  det.appendChild(mk(tr, 'The words spoken in this chapter, with times you can tap.'));
+  det.appendChild(mk(cd, 'Flashcards for this chapter: make your own or from your notes.'));
+  row.parentNode.insertBefore(det, row.nextSibling);
+}
+
+// ---------- the Plan window: the two choices that matter first, the rest under "More options" ----------
+// (the markup itself is changed inside planModal; nothing else to do here)
+
+// ---------- the Auto-schedule window: one step at a time ----------
+function calTabs(){
+  const m = $('#modal'); if(!m) return;
+  const boxes = [...m.children].filter(x => x.classList && x.classList.contains('pl-way'));
+  if(boxes.length < 4 || boxes[0].dataset.ctabs) return;
+  boxes[0].dataset.ctabs = '1';
+  const names = ['1 · Hours', '2 · Busy', '3 · Calendar', 'Next 7 days'];
+  const bar = document.createElement('div'); bar.className = 'stepbar';
+  bar.innerHTML = `<span class="seg" id="cTabs">${names.map((n, i) => `<button data-t="${i}" class="${i === 0 ? 'on' : ''}">${n}</button>`).join('')}</span>`;
+  m.insertBefore(bar, boxes[0]);
+  const show = k => { boxes.forEach((b, i) => { b.hidden = i !== k; }); bar.querySelectorAll('button').forEach((x, i) => x.classList.toggle('on', i === k)); };
+  bar.querySelectorAll('button').forEach((x, i) => x.onclick = () => show(i));
+  // step 1: the hours and the on switch up front, everything else folded
+  const s1 = boxes[0], q = id => s1.querySelector('#' + id);
+  if(q('cFrom') && q('cOn')){
+    const row1 = q('cFrom').closest('.row'), lblOn = q('cOn').closest('label'), head = s1.querySelector('b');
+    const adv = document.createElement('details'); adv.className = 'adv';
+    adv.innerHTML = '<summary>⚙ More options <span class="muted">session and break lengths, long breaks, daily limit, meals</span></summary>';
+    [...s1.children].forEach(ch => { if(ch === head || ch === row1 || ch === lblOn) return; adv.appendChild(ch); });
+    const ex = document.createElement('div'); ex.className = 'exp'; ex.textContent = 'Tell ChapterBox the hours you are free to study. It puts every study session at a clock time inside these hours.';
+    head.after(ex);
+    s1.appendChild(lblOn); s1.appendChild(adv);
+    lblOn.classList.add('cOnRow');
+    const mu = lblOn.querySelector('.muted'); if(mu) mu.textContent = 'Every session gets a clock time on the Plan page, and your plans follow your free time.';
+  }
+  show(0);
+}
+
+// ================= v19 · the Add playlist window and the full guide, simpler =================
+const menuName = () => simple() ? 'More' : '⋯';
+
+// ---------- Add a playlist: paste a link first. The bookmark trick (one-time setup) is folded away with a plain explanation ----------
+function playlistSimple(){
+  const m = $('#modal'); if(!m) return;
+  const boxes = [...m.children].filter(x => x.classList && x.classList.contains('pl-way'));
+  if(boxes.length !== 2 || boxes[0].dataset.simple) return;
+  const [best, plain] = boxes; best.dataset.simple = '1';
+  const intro = m.querySelector('h2 + p'); if(intro) intro.textContent = 'Paste the link of a YouTube playlist. Every lecture is added as part of one course.';
+  // the paste-a-link box leads
+  const hd = plain.querySelector('b'), note = plain.querySelector('span.muted');
+  if(hd) hd.textContent = '1 · Paste the playlist link';
+  if(note){ note.textContent = 'Every video is added whole, one part each. You can split them into chapters later.'; note.style.display = 'block'; note.style.margin = '2px 0 4px'; }
+  const labs = [...plain.children].filter(x => x.tagName === 'LABEL'), every = plain.querySelector('#plEvery');
+  if(labs[1] && every){
+    const d2 = document.createElement('details'); d2.className = 'adv';
+    d2.innerHTML = '<summary>⚙ Optional: cut every lecture into equal parts <span class="muted">for long videos with no chapters</span></summary>';
+    labs[1].parentNode.insertBefore(d2, labs[1]); d2.appendChild(labs[1]); d2.appendChild(every);
+  }
+  const hint = [...plain.children].find(x => x.classList && x.classList.contains('hint'));
+  if(hint) hint.textContent = 'Later, open a lecture and use ⚙ Options → Edit chapters, or Play without chapters.';
+  m.insertBefore(plain, best);
+  // the bookmark method: for people who want the real chapters of every lecture
+  const det = document.createElement('details'); det.className = 'adv';
+  det.innerHTML = '<summary>📥 Want the real chapters of every lecture? <span class="muted">one-time bookmark</span></summary><div class="exp">YouTube does not let ChapterBox read chapters by itself. This little bookmark reads them from the YouTube page you have open and brings them here. You set it up once.</div>';
+  best.querySelector('b').textContent = 'Get every lecture with its chapters in one click';
+  best.parentNode.insertBefore(det, best); det.appendChild(best);
+}
+
+// ---------- the full guide: five folded sections instead of one wall of 28 bullets ----------
+function helpGuide(){ return simple() ? helpFullSimple() : helpModalFull(); }
+function helpFullSimple(){
+  const sec = (title, desc, lis) => `<details class="gd"><summary>${title} <span class="muted">${desc}</span></summary><ul>${lis.map(x => `<li>${x}</li>`).join('')}</ul></details>`;
+  openModal(`<h2>📖 Full guide</h2><p class="muted" style="margin:0">Tap a heading to open it. This lists everything ChapterBox can do and where to find it.</p>
+    ${sec('🎬 Watching', 'chapters, notes, ❓ confused, PDFs, summaries', [
+      'Each chapter plays <b>only its part</b> of the YouTube video and stops at its end, like a separate video. Press <b>✓ Mark done</b> when you finish. The next chapter starts by itself if Auto-play is on.',
+      '<b>⚙ This chapter</b> (under the video) holds the extras: Auto-play, 🧠 Explain before next, how hard it was (😀 😐 😵), ⭐ Revise later and Start again.',
+      '<b>📝 Notes</b> are saved per chapter. ⏱ Insert time adds the moment you are at, and double-clicking a time like [2:15] jumps there. <b>⚙ Options → Download notes</b> saves them as a file.',
+      '<b>❓ Confused</b>: press the ❓ button under the video (or <kbd>C</kbd>) the moment something does not click. Each mark is saved with its exact time. The ❓ Confused tab lists them for the chapter, and the Review page lists them all. Tap a time to jump back, and after you rewatch it ChapterBox asks if it is clear now.',
+      '<b>🧠 Explain before next</b> (⚙ This chapter, or the More page): when a chapter ends, a box asks you to explain it in 2–3 sentences before the next chapter unlocks. If you cannot, press <b>I can\'t explain it</b>: the chapter is marked hard and comes back for review. Your explanations are kept under "In my words". It is off until you turn it on.',
+      '<b>📑 Summary &amp; outline</b> (under the chapter buttons): add the official summary as a PDF, text or Markdown file, or paste it. <b>✨ Quick summary</b> and <b>🗂 Outline</b> make a short summary or a main idea → sub-points → examples outline from your notes, a PDF or the transcript. They are made on your device by picking the key sentences. With your own AI key (More → AI helper) the AI can write them instead.',
+      '<b>📄 PDF notes</b> (tab under the video): upload a PDF (slides, a book chapter, your own notes) for this chapter, the whole lecture or the whole course. ChapterBox reads the text on your device (the PDF reader downloads once, so you need internet the first time). Then you can search inside it (the top search box does too), open any page, and press <b>⏱＋</b> on a line to link it to a moment in the video. Scanned or handwritten PDFs have no text, so they cannot be searched.',
+      '<b>📜 Transcripts</b>: on a YouTube lecture, the <b>📥 Grab chapters</b> bookmark also brings the transcript from YouTube\'s "Show transcript" panel. Then <b>More note tools → 📜 Transcript</b> shows the words with clickable times, 🌐 translates them to English, search (<kbd>/</kbd>) finds spoken words, and the AI uses them.']) }
+    ${sec('📚 Adding and organizing', 'videos, playlists, chapters, sharing', [
+      '<b>+ Add</b> (top right) adds a video or a playlist. For a playlist, paste its link for a quick add, or use the <b>📥 Grab chapters</b> bookmark to bring every lecture with its chapters.',
+      'The <b>Courses</b> page lists everything you added. Open a playlist\'s <b>Lectures</b> list to jump to any lecture.',
+      '<b>⚙ Options → Edit chapters</b> fixes where chapters start. <b>Play without chapters / Use chapters</b> switches any time.',
+      '<b>⚙ Options → 🔗 Share</b> sends a lecture or a playlist, split into its chapters, to friends.']) }
+    ${sec('📅 Planning', 'plans, days off, timetables, calendar', [
+      '<b>📅 Plan page</b>: pick minutes a day or a finish date, and your study days. You get a day-by-day table with exact times, and Home shows today\'s part. Long lectures without chapters can be split into parts that fit your day.',
+      '<b>🏖 Days off</b>: on the Plan page, <b>Day off today</b> skips today for every subject, and <b>⏭ Shift to next day</b> on a plan\'s card skips it for one. Add future days off inside a plan (More options). Plans move ahead to the next study day, unfinished parts carry over (marked ↪), and days off do not break your streak.',
+      '<b>📈 Start slowly</b> (a plan\'s More options): begin with a small daily time, like 20 minutes, and add a few minutes every week until your full time. Long videos are cut so every day matches its time.',
+      '<b>⏳ Real study time</b> (also in More options): say how long an hour of video really takes you (pausing, notes) and add daily practice time. Your daily time then covers all of it, and it counts toward your goal too.',
+      '<b>🧠 Difficulty</b>: every chapter gets 🟢 easy, 🟡 medium or 🔴 hard from its title, length, place in the course and your own ratings. Click the dot to change it. A plan\'s Order can be 🧠 Smart (ideas first, then practice from easy to hard), 🧗 Easy → hard or 📚 Course order.',
+      '<b>📋 Week timetable</b> (Plan page): every session of the week with its clock time, exact video length and study time, with breaks, meals and totals. Download it or print it.',
+      '<b>🗓 Auto-schedule &amp; calendar</b> (Plan page): say when you can study and bring in your Apple Calendar (on a Mac: Calendar → File → Export). ChapterBox gives every study session a clock time in your free time, takes a long break every few sessions, keeps lunch and dinner free, respects your daily limit, studies less on busy days, and puts the sessions in Apple Calendar as a calendar file or a live link. Simple repeating reminders for Apple and Google Calendar are there too.',
+      '<b>✨ Smart timetable</b> (Plan page): ChapterBox notes every study block while a lecture plays. It learns your usual start time, how long you sit and how long you rest, builds today\'s timetable at those times, and raises your daily study time a little each week you manage it (+5, +10 or +15%, up to a ceiling you choose). A week with few study days holds the amount or eases it back. It stays on this device.',
+      '<b>🤖 Smart coach</b> (Home and Plan) tells you today\'s mission across all subjects (easiest first) and warns when a plan falls behind, with a one-click catch-up. <b>🤖 Plan all my courses</b> (Plan page, when you have more than one) shares your daily time across every course.',
+      '<b>⚡ Energy check-in</b>: each day, when you start today\'s plan, it asks how much energy and focus you have. <b>Low</b> is a lighter day (about 60%, easy parts first, short sessions), <b>Medium</b> is your plan, <b>High</b> is a bigger day (about 125%, hardest parts first, longer sessions). What is cut or added moves to the other days by itself.',
+      '<b>⏱ Just 5 minutes</b> (Home): starts the easiest next part. After 5 minutes you can stop, or keep going.']) }
+    ${sec('🔁 Reviewing', 'ratings, spaced review, flashcards, weak spots', [
+      '<b>😀 😐 😵</b> After a chapter, rate it (⚙ This chapter → How hard was this chapter?). Hard ones come back for a <b>🔁 spaced review</b> after 1, 3, 7, 16 and 35 days. You can turn this off on the Review or More page.',
+      '<b>⭐ Revise</b> marks a chapter to rewatch. They are listed on the Review page, and you can filter the chapter list by ⭐.',
+      '<b>🃏 Flashcards</b>: make cards yourself, from your notes (lines starting with Q: and A:), or with the AI. Review the due ones on the Review page. Good answers come back later, wrong ones sooner. Export them for Anki.',
+      '<b>🔥 Weak-spot map</b> (Review page): every chapter of a course as a square, darker orange the shakier it is (open ❓ moments, rated 😵 hard, could not explain it). It also lists what to rewatch first before an exam.']) }
+    ${sec('📊 Progress and goals', 'goal, streak, calendar, focus timer', [
+      '<b>🎯 Daily goal and 🔥 streak</b> (Home and Progress): a streak counts every day you study at least 1 minute. Change the goal from Home or the More page.',
+      '<b>📆 Study calendar</b> (Progress page): a month view. Every day is coloured by how long you studied (darker blue is more) with the time written in it, and a ✓ means you reached your daily goal. Tap a day to see which subjects it was, and use ◀ ▶ for other months.',
+      '<b>🍅 Focus timer</b> (More page): 25, 50 or 90 minutes of focus, then it pauses the video for a break.']) }
+    ${sec('💾 Your data, AI and layout', 'backup, AI helper, simple or classic', [
+      'Everything is saved in <b>this browser on this device</b>, not on GitHub. <b>More → Download backup</b> and <b>Import backup</b> move it to another device.',
+      '<b>🔑 AI helper</b> (More page, optional): add your own free Gemini key to get explanations, quizzes and AI difficulty ratings. The AI sees chapter titles and your notes, not the video.',
+      '<b>🧩 Layout</b> (More page): <b>Simple</b> puts each thing on its own page. <b>Classic</b> puts everything on one long Home page, like before.']) }
+    <div class="actions"><button id="gdBack">← Short guide</button><button class="primary" onclick="closeModal()">Got it</button></div>`);
+  $('#gdBack').onclick = helpModal;
+}
+
+
+if(store.settings.layoutNote === undefined){ store.settings.layoutNote = store.videos.length ? 'show' : 'done'; save(); }
 // start
 applyTheme(); setInterval(tickFocus, 1000); setInterval(liveTick, 120000); setTimeout(liveTick, 9000);
 window.addEventListener('hashchange', async () => { if(await readShareHash()) openVideo(store.currentId); });

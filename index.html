@@ -356,13 +356,114 @@ select{font:inherit;background:var(--input);color:var(--text);border:1px solid v
 kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:11px}
 @media (max-width:1100px){.watch{grid-template-columns:1fr}.playlist{position:static;max-height:none}}
 @media (max-width:760px){header{flex-wrap:wrap}.search{order:9;flex-basis:100%;max-width:none;margin:4px 0 0}.features{grid-template-columns:1fr}.layout{grid-template-columns:1fr}aside{position:static;max-height:none;border-right:0;border-top:1px solid var(--line);order:2;display:flex;gap:6px;overflow-x:auto}aside h3{display:none}.lib-item{flex:none;width:240px}.course{flex:none;width:270px}header .hide-sm{display:none}.keyhint{display:none}}
+/* ===== v18: PDF notes, summary, outline, doubts, explain-first, weak-spot map ===== */
+.ntabs{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.ntabs button{border-radius:999px;padding:5px 12px;font-size:13px}
+.ntabs button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.ntabs button i{font-style:normal;background:var(--chip);color:var(--text);border-radius:999px;padding:0 6px;font-size:11px;font-weight:700}
+.ntabs button.on i{background:#ffffff33;color:#fff}
+.dp{margin-top:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:8px 10px;min-width:0}
+.dp.compact{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+.dp-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dp-h .sp{flex:1}
+.dp-tg{border:0;background:transparent;padding:2px 6px;font-size:14px}
+.dp-pre{font-size:12px;color:var(--muted);flex:1;min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dp-b{margin-top:8px;max-height:320px;overflow:auto;font-size:14px;line-height:1.55;min-width:0}
+.ds{border-top:1px dashed var(--line);padding:8px 0}
+.ds:first-child{border-top:0;padding-top:0}
+.ds-h{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px}
+.ds-h .sp{flex:1}
+.ds-sc{font-size:11px;padding:1px 8px;border-radius:999px;background:var(--chip);border:1px solid var(--line);color:var(--muted)}
+.ds-t{margin-top:4px;overflow-wrap:anywhere}
+.ds-t p{margin:4px 0}
+.ds-t ul{margin:4px 0;padding-left:20px}
+.ol{overflow-wrap:anywhere}
+.ol-main{font-weight:700;margin-bottom:4px}
+.ol ul{margin:4px 0;padding-left:20px}
+.ol>ul>li{margin:8px 0}
+.ol-p{font-weight:600}
+.ol-x{font-size:13px;color:var(--muted);margin:2px 0 0 2px}
+.ol-ts,.pf-ts{padding:0 7px;font-size:11px;border-radius:999px;margin-left:4px;font-variant-numeric:tabular-nums;display:inline-flex}
+.pf{margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
+.pf-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pf-bar .sp{flex:1}
+.pf-q{flex:1;min-width:150px;padding:6px 10px}
+.pf-pg{max-height:380px;overflow:auto;margin-top:8px;font-size:14px;line-height:1.55;overflow-wrap:anywhere}
+.pf-p{padding:4px 6px;border-radius:6px}
+.pf-p:hover{background:var(--hover)}
+.pf-p.h{font-weight:700;font-size:15px}
+.pf-p.hit{background:var(--active)}
+.pf-p mark,.pf-r mark{background:rgba(255,213,79,.35);color:inherit;border-radius:3px}
+.pf-add{padding:0 6px;font-size:11px;border-radius:999px;opacity:.5;margin-left:4px}
+.pf-p:hover .pf-add,.pf-add:focus{opacity:1}
+.pf-tm{display:inline-flex;gap:0;align-items:center;margin-left:2px;vertical-align:1px}
+.pf-x{border:0;background:transparent;padding:0 3px;font-size:10px;color:var(--muted)}
+.pf-form{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0 6px 6px;font-size:13px}
+.pf-form input{width:84px;padding:4px 8px}
+.pf-r{padding:7px 6px;border-bottom:1px dashed var(--line);cursor:pointer;font-size:13px}
+.pf-r:hover{background:var(--hover)}
+.pf-r small{display:block;color:var(--muted);font-size:11px;margin-bottom:2px}
+.db{margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.db-r{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap}
+.db-r:last-of-type{border-bottom:0}
+.db-t{font-variant-numeric:tabular-nums;font-weight:700;min-width:54px}
+.db-n{flex:1;min-width:140px;padding:4px 8px;font-size:13px}
+.db-r.ok{opacity:.6}
+.db-g{font-size:12px;color:var(--muted);margin:8px 0 2px}
+#cDoubt.pulse{animation:dpulse .6s}
+@keyframes dpulse{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+.fy-bg{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:55;padding:16px}
+.fy{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:100%;max-width:560px;max-height:92vh;overflow:auto;padding:20px}
+.fy h2{margin:0 0 4px;font-size:19px}
+.fy textarea{min-height:110px;margin-top:10px}
+.fy-m{height:5px;background:var(--track);border-radius:3px;overflow:hidden;margin-top:8px}
+.fy-m i{display:block;height:100%;background:var(--accent);width:0;transition:width .15s}
+.fy-m.ok i{background:var(--good)}
+.wm{--w0:var(--panel2);--w1:#863c20;--w2:#b34f28;--w3:#dd6739;--w4:#fe936c;--wt1:#fff;--wt2:#fff;--wt3:#0b0b0b;--wt4:#0b0b0b;min-width:0}
+[data-theme="light"] .wm{--w1:#fd9d7a;--w2:#eb7a50;--w3:#d45622;--w4:#a33903;--wt1:#0b0b0b;--wt2:#0b0b0b;--wt3:#0b0b0b;--wt4:#fff}
+.wm-lec{margin:10px 0 0}
+.wm-lt{font-size:12px;color:var(--muted);margin:0 0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wm-g{display:flex;flex-wrap:wrap;gap:2px}
+.wm-c{--c:var(--w0);--t:var(--muted);position:relative;width:32px;height:32px;border-radius:6px;background:var(--c);color:var(--t);border:0;padding:0;font-size:11px;font-weight:700;justify-content:center;font-variant-numeric:tabular-nums}
+.wm-c:hover{background:var(--c);filter:brightness(1.12)}
+.wm-c.l1{--c:var(--w1);--t:var(--wt1)}
+.wm-c.l2{--c:var(--w2);--t:var(--wt2)}
+.wm-c.l3{--c:var(--w3);--t:var(--wt3)}
+.wm-c.l4{--c:var(--w4);--t:var(--wt4)}
+.wm-c.ns{background:transparent;box-shadow:inset 0 0 0 1px var(--line);color:var(--muted)}
+.wm-c.sel{box-shadow:0 0 0 2px var(--accent)}
+.wm-c:focus-visible{outline:2px solid #3d6bff;outline-offset:2px}
+.wm-k{position:absolute;top:-4px;right:-4px;min-width:15px;height:15px;border-radius:8px;background:var(--text);color:var(--bg);font-size:9px;line-height:15px;text-align:center;padding:0 3px;font-weight:800}
+.wm-s{position:absolute;bottom:-2px;left:1px;font-size:9px;line-height:1;color:#e6b800}
+.wm-leg{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:11px;color:var(--muted);margin-top:12px}
+.wm-leg span{display:inline-flex;align-items:center;gap:5px}
+.wm-sw,.wm-leg i{width:14px;height:14px;border-radius:4px;display:inline-block;flex:none;background:var(--c,var(--w0));box-shadow:inset 0 0 0 1px #00000022}
+.wm-sw.l1,.wm-leg i.l1{--c:var(--w1)}
+.wm-sw.l2,.wm-leg i.l2{--c:var(--w2)}
+.wm-sw.l3,.wm-leg i.l3{--c:var(--w3)}
+.wm-sw.l4,.wm-leg i.l4{--c:var(--w4)}
+.wm-sw.ns,.wm-leg i.ns{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.wm-det{background:var(--panel2);border-radius:10px;padding:10px 12px;margin-top:12px;font-size:13px;min-height:58px}
+.wm-r{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap;font-size:13px}
+.wm-r:last-child{border-bottom:0}
+.wm-r .t{flex:1;min-width:170px}
+.wm-m{display:flex;flex-wrap:wrap;gap:2px;margin-top:6px}
+.wm-m .wm-c{display:inline-block;width:14px;height:14px;border-radius:3px;cursor:default}
+.wm-card{display:grid;gap:2px}
+.wm-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px dashed var(--line)}
+.wm-row:last-child{border-bottom:0}
+.wm-row .t{flex:1;min-width:180px}
+#clearBar{bottom:76px}
+@media (max-width:480px){.wm-c{width:30px;height:30px}.fy{padding:16px}}
+/* phones: the seek bar gets its own full-width row so the new ❓ button doesn't squeeze it */
+@media (max-width:520px){.cbar{flex-wrap:wrap;row-gap:2px}.cbar #cTime{flex:1}.cbar .cprog{order:9;flex:1 1 100%;margin:0 4px 2px;height:26px}}
 </style>
 </head>
 <body>
 <header>
   <div class="logo" id="logo" title="Home">Chapter<span>Box</span></div>
   <button id="homeBtn" title="Home">🏠 Home</button>
-  <div class="search"><input id="q" type="search" placeholder="🔍 Search chapters, notes &amp; transcripts   ( / )" autocomplete="off"><div class="sres" id="sres" hidden></div></div>
+  <div class="search"><input id="q" type="search" placeholder="🔍 Search chapters, notes, PDFs &amp; transcripts   ( / )" autocomplete="off"><div class="sres" id="sres" hidden></div></div>
   <div class="spacer"></div>
   <button class="primary" id="addBtn">+ Add</button>
   <button id="focusBtn" title="Focus timer (Pomodoro)">🍅</button>
@@ -387,6 +488,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
               <button id="cPlay" title="Play / pause (Space)">▶</button>
               <span class="ctime" id="cTime">0:00 / 0:00</span>
               <div class="cprog" id="cProg" title="This chapter only"><div class="ctrack"><div class="cfill" id="cFill"></div></div></div>
+              <button id="cDoubt" title="Mark this moment as confusing (C)" aria-label="Mark this moment as confusing">❓</button>
               <button id="cSpeed" title="Playback speed">1×</button>
               <button id="cMute" title="Mute / unmute">🔊</button>
               <button id="cFs" title="Full screen">⛶</button>
@@ -404,6 +506,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 <div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
 <div class="ratebar" id="rateBar" hidden></div>
+<div class="ratebar" id="clearBar" hidden></div>
 <div class="fivepill" id="fivePill" hidden></div>
 
 <script>
@@ -833,6 +936,8 @@ function renderTitlebar(){
   $('#tbMore').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [
     [course ? '🔗 Share this playlist' : '🔗 Share this video', async () => copyLink(await shareLink(v), course ? 'Playlist link copied! It adds every lecture with its chapters' : 'Link copied! Whoever opens it gets this video split into the same chapters')],
     [course ? '📝 Download playlist notes' : '📝 Download notes', () => downloadNotes(o)],
+    ['📎 PDFs & summaries', () => docsModal(v)],
+    ['🗂 Outline of this lecture', () => lectureOutlineModal(v)],
     ['▶ Open on YouTube', () => window.open(watchUrl(v.ytId, playerTime() ?? resumePoint(v).start), '_blank', 'noopener')],
     ['✏️ Rename', renameModal],
     ['↺ Reset progress', resetProgress],
@@ -868,7 +973,7 @@ function renderPlaylist(){
           <span class="badge">${c.len != null ? fmt(c.len) : fmt(c.start) + '+'}</span>
           <div class="prog"><i style="width:${watched}%"></i></div></div>
         <div class="info"><div class="t">${esc(c.title)}</div>
-          <div class="s">${diffDot(v, c)}Part ${c.idx + 1} of ${chs.length}${v.notes[c.key] ? ' · 📝 notes' : ''}${v.done[c.key] && (v.rev || {})[c.key] ? ' · 🔁' : ''}</div></div>
+          <div class="s">${diffDot(v, c)}Part ${c.idx + 1} of ${chs.length}${v.notes[c.key] ? ' · 📝 notes' : ''}${v.done[c.key] && (v.rev || {})[c.key] ? ' · 🔁' : ''}${doubtBadge(v, c)}</div></div>
         <button class="starbtn ${star ? 'on' : ''}" title="Mark to revise" data-star="${c.idx}">${star ? '⭐' : '☆'}</button>
         <button class="donebtn" title="Mark as done" data-done="${c.idx}">✓</button>
       </div>`;
@@ -894,7 +999,7 @@ function renderNow(){
   const v = cur(); if(!v) return;
   const chs = chapters(v); const c = curChapter(v); const i = c.idx;
   const done = !!v.done[c.key], star = !!(v.stars || {})[c.key];
-  if(!$('#nowTop')) $('#now').innerHTML = '<div id="nowTop"></div><div class="notes" id="nowNotes"></div>';
+  if(!$('#nowTop')) $('#now').innerHTML = '<div id="nowTop"></div><div id="nowDocs"></div><div class="ntabs" id="nTabs"></div><div id="tabNotes"><div class="notes" id="nowNotes"></div></div><div id="tabPdf" hidden></div><div id="tabDbt" hidden></div>';
   $('#nowTop').innerHTML = `<div class="now-top">
       <div style="flex:1;min-width:180px"><h3>${i + 1}. ${esc(c.title)}</h3>
       <div class="meta">Part ${i + 1} of ${chs.length}${c.len != null ? ' · ' + fmt(c.len) + ' long' : ''} · ${diffLabel(v, c)}</div></div>
@@ -905,7 +1010,7 @@ function renderNow(){
       <button id="nNext" ${i === chs.length - 1 ? 'disabled' : ''}>Next ⏭</button>
     </div>
     <div class="row" style="margin-top:10px;justify-content:space-between">
-      <label class="chk" style="margin:0"><input type="checkbox" id="autoNext" ${store.settings.autoNext ? 'checked' : ''}> Auto-play next chapter</label>
+      <span class="row" style="gap:6px 14px;max-width:100%"><label class="chk" style="margin:0"><input type="checkbox" id="autoNext" ${store.settings.autoNext ? 'checked' : ''}> Auto-play next chapter</label><label class="chk" style="margin:0" title="After each chapter, write 2–3 sentences in your own words before the next one unlocks"><input type="checkbox" id="feynChk" ${feynOn() ? 'checked' : ''}> 🧠 Explain before next</label></span>
       <span class="rate-inline" title="How hard was this chapter for you? It tunes your plan and reviews">How was it? ${[[1, '😀', 'Easy'], [2, '😐', 'OK'], [3, '😵', 'Hard']].map(([r, e, t]) => `<button class="${(v.rate || {})[c.key] === r ? 'on' : ''}" data-rate="${r}" title="${t}">${e}</button>`).join('')}</span>
       <span class="muted keyhint" style="font-size:12px">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd><kbd>→</kbd> 5s · <kbd>Shift</kbd>+<kbd>N</kbd>/<kbd>P</kbd> next/prev · <kbd>?</kbd> all keys</span>
     </div>`;
@@ -913,9 +1018,11 @@ function renderNow(){
   $('#nRestart').onclick = () => playChapter(i, true, true);
   $('#nStar').onclick = () => toggleStar(i);
   $('#nDone').onclick = () => toggleDone(i);
-  $('#nNext').onclick = () => playChapter(i + 1, true, true);
+  $('#nNext').onclick = () => gatedNext(() => playChapter(i + 1, true, true));
   $('#autoNext').onchange = e => { store.settings.autoNext = e.target.checked; save(); };
+  $('#feynChk').onchange = e => { store.settings.feyn = e.target.checked; save(); };
   $('#nowTop').querySelectorAll('[data-rate]').forEach(b => b.onclick = () => setRate(v, c.key, +b.dataset.rate));
+  try{ nowExtras(v, c); }catch(e){ console.error(e); }
   // the notes box is only rebuilt when the chapter changes, so typing is never interrupted
   const ta = $('#notes'), key = v.id + ':' + c.key;
   if(ta && ta.dataset.key === key) return;
@@ -979,7 +1086,7 @@ function playChapter(i, autoplay = true, fromStart = false){
   loadIntoPlayer(v, start, c.end, autoplay);
 }
 
-function markDone(v, key){ if(v.done[key]) return; v.done[key] = true; statDay().c++; afterDone(v, key); }
+function markDone(v, key){ if(v.done[key]) return; v.done[key] = true; lastDone = {vid: v.id, key}; statDay().c++; afterDone(v, key); }
 function toggleDone(i){
   const v = cur(); const c = chapters(v)[i]; if(!c) return;
   if(v.done[c.key]) delete v.done[c.key]; else markDone(v, c.key);
@@ -1009,7 +1116,7 @@ function deleteVideo(){
     store.videos = store.videos.filter(x => !ids.includes(x.id));
     store.courses.forEach(c => { c.order = c.order.filter(y => store.videos.some(x => x.ytId === y && x.course === c.id)); });
     store.courses = store.courses.filter(c => c.order.length);
-    store.currentId = store.videos[0]?.id || null; save();
+    docPurge(); store.currentId = store.videos[0]?.id || null; save();
     try{ if(player && player.stopVideo) player.stopVideo(); }catch(e){}
     if(ytMode === 'plain') $('#playerbox').innerHTML = '<div id="player"></div>';
     if(store.currentId) openVideo(store.currentId); else render();
@@ -1169,13 +1276,18 @@ function helpModal(){
       <li><b>📋 Week timetable</b> (Home → Today's plan): every session of the week with its clock time, exact video length and study time, with breaks, meals and day, week and per-subject totals. Download it or print it.</li>
       <li><b>🗓 Auto-schedule</b> (Home → Today's plan): say when you can study and bring in your Apple Calendar (on a Mac: Calendar → File → Export). ChapterBox gives every study session a clock time in your free time, takes a long break every few sessions, keeps lunch and dinner free, respects your daily limit, studies less on busy days, and puts the sessions in Apple Calendar: as a calendar file, or as a live link that updates by itself. Simple repeating reminders for Apple and Google Calendar are there too.</li>
       <li><b>📜 Transcripts</b>: on a YouTube lecture, the <b>📥 Grab chapters</b> bookmark also brings the transcript from YouTube's "Show transcript" panel. Then 📜 Transcript shows the words with clickable times, 🌐 translates them to English, search (/) finds spoken words, and the AI uses them.</li>
+      <li><b>📄 PDF notes</b> (tab under the video): upload a PDF (slides, a book chapter, your typed notes) for this chapter, the whole lecture or the whole course. ChapterBox reads the text on your device (the PDF reader downloads once, so you need internet the first time). Then you can search inside it (the top search box does too), open any page, and press <b>⏱＋</b> on a line to link it to a moment in the video or type a time yourself. Scanned or handwritten PDFs have no text, so they can't be searched.</li>
+      <li><b>📑 Summary</b> (panel under the video): add the official summary as a PDF, text or Markdown file, or paste it. It can be folded away while you watch. <b>✨ Quick summary</b> and <b>🗂 Outline</b> make a short summary or a main idea → sub-points → examples outline from your notes, a PDF or the transcript. They are made on your device by picking the key sentences. With your own AI key (⋯ → AI helper) you can ask the AI to write them instead.</li>
+      <li><b>❓ Confused</b>: press the ❓ button under the video (or <kbd>C</kbd>) the moment something doesn't click. Each mark is saved with its exact time. The <b>❓ Confused</b> tab lists them for the chapter and ⋯ → <b>❓ Confusion queue</b> for everything. Tap a time to jump straight back, and after you rewatch it ChapterBox asks if it is clear now.</li>
+      <li><b>🧠 Explain before next</b>: tick it next to auto-play. When a chapter ends, a box asks you to explain it in 2–3 sentences before the next chapter unlocks. If you can't, press <b>I can't explain it</b>: the chapter is marked hard and comes back for review. Your explanations are kept under "In my words". It is off until you turn it on.</li>
+      <li><b>🔥 Weak-spot map</b> (Home, or ⋯ → Weak-spot map): every chapter of a course as a square, darker orange the shakier it is (open ❓ moments, rated 😵 hard, couldn't explain it). It also lists what to rewatch first before an exam.</li>
       <li><b>🃏 Flashcards</b>: make cards yourself, from your notes (lines starting with Q: and A:), or with the AI. Review the due ones from Home; good answers come back later, wrong ones sooner. Export them for Anki.</li>
       <li><b>⭐ Revise</b> marks chapters to rewatch. Filter them in the chapter list or find them on Home.</li>
       <li>Everything is saved in <b>this browser on this device</b>, not on GitHub. Use ⋯ → Export / Import to move it, and 🔗 Share to send a lecture or playlist split to friends.</li>
     </ul>
     <h3 style="font-size:15px;margin-bottom:6px">⌨️ Keyboard shortcuts</h3>
     <div class="muted" style="font-size:13px;line-height:2">
-      <kbd>Space</kbd> / <kbd>K</kbd> play/pause · <kbd>←</kbd> <kbd>→</kbd> 5 seconds · <kbd>F</kbd> full screen · <kbd>M</kbd> mute<br>
+      <kbd>Space</kbd> / <kbd>K</kbd> play/pause · <kbd>←</kbd> <kbd>→</kbd> 5 seconds · <kbd>F</kbd> full screen · <kbd>M</kbd> mute · <kbd>C</kbd> mark confusing<br>
       <kbd>Shift</kbd>+<kbd>N</kbd> next chapter · <kbd>Shift</kbd>+<kbd>P</kbd> previous · <kbd>Shift</kbd>+<kbd>D</kbd> mark done · <kbd>Shift</kbd>+<kbd>S</kbd> revise<br>
       <kbd>/</kbd> search · <kbd>?</kbd> this help · <kbd>Esc</kbd> close
     </div>
@@ -1184,8 +1296,10 @@ function helpModal(){
 
 // ================= export / import =================
 async function exportBackup(){
-  const trs = await trAll();
-  const blob = new Blob([JSON.stringify(trs.size ? Object.assign({}, store, {transcripts: Object.fromEntries(trs)}) : store)], {type:'application/json'});
+  const trs = await trAll(), dd = await docAllRecs(), extra = {};
+  if(trs.size) extra.transcripts = Object.fromEntries(trs);
+  if(dd.size) extra.docData = Object.fromEntries(dd);
+  const blob = new Blob([JSON.stringify(Object.keys(extra).length ? Object.assign({}, store, extra) : store)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `chapterbox-backup-${new Date().toISOString().slice(0,10)}.json`;
   document.body.appendChild(a); a.click(); a.remove();
@@ -1206,6 +1320,8 @@ $('#importFile').onchange = async e => {
     if(Array.isArray(data.blk)) store.blk = blkMerge(store.blk, data.blk);
     for(const k of Array.isArray(data.cards) ? data.cards : []) if(k && k.id && !cards().some(x => x.id === k.id)) cards().push(k);
     if(data.transcripts && typeof data.transcripts === 'object') for(const [id, tr] of Object.entries(data.transcripts)) if(tr && Array.isArray(tr.s)) await trPut(id, tr);
+    if(Array.isArray(data.docs) && data.docData && typeof data.docData === 'object') for(const d of data.docs){ const rec = d && d.id && d.k ? data.docData[d.id] : null; if(!rec || docById(d.id)) continue; if(await docPut(d.id, rec)) docMeta().push(d); }
+    docRev++; docIdx = null;
     for(const [k, x] of Object.entries(data.stats && typeof data.stats === 'object' ? data.stats : {})){ const m = store.stats[k] || {s: 0, c: 0}; const ex = Math.max(m.x || 0, (x && +x.x) || 0); store.stats[k] = {s: Math.max(m.s || 0, (x && x.s) || 0), c: Math.max(m.c || 0, (x && x.c) || 0)}; if(ex) store.stats[k].x = ex; }
     for(const c of Array.isArray(data.courses) ? data.courses : []){ if(!c || !c.id || !Array.isArray(c.order)) continue; const i = store.courses.findIndex(x => x.id === c.id); if(i >= 0) store.courses[i] = c; else store.courses.push(c); }
     if(!cur() && store.videos[0]) store.currentId = store.videos[0].id;
@@ -1218,7 +1334,7 @@ $('#addBtn').onclick = () => addVideoModal();
 $('#homeBtn').onclick = showHome;
 $('#logo').onclick = showHome;
 $('#themeBtn').onclick = () => { store.settings.theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; save(); applyTheme(); };
-$('#menuBtn').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [['🤖 Plan all my courses', autoPlanModal], ['🔑 AI helper (optional)', aiModal], ['📋 Week timetable', () => weekModal(0)], ['🗓 Auto-schedule & calendar', () => calModal()], ['✨ Smart timetable', () => smartModal()], [`🔁 Spaced review: ${store.settings.revise === false ? 'off' : 'on'}`, toggleRevise], ['⬇️ Export backup', exportBackup], ['⬆️ Import backup', () => $('#importFile').click()], ['❓ Help & shortcuts', helpModal]]); };
+$('#menuBtn').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [['🤖 Plan all my courses', autoPlanModal], ['🔑 AI helper (optional)', aiModal], ['📋 Week timetable', () => weekModal(0)], ['🗓 Auto-schedule & calendar', () => calModal()], ['✨ Smart timetable', () => smartModal()], ['🔥 Weak-spot map', () => weakModal()], ['❓ Confusion queue', () => queueModal()], [`🧠 Explain before next: ${feynOn() ? 'on' : 'off'}`, toggleFeyn], [`🔁 Spaced review: ${store.settings.revise === false ? 'off' : 'on'}`, toggleRevise], ['⬇️ Export backup', exportBackup], ['⬆️ Import backup', () => $('#importFile').click()], ['❓ Help & shortcuts', helpModal]]); };
 $('#focusBtn').onclick = focusMenu;
 function applyTheme(){
   const t = store.settings.theme === 'light' ? 'light' : 'dark';
@@ -1299,6 +1415,7 @@ function renderHome(){
     ${smartCard()}
     ${plans.length ? `<div class="sec-h"><h2>📅 Today's plan</h2><div class="row"><button class="small" id="wkBtn" title="Every session of the week with exact lengths, clock times and totals">📋 Week timetable</button><button class="small" id="calBtn" title="Plan around your calendar and put the study sessions in it">🗓 Auto-schedule</button><button class="small" id="chgBtn" title="Change today's study hours, start time or busy blocks. Any other day too">✏️ Change day</button><button class="small" id="dayOff" title="${offToday ? "Bring today's plans back" : 'No study today for any subject. Every plan moves ahead to the next study day'}">${offToday ? '↩ Undo day off' : '🏖 Day off today'}</button></div></div>` + energyCard() + schedCard() + energyOwners(plans).map(todayCard).join('') : ''}
     ${reviewSection()}
+    ${weakCard()}
     ${cardsSection()}
     ${courses.length ? `<div class="sec-h"><h2>📚 Your playlists</h2></div><div class="cards">${courses.map(ownerCard).join('')}</div>` : ''}
     ${singles.length ? `<div class="sec-h"><h2>🎬 Videos</h2></div><div class="cards">${singles.map(ownerCard).join('')}</div>` : ''}
@@ -1323,7 +1440,7 @@ function renderHome(){
     o.plan.off = [...s]; todayChanged(o); save(); render();
     toast(s.has(k) ? '⏭ Shifted. This plan moves ahead to the next study day' : "↩ Back on today's plan");
   });
-  bindCoach(el); bindReviews(el); bindHome8(el); bindHm(); bindSmart();
+  bindCoach(el); bindReviews(el); bindHome8(el); bindHm(); bindSmart(); try{ bindWeak(el); }catch(e){}
 }
 function ownerCard(o){
   const pr = ownerProgress(o), t = continueTarget(o), pct = pr.total ? Math.round(pr.done / pr.total * 100) : 0;
@@ -1811,7 +1928,7 @@ function afterDone(v, key){
 }
 let rateT = null;
 function askRate(v, key){
-  if((v.rate || {})[key]) return;
+  if((v.rate || {})[key] || gateOpen) return;
   const c = chapters(v).find(x => String(x.key) === String(key)); if(!c) return;
   const b = $('#rateBar');
   b.innerHTML = `<span>How was <b>${esc(c.title.slice(0, 60))}</b>?</span><button class="small" data-r="1">😀 Easy</button><button class="small" data-r="2">😐 OK</button><button class="small" data-r="3">😵 Hard</button><button class="small" data-x="1" title="Skip">✕</button>`;
@@ -3550,10 +3667,16 @@ function drawSearch(){
   paint();
   const tok = ++sTok;
   if(q.trim().length >= 3 && store.videos.some(v => v.tr)) trSearch(q).then(tr => { if(tok !== sTok || !tr.length || $('#q').value !== q) return; sresults = sresults.concat(tr); paint(); });
+  if(q.trim().length >= 3 && docMeta().some(d => d.k === 'pdf')) docSearch(q).then(dr => { if(tok !== sTok || !dr.length || $('#q').value !== q) return; sresults = sresults.concat(dr); paint(); }).catch(() => {});
 }
 function pickSearch(i){
   const r = sresults[i]; if(!r) return;
   $('#sres').hidden = true; $('#q').value = ''; $('#q').blur();
+  if(r.doc){
+    openVideo(r.v.id); playChapter(r.i, false);
+    nowTab = 'pdf'; Object.assign(pdfView, {id: r.doc.id, page: r.doc.page, q: '', mode: 'page', form: null, hit: r.doc.para}); nowSig = ''; nowExtras(r.v, curChapter(r.v));
+    return;
+  }
   if(r.t != null){
     openVideo(r.v.id);
     const chs = chapters(r.v), ci = Math.max(0, chs.findIndex(c => r.t >= c.start && (c.end == null || r.t < c.end)));
@@ -3639,6 +3762,7 @@ function onStateChange(e){
   const c = curChapter(v);
   markDone(v, c.key); save();
   renderLibrary(); renderTitlebar(); renderPlaylist(); renderNow();
+  if(feynNeeds(v, c)){ feynGate(v, c); return; }
   if(c.idx === chapters(v).length - 1){ if(store.settings.autoNext && nextLecture(v)) goNextLecture(v); else toast('🎉 That was the last chapter!'); }
 }
 let advancing = null;
@@ -3722,6 +3846,8 @@ setInterval(() => {
   if(c.end != null && t >= c.end - 0.25 && t < c.end + 2.5){
     // reached the end of this chapter
     markDone(v, c.key);
+    if(gateOpen) return;
+    if(feynNeeds(v, c)){ heldAt = c.start; feynGate(v, c); save(); renderLibrary(); renderTitlebar(); renderPlaylist(); renderNow(); return; }
     if(c.idx < chs.length - 1 && (store.settings.autoNext || heldAt === c.start)){
       heldAt = null; v.lastChapter = c.idx + 1;
       if(store.settings.autoNext) toast(`✓ Chapter ${c.idx + 1} done. Next up!`);
@@ -3798,13 +3924,13 @@ $('#cFs').onclick = () => { try{ document.fullscreenElement ? document.exitFulls
 // keyboard shortcuts
 document.addEventListener('keydown', e => {
   const tag = document.activeElement.tagName;
-  if(/INPUT|TEXTAREA|SELECT/.test(tag) || $('#modalBg').classList.contains('show')) return;
+  if(/INPUT|TEXTAREA|SELECT/.test(tag) || $('#modalBg').classList.contains('show') || gateOpen) return;
   if(e.key === '/'){ e.preventDefault(); $('#q').focus(); return; }
   if(e.key === '?'){ e.preventDefault(); helpModal(); return; }
   if(!cur() || view !== 'watch') return;
   const i = curChapter(cur()).idx;
   if(e.shiftKey){
-    if(e.key === 'N'){ e.preventDefault(); playChapter(i + 1, true, true); }
+    if(e.key === 'N'){ e.preventDefault(); gatedNext(() => playChapter(i + 1, true, true)); }
     if(e.key === 'P'){ e.preventDefault(); playChapter(i - 1, true, true); }
     if(e.key === 'D'){ e.preventDefault(); toggleDone(i); }
     if(e.key === 'S'){ e.preventDefault(); toggleStar(i); }
@@ -3817,6 +3943,7 @@ document.addEventListener('keydown', e => {
   }
   if(e.key === 'f'){ e.preventDefault(); $('#cFs').click(); }
   if(e.key === 'm'){ e.preventDefault(); $('#cMute').click(); }
+  if((e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && !e.altKey){ e.preventDefault(); markDoubt(); }
 });
 
 // load the YouTube player API (not on double-clicked files: YouTube rejects those)
@@ -3841,6 +3968,964 @@ function loadYouTubeApi(){
   s.onerror = apiFail; document.head.appendChild(s);
   setTimeout(() => { if(ytMode === 'loading') apiFail(); }, 10000);
 }
+
+// ================= v18 =================
+// ================= 📖 v18 · reading text on this device: key sentences, summaries, outlines =================
+const STOPW = new Set(('a an the and or but if then else of to in on at by for with from as is are was were be been being it its this that these those i you he she we they them his her our your their not no do does did done can could should would will shall may might must have has had having so such than too very just also about into over under again further once here there when where why how all any both each few more most other some own same only up out off down what which who whom whose while during before after above below between through because until against am my me us him hers ours yours theirs itself myself like get got let lets say said says one two new use used using make makes made ' +
+  'है हैं का की के में से और को पर यह वह कि जो एक तो भी था थे थी हो कर करने किया ही होता होती लिए साथ तक नहीं या इस उस ये वे क्या कैसे ' +
+  'hai hain ka ki ke me mein se aur ko par yeh woh ye wo toh bhi tha thi ho kar kiya hi liye nahi ya us kya kaise jo ek isme usme').split(' '));
+const tokens = s => String(s).toLowerCase().match(/[\p{L}\p{N}][\p{L}\p{N}\p{M}'’-]*/gu) || [];
+const wordCount = s => (String(s).match(/\S+/g) || []).length;
+function shortText(s, n){
+  s = String(s).replace(/\s+/g, ' ').trim(); if(s.length <= n) return s;
+  const cut = s.slice(0, n), i = Math.max(cut.lastIndexOf(' '), Math.floor(n * 0.6));
+  return cut.slice(0, i).replace(/[\s,;:–-]+$/, '') + '…';
+}
+function splitSents(text){
+  let t = String(text).replace(/\s+/g, ' ').trim(); if(!t) return [];
+  t = t.replace(/\b(Fig|Eq|No|Dr|Mr|Mrs|Ms|vs|etc|cf|approx|e\.g|i\.e)\./gi, '$1\u0001');
+  t = t.replace(/([.!?])\s+(?=[\p{Lu}\p{N}"'“(\[])/gu, '$1\u0000').replace(/(।)\s*/g, '$1\u0000');
+  return t.split('\u0000').map(s => s.replace(/\u0001/g, '.').trim()).filter(s => s.length > 2);
+}
+const exText = s => { const t = String(s).replace(/^(for example|for instance|e\.g\.?|example)\s*[,:]\s*/i, ''); return t.charAt(0).toUpperCase() + t.slice(1); };
+const isExample = s => /\b(for example|for instance|e\.g\.?|such as|example[: ]|consider|suppose|let'?s say|imagine|say we|maan lo|maano|example ke)\b/i.test(s) || /उदाहरण|जैसे|मान लो|मानो/.test(s);
+function jac(a, b){ if(!a.size || !b.size) return 0; let n = 0; a.forEach(w => { if(b.has(w)) n++; }); return n / (a.size + b.size - n); }
+// units: [{t: text, h: 1 for a heading, ts: seconds in the video, pg: page, raw: true to keep as one sentence}]
+function unitSents(units){
+  const out = []; let sec = -1;
+  for(const u of units){
+    if(u.h){ sec++; continue; }
+    const parts = u.raw ? [String(u.t).replace(/\s+/g, ' ').trim()] : splitSents(u.t);
+    parts.forEach((s, k) => { if(s.length > 2) out.push({s, ts: u.ts == null ? null : u.ts, pg: u.pg || 0, sec, first: k === 0}); });
+  }
+  return out;
+}
+// scores every sentence: words that come up a lot make a sentence important; definitions and first lines count extra
+function rankSents(sents){
+  const freq = new Map(), toks = sents.map(x => tokens(x.s).filter(w => w.length > 2 && !STOPW.has(w)));
+  toks.forEach(a => new Set(a).forEach(w => freq.set(w, (freq.get(w) || 0) + 1)));
+  const maxf = Math.max(1, ...freq.values());
+  sents.forEach((x, i) => {
+    const set = new Set(toks[i]); x.set = set;
+    let sc = 0; set.forEach(w => { sc += (freq.get(w) || 0) / maxf; });
+    sc = sc / Math.sqrt(Math.max(4, set.size));
+    const len = x.s.length;
+    if(len < 25) sc *= 0.5; else if(len > 300) sc *= 0.7;
+    if(/\b(is defined as|is called|refers to|means that|is known as|we define|is the process|is a (?:type|kind|method|way)|is used to|are used to)\b/i.test(x.s)) sc *= 1.35;
+    if(/^[^,.;:]{3,70}\b(?:is|are)\s+(?:an?|the)\b/i.test(x.s)) sc *= 1.2;
+    if(x.first) sc *= 1.12;
+    if(/\?\s*$/.test(x.s)) sc *= 0.7;
+    x.sc = sc;
+  });
+  return sents;
+}
+function pickTop(sents, n){
+  const order = sents.map((_, i) => i).sort((a, b) => sents[b].sc - sents[a].sc), chosen = [];
+  for(const i of order){
+    if(chosen.length >= n) break;
+    const x = sents[i]; if(!(x.sc > 0)) break;
+    if(chosen.some(j => jac(sents[j].set, x.set) > 0.55)) continue;
+    chosen.push(i);
+  }
+  return chosen.sort((a, b) => a - b).map(i => sents[i]);
+}
+const stamp = (x, base) => x.ts != null && base != null ? ' [' + fmt(Math.max(0, x.ts - base)) + ']' : x.pg ? ' (p.' + x.pg + ')' : '';
+// the quick summary: key topics (headings) and the most important sentences, in the order they were said
+function quickSummaryText(units, n, base){
+  const heads = [];
+  units.forEach(u => { if(u.h){ const h = shortText(u.t, 60); if(h && !heads.includes(h)) heads.push(h); } });
+  const sents = unitSents(units);
+  if(sents.length < 2) return '';
+  rankSents(sents);
+  // a summary should be shorter than what it summarizes, even for short notes: Short ≈ 36%, Medium ≈ 57%, Long ≈ 86% of the sentences, never more than n
+  const k = Math.min(n, Math.max(2, Math.ceil(sents.length * n / 14)));
+  const top = k >= sents.length ? sents : pickTop(sents, k);
+  const out = [];
+  if(heads.length >= 2) out.push('**Key topics:** ' + heads.slice(0, 7).join(' · '));
+  top.forEach(x => out.push('- ' + shortText(x.s, 240) + stamp(x, base)));
+  return out.join('\n');
+}
+// the outline: main idea → sub-points → supporting details and examples
+function localOutline(units, title){
+  const sents = unitSents(units), heads = [];
+  units.forEach(u => { if(u.h) heads.push({p: shortText(u.t, 110), ts: u.ts == null ? null : u.ts, pg: u.pg || 0}); });
+  if(sents.length < 2) return null;
+  rankSents(sents);
+  const exs = sents.filter(x => isExample(x.s)), core = sents.filter(x => !isExample(x.s));
+  const pool0 = core.length ? core : sents, early = pool0.map((x, i) => Object.assign({}, x, {sc: x.sc * (1 + 0.35 * (1 - i / pool0.length))}));
+  const best = pickTop(early, 1)[0];
+  const main = best ? shortText(best.s, 200) : shortText(title || '', 120);
+  const bs = best ? best.s : null;   // the main idea is not repeated as a point or a detail
+  const mk = (p, ts, pg, pool, exPool, skip) => ({p, ts, pg, d: pickTop(pool.filter(x => x !== skip && x.s !== bs), 2).map(x => shortText(x.s, 200)), x: exPool.slice(0, 2).map(e => shortText(exText(e.s), 200))});
+  const pts = [];
+  if(heads.length >= 2){
+    heads.slice(0, 12).forEach((h, k) => pts.push(mk(h.p, h.ts, h.pg, core.filter(x => x.sec === k), exs.filter(x => x.sec === k))));
+    const intro = core.filter(x => x.sec === -1);
+    if(intro.length >= 3) pts.unshift(mk('Introduction', intro[0].ts, intro[0].pg, intro, exs.filter(x => x.sec === -1)));
+  } else {
+    const k = Math.max(2, Math.min(6, Math.round(sents.length / 7))), size = Math.ceil(sents.length / k);
+    for(let i = 0; i < sents.length; i += size){
+      const seg = sents.slice(i, i + size), segCore = seg.filter(x => !isExample(x.s)), segEx = seg.filter(x => isExample(x.s));
+      const lead = pickTop((segCore.length ? segCore : seg).filter(x => x.s !== bs), 1)[0]; if(!lead) continue;
+      pts.push(mk(shortText(lead.s, 110), seg[0].ts, seg[0].pg, segCore, segEx, lead));
+    }
+  }
+  return {main, pts: pts.filter(p => p.p).slice(0, 10)};
+}
+function outlineText(o, base){
+  return (o.main ? '🎯 ' + o.main + '\n' : '') + o.pts.map(p => `- ${p.p}${stamp(p, base)}` + (p.d || []).map(d => `\n   - ${d}`).join('') + (p.x || []).map(x => `\n   - e.g. ${x}`).join('')).join('\n');
+}
+// what the AI sends back must have the same shape as the local outline
+function normOutline(j){
+  const a = j && (Array.isArray(j.points) ? j.points : Array.isArray(j.pts) ? j.pts : Array.isArray(j.outline) ? j.outline : null);
+  if(!a) return null;
+  const arr = x => (Array.isArray(x) ? x : x ? [x] : []).map(y => shortText(typeof y === 'string' ? y : (y && (y.text || y.detail || y.example)) || '', 220)).filter(Boolean).slice(0, 4);
+  const pts = a.map(p => typeof p === 'string' ? {p: shortText(p, 140), ts: null, pg: 0, d: [], x: []} : {p: shortText(p.point || p.title || p.p || p.name || '', 140), ts: null, pg: 0, d: arr(p.details || p.d || p.sub), x: arr(p.examples || p.x)}).filter(p => p.p).slice(0, 10);
+  return pts.length ? {main: shortText((j.main || j.main_idea || j.mainIdea || '') + '', 240), pts} : null;
+}
+// notes (or any text) → lines: headings are #titles, lines ending in ":" and SHORT CAPS lines; "[2:15] text" keeps its time
+function notesUnits(text, c){
+  return String(text).split(/\n+/).map(l => l.trim()).filter(Boolean).map(l => {
+    let ts = null;
+    const m = c && l.match(/^\[?(\d{1,2}:\d{2}(?::\d{2})?)\]?\s*[-–:]?\s*(.*)$/);
+    if(m && m[2]){ const s = toSec(m[1]); if(s != null){ ts = c.start + s; l = m[2]; } }
+    l = l.replace(/^[-*•]\s+/, '').replace(/^\*\*(.+)\*\*:?$/, '$1');
+    const h = /^#{1,4}\s+/.test(l) || (/:$/.test(l) && l.length <= 70) || (l.length <= 60 && l === l.toUpperCase() && /\p{Lu}{3}/u.test(l));
+    return {t: l.replace(/^#{1,4}\s+/, '').replace(/:$/, ''), h: h ? 1 : 0, ts};
+  });
+}
+// pasted or uploaded text → pages of paragraphs (headings kept)
+function textPages(text){
+  const t = String(text).replace(/\r/g, '').replace(/^(#{1,4}\s.*)$/gm, '\n\n$1\n\n').replace(/\n(?=\s*(?:[-*•]|\d+[.)])\s)/g, '\n\n').trim();
+  const paras = t.split(/\n\s*\n+/).map(s => s.replace(/\s*\n\s*/g, ' ').trim()).filter(Boolean);
+  const pages = []; let cur = [], len = 0;
+  for(const s of paras){
+    const h = /^#{1,4}\s+/.test(s) || (s.length <= 70 && !/[.!?:,;]$/.test(s) && s === s.toUpperCase() && /\p{Lu}{3}/u.test(s));
+    cur.push([s.replace(/^#{1,4}\s+/, ''), h ? 1 : 0]); len += s.length;
+    if(len > 1800){ pages.push({n: pages.length + 1, p: cur}); cur = []; len = 0; }
+  }
+  if(cur.length) pages.push({n: pages.length + 1, p: cur});
+  return pages;
+}
+const pagesToText = pages => pages.map(pg => pg.p.map(([t, h]) => h ? '## ' + t : t).join('\n\n')).join('\n\n');
+const pdfUnits = rec => rec && rec.pages ? rec.pages.flatMap(pg => pg.p.map(([t, h]) => ({t, h, pg: pg.n}))) : [];
+// PDF.js gives small pieces of text with positions: put them back into lines, paragraphs and headings
+function pdfParas(items){
+  const lines = []; let cur = null;
+  const push = () => { if(cur && cur.s.trim()) lines.push(cur); cur = null; };
+  for(const it of items){
+    if(typeof it.str !== 'string') continue;
+    const tr = it.transform || [1, 0, 0, 1, 0, 0], size = Math.abs(it.height) || Math.hypot(tr[0], tr[1]) || 10, x = tr[4], y = tr[5];
+    if(cur && Math.abs(y - cur.y) <= Math.max(1.5, size * 0.5)){
+      if(it.str){ const need = !/\s$/.test(cur.s) && !/^\s/.test(it.str) && x - cur.end > size * 0.12; cur.s += (need ? ' ' : '') + it.str; cur.end = x + (it.width || 0); cur.size = Math.max(cur.size, size); cur.n += it.str.length; }
+    } else {
+      push();
+      if(it.str.trim()) cur = {s: it.str, y, end: x + (it.width || 0), size, n: it.str.length};
+    }
+    if(it.hasEOL) push();
+  }
+  push();
+  const bySize = new Map(); lines.forEach(l => { const k = Math.round(l.size * 2) / 2; bySize.set(k, (bySize.get(k) || 0) + l.n); });
+  let body = 10, best = 0; bySize.forEach((n, k) => { if(n > best){ best = n; body = k; } });
+  const paras = []; let p = null, prev = null;
+  for(const l of lines){
+    const s = l.s.replace(/\s+/g, ' ').trim(); if(!s) continue;
+    const head = l.size >= body * 1.18 && s.length <= 140 && !/[.,;]$/.test(s);
+    const gap = prev ? prev.y - l.y : 0;
+    const bullet = /^([•▪◦●■‣–—*-]|\d{1,2}[.)])\s/.test(s);
+    const brk = !p || !prev || head !== prev.head || bullet || gap > Math.max(prev.size, l.size) * 1.75 || gap < -body * 2;
+    if(brk){ p = [s, head ? 1 : 0]; paras.push(p); }
+    else p[0] = /[a-z]-$/.test(p[0]) && /^[a-z]/.test(s) ? p[0].slice(0, -1) + s : p[0] + ' ' + s;
+    prev = {y: l.y, size: l.size, head};
+  }
+  return paras;
+}
+
+// ================= 📄 v18 · storage for PDF notes and summaries =================
+// The heavy text lives in its own IndexedDB database, so it can never fill up localStorage.
+// store.docs only keeps a small list: {id, k: 'pdf' | 'sum', sc: 'c' chapter | 'v' lecture | 'o' course, o: owner id, ts: chapter start, name, pg, n: words, at, src}
+const docCache = new Map(); let ddbP = null, docRev = 0, docIdx = null;
+function ddb(){
+  if(ddbP) return ddbP;
+  ddbP = new Promise((res, rej) => {
+    if(!window.indexedDB){ rej(new Error('no storage')); return; }
+    const r = indexedDB.open('chapterbox-docs', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('doc');
+    r.onsuccess = () => { r.result.onversionchange = () => { try{ r.result.close(); }catch(e){} ddbP = null; }; res(r.result); };
+    r.onerror = () => rej(r.error);
+  });
+  ddbP.catch(() => { ddbP = null; });
+  return ddbP;
+}
+async function docRead(id){
+  try{ const db = await ddb(); return await new Promise((res, rej) => { const q = db.transaction('doc').objectStore('doc').get(id); q.onsuccess = () => res(q.result || null); q.onerror = () => rej(q.error); }); }catch(e){ return null; }
+}
+async function docGet(id){
+  if(docCache.has(id)) return docCache.get(id);
+  const r = await docRead(id);
+  if(!docCache.has(id)) docCache.set(id, r);
+  return docCache.get(id);
+}
+async function docPut(id, rec, cache = true){
+  if(cache) docCache.set(id, rec);
+  try{ const db = await ddb(); await new Promise((res, rej) => { const t = db.transaction('doc', 'readwrite'); t.objectStore('doc').put(rec, id); t.oncomplete = res; t.onerror = () => rej(t.error); t.onabort = () => rej(t.error); }); return true; }catch(e){ return false; }
+}
+async function docDel(id){
+  docCache.delete(id);
+  try{ const db = await ddb(); await new Promise((res, rej) => { const t = db.transaction('doc', 'readwrite'); t.objectStore('doc').delete(id); t.oncomplete = res; t.onerror = () => rej(t.error); }); }catch(e){}
+}
+async function docAllRecs(){
+  const m = new Map();
+  try{ const db = await ddb(); await new Promise((res, rej) => { const q = db.transaction('doc').objectStore('doc').openCursor(); q.onsuccess = () => { const cu = q.result; if(cu){ if(!String(cu.key).endsWith(':f')) m.set(cu.key, cu.value); cu.continue(); } else res(); }; q.onerror = () => rej(q.error); }); }catch(e){}
+  for(const [k, x] of docCache) if(x && !String(k).endsWith(':f')) m.set(k, x);
+  return m;
+}
+const docMeta = () => store.docs || (store.docs = []);
+const docById = id => docMeta().find(d => d.id === id) || null;
+const scName = sc => sc === 'c' ? 'Chapter' : sc === 'v' ? 'Lecture' : 'Course';
+// the PDFs / summaries that apply to this chapter: its own, the whole lecture's and the whole course's
+function docsFor(v, c, kind){
+  const rank = {c: 0, v: 1, o: 2};
+  return docMeta().filter(d => d.k === kind && ((d.sc === 'c' && d.o === v.id && d.ts >= c.start && (c.end == null || d.ts < c.end)) || (d.sc === 'v' && d.o === v.id) || (d.sc === 'o' && v.course && d.o === v.course)))
+    .sort((a, b) => rank[a.sc] - rank[b.sc] || a.at - b.at);
+}
+function docsChanged(){ docRev++; docIdx = null; save(); try{ if(view === 'watch' && cur()) nowExtras(); }catch(e){} }
+async function docAdd(meta, rec, file){
+  const id = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  rec.id = id;
+  if(!(await docPut(id, rec))){ docCache.delete(id); toast("Couldn't save this in your browser's storage. Is it blocked or full?"); return null; }
+  if(file && file.size <= 40e6) docPut(id + ':f', file, false);   // the original file, so you can open it again (best effort)
+  Object.assign(meta, {id, at: Date.now()});
+  docMeta().push(meta); docsChanged(); return meta;
+}
+async function docRemove(id){
+  await docDel(id); await docDel(id + ':f');
+  store.docs = docMeta().filter(d => d.id !== id); docsChanged();
+}
+// when a lecture or playlist is deleted its PDFs and summaries go too
+function docPurge(){
+  const gone = docMeta().filter(d => d.sc === 'o' ? !store.courses.some(c => c.id === d.o) : !store.videos.some(v => v.id === d.o));
+  if(!gone.length) return;
+  store.docs = docMeta().filter(d => !gone.includes(d)); gone.forEach(d => { docDel(d.id); docDel(d.id + ':f'); }); docRev++;
+}
+
+// ================= 📄 v18 · reading PDFs (PDF.js is fetched the first time you need it) =================
+const PDFJS_V = '4.10.38', PDFJS_BASES = ['https://cdn.jsdelivr.net/npm/pdfjs-dist@' + PDFJS_V + '/legacy/build/', 'https://unpkg.com/pdfjs-dist@' + PDFJS_V + '/legacy/build/'];
+let pdfLibP = null;
+function pdfLib(){
+  if(pdfLibP) return pdfLibP;
+  pdfLibP = (async () => {
+    for(const base of PDFJS_BASES){
+      try{ const lib = await import(base + 'pdf.min.mjs'); lib.GlobalWorkerOptions.workerSrc = base + 'pdf.worker.min.mjs'; return lib; }catch(e){}
+    }
+    const e = new Error('The PDF reader could not be loaded'); e.code = 'noreader'; throw e;
+  })();
+  pdfLibP.catch(() => { pdfLibP = null; });
+  return pdfLibP;
+}
+async function readPdf(file, onProg){
+  const lib = await pdfLib();
+  const data = new Uint8Array(await file.arrayBuffer());
+  let pdf;
+  try{ pdf = await lib.getDocument({data, isEvalSupported: false}).promise; }
+  catch(e){ const x = new Error('bad pdf'); x.code = e && e.name === 'PasswordException' ? 'password' : 'bad'; throw x; }
+  const all = pdf.numPages, total = Math.min(all, 600), pages = []; let chars = 0;
+  for(let n = 1; n <= total; n++){
+    if(onProg) onProg(n, total);
+    const pg = await pdf.getPage(n);
+    const p = pdfParas((await pg.getTextContent()).items);
+    pages.push({n, p}); chars += p.reduce((a, x) => a + x[0].length, 0);
+    try{ pg.cleanup(); }catch(e){}
+    if(chars > 2500000) break;
+    if(n % 4 === 0) await new Promise(r => setTimeout(r, 0));
+  }
+  try{ pdf.destroy(); }catch(e){}
+  return {pages, total: all, cut: pages.length < all};
+}
+// a chosen file → pages of paragraphs. PDFs go through PDF.js, text and markdown are read directly
+async function readDocFile(file, onProg){
+  const isPdf = /\.pdf$/i.test(file.name) || file.type === 'application/pdf';
+  if(isPdf){ const r = await readPdf(file, onProg); return {pages: r.pages, total: r.total, cut: r.cut, pdf: true}; }
+  const pages = textPages(await file.text());
+  return {pages, total: pages.length, cut: false, pdf: false};
+}
+const pagesWords = pages => pages.reduce((a, pg) => a + pg.p.reduce((b, p) => b + wordCount(p[0]), 0), 0);
+
+// ================= 📑 v18 · what the summary and outline are made from =================
+async function trUnits(v, c){
+  const tr = v.tr ? await trGet(v.ytId) : null; if(!tr || !tr.s) return [];
+  const end = c.end == null ? Infinity : c.end, out = []; let cur2 = null;
+  tr.s.forEach((s, n) => {
+    if(!(s[0] >= c.start - 1 && s[0] < end)) return;
+    const x = String((tr.en && tr.en[n]) || s[1]).replace(/\s+/g, ' ').trim(); if(!x) return;
+    if(!cur2 || s[0] - cur2.ts > 14 || cur2.t.length > 220){ cur2 = {t: '', ts: s[0], raw: true}; out.push(cur2); }
+    cur2.t += (cur2.t ? ' ' : '') + x;
+  });
+  return out;
+}
+async function docSources(v, c){
+  const out = [], n = (v.notes[c.key] || '').trim();
+  if(n.length > 30) out.push({id: 'notes', label: '📝 My notes', words: wordCount(n), load: async () => notesUnits(n, c)});
+  const tu = await trUnits(v, c);
+  if(tu.length >= 3) out.push({id: 'tr', label: '📜 Transcript of this chapter', words: wordCount(tu.map(u => u.t).join(' ')), load: async () => tu});
+  for(const d of docsFor(v, c, 'pdf')) out.push({id: 'pdf:' + d.id, label: '📄 ' + d.name + (d.sc === 'v' ? ' (whole lecture)' : d.sc === 'o' ? ' (whole course)' : ''), words: d.n || 0, load: async () => pdfUnits(await docGet(d.id))});
+  for(const d of docsFor(v, c, 'sum')) if(d.src !== 'auto' && d.src !== 'ai') out.push({id: 'sum:' + d.id, label: '📑 ' + d.name, words: d.n || 0, load: async () => notesUnits(((await docGet(d.id)) || {}).text || '')});
+  return out;
+}
+async function gatherUnits(v, c, ids){
+  const srcs = await docSources(v, c); let units = [];
+  for(const s of srcs) if(ids.includes(s.id)) units = units.concat(await s.load());
+  return units;
+}
+const unitsText = units => units.map(u => (u.h ? '## ' : '') + u.t).join('\n');
+async function genSummary(v, c, ids, n, ai){
+  const units = await gatherUnits(v, c, ids); if(!units.length) return null;
+  if(ai){
+    const t = (await askAI(`${AI_ROLE}\n\nSummarize these study materials ("${v.title} › ${c.title}") in ${n} short bullet points. Plain text, each line starting with "- ". Keep only the key ideas, definitions and formulas, and do not add facts that are not in the text.\n\n${unitsText(units).slice(0, 28000)}`)).trim();
+    return t ? {text: t, src: 'ai'} : null;
+  }
+  const text = quickSummaryText(units, n, c.start); return text ? {text, src: 'auto'} : null;
+}
+async function genOutline(v, c, ids, ai){
+  const units = await gatherUnits(v, c, ids); if(!units.length) return null;
+  if(ai){
+    const o = normOutline(parseAIJSON(await askAI(`${AI_ROLE}\n\nMake a clean hierarchical revision outline of these study materials ("${v.title} › ${c.title}"). Reply only with JSON in this shape: {"main": "the main idea in one sentence", "points": [{"point": "a sub-point", "details": ["short supporting detail"], "examples": ["an example from the text"]}]}. Use 3 to 7 points. details and examples may be empty arrays. Use only what is in the text.\n\n${unitsText(units).slice(0, 28000)}`, true)));
+    if(!o) throw new Error("couldn't read the AI's outline, try again");
+    return Object.assign(o, {src: 'ai'});
+  }
+  const o = localOutline(units, c.title); return o ? Object.assign(o, {src: 'auto'}) : null;
+}
+function saveOutline(v, c, o){ v.outl = v.outl || {}; v.outl[c.key] = {at: Date.now(), src: o.src || 'auto', main: o.main || '', pts: o.pts}; save(); }
+// a quick summary replaces the previous quick summary of the same place, but never an official one
+async function saveQuickSummary(v, c, res){
+  const old = docMeta().find(d => d.k === 'sum' && d.sc === 'c' && d.o === v.id && d.ts === c.start && (d.src === 'auto' || d.src === 'ai'));
+  if(old) await docRemove(old.id);
+  return docAdd({k: 'sum', sc: 'c', o: v.id, ts: c.start, name: res.src === 'ai' ? 'AI summary' : 'Quick summary', pg: 0, n: wordCount(res.text), src: res.src}, {text: res.text});
+}
+
+// ================= ❓ v18 · jumping to a moment =================
+function chapterOfTime(v, t){ const chs = chapters(v); return chs.find(x => t >= x.start && (x.end == null || t < x.end)) || chs[chs.length - 1]; }
+// opens the lecture and plays from a few seconds before that moment (a short run-up so you hear what led to it)
+function jumpTo(vid, t, lead = 5, qid){
+  const v = store.videos.find(x => x.id === vid); if(!v) return;
+  const ch = chapterOfTime(v, t), at = Math.max(ch.start, t - lead);
+  closeModal();
+  if(cur() !== v || view !== 'watch') openVideo(v.id);
+  v.lastChapter = ch.idx; v.lastTime = at; heldAt = null; planStop = null;
+  playChapter(ch.idx, true);
+  qRun = qid ? {vid, id: qid, t} : null;
+}
+// "2:15" in this chapter, "Ch 3 · 2:15" in another one, "L4 · Ch 3 · 2:15" in another lecture
+function momentLabel(vid, t){
+  const mv = store.videos.find(x => x.id === vid); if(!mv) return fmt(t);
+  const mc = chapterOfTime(mv, t), cv = cur(), cc = cv ? curChapter(cv) : null, parts = [];
+  if(!cv || cv.id !== vid){ const o = courseOf(mv); parts.push(o ? 'L' + (courseVideos(o).indexOf(mv) + 1) : shortText(mv.title, 18)); }
+  if((!cv || cv.id !== vid || !cc || cc.idx !== mc.idx) && chapters(mv).length > 1) parts.push('Ch ' + (mc.idx + 1));
+  parts.push(fmt(t - mc.start));
+  return parts.join(' · ');
+}
+async function copyText(text, okMsg){
+  try{ await navigator.clipboard.writeText(text); toast(okMsg || 'Copied'); return; }catch(e){}
+  openModal(`<h2>Copy this</h2><textarea id="cpBox" rows="8" readonly>${esc(text)}</textarea><div class="actions"><button class="primary" onclick="closeModal()">Done</button></div>`);
+  setTimeout(() => { const t = $('#cpBox'); if(t){ t.focus(); t.select(); } }, 40);
+}
+
+// ================= 📑 v18 · the panel under the video: summary, outline, PDF notes, confused moments =================
+let nowTab = 'notes', dpMode = 'sum', nowSig = '', dpTok = 0, pfTok = 0;
+const pdfView = {id: null, page: 1, q: '', mode: 'page', form: null, hit: -1};
+// redraws the summary panel and the tabs, but only when something they show has changed (so typing is never interrupted)
+function nowExtras(v, c, force){
+  v = v || cur(); if(!v || !$('#nowDocs')) return; c = c || curChapter(v);
+  const dbs = v.doubts || [], sig = [v.id, c.key, docRev, dbs.length, dbs.filter(d => d.ok).length, ((v.outl || {})[c.key] || {}).at || 0, ((v.expl || {})[c.key] || {}).at || 0, nowTab, dpMode, store.settings.dpOpen === false ? 0 : 1, v.done[c.key] ? 1 : 0].join('|');
+  if(!force && sig === nowSig) return;
+  nowSig = sig; drawDocs(v, c); drawTabs(v, c);
+}
+function drawTabs(v, c){
+  const bar = $('#nTabs'); if(!bar) return;
+  const npdf = docsFor(v, c, 'pdf').length, ndb = doubtsIn(v, c).filter(d => !d.ok).length;
+  bar.innerHTML = `<button data-tab="notes" class="${nowTab === 'notes' ? 'on' : ''}">📝 My notes</button><button data-tab="pdf" class="${nowTab === 'pdf' ? 'on' : ''}">📄 PDF notes${npdf ? ` <i>${npdf}</i>` : ''}</button><button data-tab="dbt" class="${nowTab === 'dbt' ? 'on' : ''}">❓ Confused${ndb ? ` <i>${ndb}</i>` : ''}</button>`;
+  const cb = $('#cDoubt'); if(cb) cb.textContent = ndb ? '❓ ' + ndb : '❓';
+  bar.querySelectorAll('button').forEach(b => b.onclick = () => { nowTab = b.dataset.tab; nowSig = ''; nowExtras(v, c); });
+  $('#tabNotes').hidden = nowTab !== 'notes'; $('#tabPdf').hidden = nowTab !== 'pdf'; $('#tabDbt').hidden = nowTab !== 'dbt';
+  if(nowTab === 'pdf') drawPdf(v, c); else if(nowTab === 'dbt') drawDbt(v, c);
+}
+// [2:15] in a summary or outline becomes a button that jumps there
+function chipify(html, v, c){ return html.replace(/\[(\d{1,2}:\d{2}(?::\d{2})?)\]/g, (m, t) => { const s = toSec(t); return s == null ? m : `<button class="ol-ts" data-rel="${s}" title="Jump there">⏱ ${t}</button>`; }); }
+function bindChips(el, v, c){ el.querySelectorAll('.ol-ts[data-rel]').forEach(b => b.onclick = () => jumpInChapter(v, c, +b.dataset.rel)); }
+function outlineHtml(o, c){
+  const chip = p => p.ts != null ? `<button class="ol-ts" data-rel="${Math.max(0, Math.round(p.ts - c.start))}" title="Jump there">⏱ ${fmt(Math.max(0, p.ts - c.start))}</button>` : p.pg ? `<span class="muted" style="font-size:11px"> p.${p.pg}</span>` : '';
+  return `<div class="ol">${o.main ? `<div class="ol-main">🎯 ${esc(o.main)}</div>` : ''}<ul>${o.pts.map(p => `<li><span class="ol-p">${esc(p.p)}</span>${chip(p)}${(p.d || []).length ? `<ul>${p.d.map(d => `<li>${esc(d)}</li>`).join('')}</ul>` : ''}${(p.x || []).map(x => `<div class="ol-x">💡 ${esc(x)}</div>`).join('')}</li>`).join('')}</ul></div>`;
+}
+const srcName = s => s === 'ai' ? '🤖 AI summary' : s === 'auto' ? '✨ quick summary' : s === 'pdf' ? 'from a PDF' : s === 'file' ? 'uploaded file' : 'pasted';
+async function drawDocs(v, c){
+  const box = $('#nowDocs'); if(!box) return;
+  const tok = ++dpTok, sums = docsFor(v, c, 'sum'), ol = (v.outl || {})[c.key], me = explOf(v, c.key), open = store.settings.dpOpen !== false;
+  if(!sums.length && !ol && !me){
+    box.innerHTML = `<div class="dp compact"><b>📑 Summary &amp; outline</b><span class="muted" style="flex:1;min-width:150px">${v.done[c.key] ? 'Chapter done! Make a quick outline to revise from.' : 'Add the official summary, or let ChapterBox make a quick one.'}</span><button class="small" id="dpAdd">＋ Summary</button><button class="small" id="dpGen">✨ Quick summary</button><button class="small" id="dpOut">🗂 Outline</button><button class="small" id="dpMe" title="Explain this chapter in your own words">🧠 Explain it</button></div>`;
+    bindDp(v, c); return;
+  }
+  if(dpMode === 'me' && !me) dpMode = 'sum';
+  const seg = [['sum', 'Summary' + (sums.length ? ' (' + sums.length + ')' : '')], ['out', 'Outline']].concat(me ? [['me', 'In my words']] : []);
+  box.innerHTML = `<div class="dp"><div class="dp-h"><button class="dp-tg" id="dpTg" aria-expanded="${open}" title="${open ? 'Collapse' : 'Expand'}">${open ? '▾' : '▸'}</button><b>📑</b><span class="seg" id="dpSeg">${seg.map(([k, l]) => `<button data-m="${k}" class="${dpMode === k ? 'on' : ''}">${l}</button>`).join('')}</span>${open ? '' : '<span class="dp-pre" id="dpPre"></span>'}<span class="sp"></span><button class="small" id="dpAdd" title="Add a summary: upload a file or paste it">＋</button><button class="small" id="dpGen" title="Make a quick summary">✨</button><button class="small" id="dpMe" title="Explain this chapter in your own words">🧠</button></div>${open ? '<div class="dp-b" id="dpBody"></div>' : ''}</div>`;
+  bindDp(v, c);
+  if(!open){
+    const d0 = sums[0], t = d0 ? ((await docGet(d0.id)) || {}).text : me ? me : ol ? ol.main : '';
+    if(tok === dpTok && $('#dpPre')) $('#dpPre').textContent = String(t || '').replace(/[#*\n]+/g, ' ').trim().slice(0, 140);
+    return;
+  }
+  const body = $('#dpBody');
+  if(dpMode === 'out'){
+    body.innerHTML = ol ? `${outlineHtml(ol, c)}<div class="row" style="margin-top:8px;gap:6px"><span class="muted" style="font-size:12px">${ol.src === 'ai' ? '🤖 made by AI' : '✨ made on this device'}</span><button class="small" id="olRedo">🔄 Redo</button><button class="small" id="olCopy">📋 Copy</button><button class="small" id="olAll">🗂 Whole lecture</button><button class="small" id="olDel">🗑</button></div>`
+      : `<div class="muted">No outline for this chapter yet.</div><div class="row" style="margin-top:8px"><button class="primary small" id="olRedo">🗂 Make outline</button><button class="small" id="olAll">Whole lecture</button></div>`;
+    bindChips(body, v, c);
+    $('#olRedo').onclick = () => quickModal(v, c, 'out');
+    $('#olAll').onclick = () => lectureOutlineModal(v);
+    if($('#olCopy')) $('#olCopy').onclick = () => copyText(outlineText(ol, c.start), 'Outline copied');
+    if($('#olDel')) $('#olDel').onclick = () => { delete v.outl[c.key]; save(); nowSig = ''; nowExtras(v, c); };
+  } else if(dpMode === 'me'){
+    body.innerHTML = `<div class="ds-t" style="white-space:pre-wrap">${esc(me)}</div><div class="row" style="margin-top:8px"><span class="muted" style="font-size:12px">🧠 what you wrote after this chapter</span><button class="small" id="meRedo">✏️ Rewrite</button></div>`;
+    $('#meRedo').onclick = () => explainModal(v, c, null, {edit: true});
+  } else if(!sums.length){
+    body.innerHTML = `<div class="muted">No summary for this chapter yet. Upload the official one, paste it, or let ChapterBox make a quick one from your notes, a PDF or the transcript.</div><div class="row" style="margin-top:8px"><button class="primary small" id="sbAdd">＋ Add summary</button><button class="small" id="sbGen">✨ Quick summary</button></div>`;
+    $('#sbAdd').onclick = () => addDocModal(v, c, 'sum'); $('#sbGen').onclick = () => quickModal(v, c, 'sum');
+  } else {
+    body.innerHTML = sums.map(d => `<div class="ds"><div class="ds-h"><b>${esc(d.name)}</b><span class="ds-sc">${scName(d.sc)}</span><span class="muted" style="font-size:12px">${srcName(d.src)}${d.n ? ' · ' + d.n + ' words' : ''}</span><span class="sp"></span><button class="small" data-ed="${d.id}" title="Edit">✏️</button><button class="small" data-rm="${d.id}" title="Remove">🗑</button></div><div class="ds-t" id="dst_${d.id}">…</div></div>`).join('');
+    body.querySelectorAll('[data-ed]').forEach(b => b.onclick = () => editSumModal(docById(b.dataset.ed)));
+    body.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { const d = docById(b.dataset.rm); confirmModal('Remove this summary?', `"${esc(d.name)}" will be deleted from this device.`, 'Remove', () => docRemove(d.id)); });
+    for(const d of sums){
+      const rec = await docGet(d.id); if(tok !== dpTok) return;
+      const el = $('#dst_' + d.id); if(!el) continue;
+      const html = mdLite((rec && rec.text) || '') || '<span class="muted">(empty)</span>';
+      el.innerHTML = d.sc === 'c' ? chipify(html, v, c) : html; bindChips(el, v, c);
+    }
+  }
+}
+function bindDp(v, c){
+  const q = id => document.getElementById(id);
+  if(q('dpAdd')) q('dpAdd').onclick = () => addDocModal(v, c, 'sum');
+  if(q('dpGen')) q('dpGen').onclick = () => quickModal(v, c, 'sum');
+  if(q('dpOut')) q('dpOut').onclick = () => quickModal(v, c, 'out');
+  if(q('dpMe')) q('dpMe').onclick = () => explainModal(v, c);
+  if(q('dpTg')) q('dpTg').onclick = () => { store.settings.dpOpen = store.settings.dpOpen === false; save(); nowSig = ''; nowExtras(v, c); };
+  document.querySelectorAll('#dpSeg [data-m]').forEach(b => b.onclick = () => { dpMode = b.dataset.m; store.settings.dpOpen = true; nowSig = ''; nowExtras(v, c); });
+}
+async function editSumModal(d){
+  if(!d) return;
+  const rec = (await docGet(d.id)) || {text: ''};
+  openModal(`<h2>✏️ Edit summary</h2><label>Name</label><input id="esName" value="${esc(d.name)}"><label>Text</label><textarea id="esTxt" rows="10">${esc(rec.text || '')}</textarea><div class="hint">Tip: write a time like [2:15] and it becomes a jump button.</div><div class="actions"><button onclick="closeModal()">Cancel</button><button class="primary" id="esSave">Save</button></div>`, true);
+  $('#esSave').onclick = async () => {
+    const t = $('#esTxt').value; d.name = shortText($('#esName').value.trim() || d.name, 80); d.n = wordCount(t); if(d.src === 'auto' || d.src === 'ai') d.src = 'paste';
+    rec.text = t; await docPut(d.id, rec); closeModal(); docsChanged();
+  };
+}
+
+// ---------- adding a PDF or a summary ----------
+function addDocModal(v, c, kind){
+  const course = courseOf(v), isPdf = kind === 'pdf';
+  openModal(`<h2>${isPdf ? '📄 Upload PDF notes' : '📑 Add a summary'}</h2>
+    <p class="muted" style="margin:0">${isPdf ? 'ChapterBox reads the text inside the PDF on this device. Nothing is uploaded anywhere. Then you can search it and link its lines to times in the video.' : 'Upload the official summary (.pdf, .txt or .md) or paste it. It shows in the Summary panel while you watch.'}</p>
+    <label>Attach it to</label>
+    <div class="pl-way" id="adScope" style="margin:0">
+      <label class="chk" style="margin:0 0 6px"><input type="radio" name="adsc" value="c" checked> This chapter <span class="muted">· ${esc(shortText(c.title, 50))}</span></label>
+      <label class="chk" style="margin:0 0 6px"><input type="radio" name="adsc" value="v"> This whole lecture</label>
+      ${course ? `<label class="chk" style="margin:0"><input type="radio" name="adsc" value="o"> The whole course <span class="muted">· ${esc(shortText(course.title, 40))}</span></label>` : ''}
+    </div>
+    <label>${isPdf ? 'Choose a PDF (or a .txt / .md file)' : 'Upload a file'}</label>
+    <input type="file" id="adFile" accept="${isPdf ? '.pdf,application/pdf,.txt,.md,.markdown,text/plain' : '.pdf,.txt,.md,.markdown,application/pdf,text/plain,text/markdown'}">
+    <div id="adBar" class="bar" hidden><i style="width:0"></i></div>
+    <div id="adMsg" class="hint"></div>
+    <label>Or paste the text${isPdf ? ' of your notes' : ''}</label>
+    <textarea id="adText" rows="5" placeholder="${isPdf ? 'Paste the notes here' : 'Paste the summary here'}"></textarea>
+    <div class="row" style="margin-top:8px"><button class="primary small" id="adPaste">Save pasted text</button></div>
+    <div class="actions"><button onclick="closeModal()">Cancel</button></div>`);
+  const scope = () => ($('#adScope input:checked') || {}).value || 'c';
+  const msg = (h, bad) => { const m = $('#adMsg'); if(!m) return; m.innerHTML = h; m.style.color = bad ? 'var(--warn)' : ''; };
+  const why = e => e && e.code === 'noreader' ? "Couldn't load the PDF reader. It downloads the first time you use it, so check your internet. You can paste the text instead." : e && e.code === 'password' ? 'That PDF is password-protected. Remove the password and try again.' : e && e.code === 'bad' ? "That doesn't look like a PDF I can read." : 'Something went wrong while reading that file.';
+  let busy = false;
+  const save2 = async (res, name, file, raw, force) => {
+    const sc = scope(), words = pagesWords(res.pages);
+    if(isPdf && words < 5 && !force){
+      msg(`No selectable text found. This looks like a scanned or handwritten PDF, so I can't read or search it. <button class="small" id="adAny">Attach it anyway</button> <span class="muted">(you can still open it and link times to its pages)</span>`, true);
+      $('#adAny').onclick = () => save2(res, name, file, raw, true); busy = false; return;
+    }
+    if(!isPdf && words < 2){ msg('There is no text in that file.', true); busy = false; return; }
+    const meta = {k: kind, sc, o: sc === 'o' ? v.course : v.id, ts: sc === 'c' ? c.start : null, name: shortText(name, 80), pg: res.pdf ? res.total : res.pages.length, n: words, src: res.pdf ? 'pdf' : file ? 'file' : 'paste'};
+    const rec = isPdf ? {pages: res.pages, marks: []} : {text: raw != null ? raw : pagesToText(res.pages)};
+    const added = await docAdd(meta, rec, res.pdf ? file : null);
+    busy = false; if(!added){ msg("Couldn't save it. Your browser's storage may be blocked or full.", true); return; }
+    closeModal();
+    if(isPdf){ nowTab = 'pdf'; Object.assign(pdfView, {id: added.id, page: 1, q: '', mode: 'page', form: null, hit: -1}); }
+    else { dpMode = 'sum'; store.settings.dpOpen = true; save(); }
+    nowSig = ''; nowExtras(v, c);
+    toast(`${isPdf ? '📄' : '📑'} Added "${shortText(added.name, 30)}"${added.pg > 1 ? ' · ' + added.pg + (res.pdf ? ' pages' : ' parts') : ''} · ${added.n} words${res.cut ? ' (first 600 pages)' : ''}`);
+  };
+  $('#adFile').onchange = async e => {
+    const f = e.target.files[0]; if(!f || busy) return; busy = true;
+    const bar = $('#adBar'); bar.hidden = false; msg('Reading ' + esc(shortText(f.name, 40)) + '…');
+    try{
+      const res = await readDocFile(f, (n, t) => { msg(`Reading page ${n} of ${t}…`); bar.firstElementChild.style.width = Math.round(n / t * 100) + '%'; });
+      const raw = !res.pdf && !isPdf ? await f.text() : null;
+      await save2(res, f.name.replace(/\.[a-z0-9]+$/i, ''), f, raw);
+    }catch(err){ busy = false; bar.hidden = true; msg(esc(why(err)), true); }
+  };
+  $('#adPaste').onclick = async () => {
+    const t = $('#adText').value.trim(); if(!t){ msg('Paste some text first.', true); return; }
+    if(busy) return; busy = true;
+    const pages = textPages(t);
+    await save2({pages, total: pages.length, pdf: false, cut: false}, isPdf ? 'Pasted notes' : 'Pasted summary', null, t);
+  };
+}
+
+// ---------- the 📄 PDF notes tab ----------
+async function drawPdf(v, c, keepFocus){
+  const box = $('#tabPdf'); if(!box) return;
+  const docs = docsFor(v, c, 'pdf');
+  if(!docs.length){
+    box.innerHTML = `<div class="pf"><div class="muted">No PDF notes attached to this chapter yet. Add your slides or typed notes. ChapterBox reads the text on this device so you can search it and link its lines to times in the video.</div><div class="row" style="margin-top:8px"><button class="primary small" id="pfUp">📄 Upload PDF notes</button></div></div>`;
+    $('#pfUp').onclick = () => addDocModal(v, c, 'pdf'); return;
+  }
+  if(!docs.some(d => d.id === pdfView.id)){ pdfView.id = docs[0].id; pdfView.page = 1; pdfView.form = null; pdfView.hit = -1; }
+  const meta = docs.find(d => d.id === pdfView.id), tok = ++pfTok;
+  if(!docCache.has(meta.id)) box.innerHTML = '<div class="pf muted">Loading…</div>';
+  const rec = await docGet(meta.id);
+  if(tok !== pfTok || nowTab !== 'pdf') return;
+  if(!rec || !rec.pages){
+    box.innerHTML = `<div class="pf">The text of "${esc(meta.name)}" is missing from this browser. Remove it and upload it again.<div class="row" style="margin-top:8px"><button class="small" id="pfDel">🗑 Remove</button></div></div>`;
+    $('#pfDel').onclick = () => docRemove(meta.id); return;
+  }
+  const pages = rec.pages, np = pages.length, marks = rec.marks || (rec.marks = []);
+  pdfView.page = Math.min(Math.max(1, pdfView.page | 0), np);
+  const q = pdfView.q.trim(), ql = q.toLowerCase(), searching = q.length >= 2;
+  if(!searching && pdfView.mode === 'results') pdfView.mode = 'page';
+  const hl = s => { if(!searching) return esc(s); const ls = s.toLowerCase(); if(ls.length !== s.length) return esc(s); let out = '', i = 0; for(;;){ const j = ls.indexOf(ql, i); if(j < 0) break; out += esc(s.slice(i, j)) + '<mark>' + esc(s.slice(j, j + ql.length)) + '</mark>'; i = j + ql.length; } return out + esc(s.slice(i)); };
+  const paras = pg => pg.p.length ? pg.p : [['(page ' + pg.n + ': no selectable text, probably an image or handwriting)', 0]];
+  let body = '';
+  if(pdfView.mode === 'marks'){
+    const list = marks.slice().sort((a, b) => a.v === b.v ? a.t - b.t : String(a.v).localeCompare(String(b.v)));
+    body = `<div class="pf-pg">${list.length ? list.map(m => { const pg = pages[m.p - 1], tx = pg && paras(pg)[m.i] ? paras(pg)[m.i][0] : ''; return `<div class="pf-r" data-mp="${m.id}"><small><button class="pf-ts small" data-go="${m.id}">⏱ ${esc(momentLabel(m.v, m.t))}</button> · page ${m.p}</small>${esc(shortText(tx, 160))}</div>`; }).join('') : '<div class="muted" style="padding:6px">No times linked yet. Hover a line (or tap it on a phone) and press ⏱＋ to link the moment you are at in the video.</div>'}</div>`;
+  } else if(pdfView.mode === 'results'){
+    const res = []; let more = false;
+    for(const pg of pages) paras(pg).forEach((p, i) => { if(!p[0].toLowerCase().includes(ql)) return; if(res.length >= 60){ more = true; return; } res.push({pg: pg.n, i, t: p[0]}); });
+    body = `<div class="pf-pg">${res.length ? res.map(r => `<div class="pf-r" data-pg="${r.pg}" data-i="${r.i}"><small>Page ${r.pg}</small>${hl(shortText(r.t, 240))}</div>`).join('') + (more ? '<div class="muted" style="padding:6px">Showing the first 60 matches. Type more to narrow it down.</div>' : '') : '<div class="muted" style="padding:6px">No match in this PDF.</div>'}</div>`;
+  } else {
+    const pg = pages[pdfView.page - 1], rows = paras(pg), t0 = playerTime(), rel = t0 == null ? null : Math.max(0, t0 - c.start);
+    body = `<div class="pf-bar" style="margin-top:8px"><button class="small" id="pfPrev" ${pdfView.page <= 1 ? 'disabled' : ''}>◀</button><span>Page <input id="pfPg" type="number" min="1" max="${np}" value="${pdfView.page}" style="width:68px;padding:4px 8px"> of ${np}</span><button class="small" id="pfNext" ${pdfView.page >= np ? 'disabled' : ''}>▶</button>${searching ? '<button class="small" id="pfBack">← results</button>' : ''}</div>
+      <div class="pf-pg" id="pfPage">${rows.map(([t, h], i) => {
+        const ms = marks.filter(m => m.p === pg.n && m.i === i);
+        return `<div class="pf-p ${h ? 'h' : ''} ${pdfView.hit === i ? 'hit' : ''}" data-i="${i}">${hl(t)}${ms.map(m => `<span class="pf-tm"><button class="pf-ts small" data-go="${m.id}" title="Jump to this moment">⏱ ${esc(momentLabel(m.v, m.t))}</button><button class="pf-x" data-rm="${m.id}" title="Remove this link">✕</button></span>`).join('')}<button class="pf-add small" data-add="${i}" title="Link a video time to this line">⏱＋</button></div>${pdfView.form === i ? `<div class="pf-form">${rel != null ? `<button class="small primary" data-now="${i}">⏱ Now · ${fmt(rel)}</button><span class="muted">or</span>` : ''}<input id="pfT" placeholder="m:ss" inputmode="numeric"><button class="small" data-set="${i}">Add</button><button class="small" data-cancel="1">✕</button></div>` : ''}`;
+      }).join('')}</div>`;
+  }
+  box.innerHTML = `<div class="pf"><div class="pf-bar">${docs.length > 1 ? `<select id="pfDoc">${docs.map(d => `<option value="${d.id}" ${d.id === meta.id ? 'selected' : ''}>${esc(shortText(d.name, 40))} · ${scName(d.sc)}</option>`).join('')}</select>` : `<b style="font-size:13px">📄 ${esc(shortText(meta.name, 44))}</b><span class="ds-sc">${scName(meta.sc)}</span>`}<span class="sp"></span><button class="small" id="pfSum" title="Make a short summary of this PDF, on your device">✨ Summarize</button><button class="small" id="pfUp" title="Add another PDF">＋ PDF</button><button class="small ${pdfView.mode === 'marks' ? 'primary' : ''}" id="pfMk" title="All the video times you linked to this PDF">⏱ ${marks.length}</button><button class="small" id="pfMg" title="More">⋯</button></div>
+    <div class="pf-bar" style="margin-top:8px"><input class="pf-q" id="pfQ" type="search" placeholder="🔍 Search this PDF…" value="${esc(pdfView.q)}"></div>${body}</div>`;
+  const redraw = f => drawPdf(v, c, f);
+  $('#pfUp').onclick = () => addDocModal(v, c, 'pdf');
+  $('#pfSum').onclick = () => quickModal(v, c, 'sum', 'pdf:' + meta.id);
+  $('#pfMk').onclick = () => { pdfView.mode = pdfView.mode === 'marks' ? (searching ? 'results' : 'page') : 'marks'; redraw(); };
+  $('#pfMg').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [['📂 Open the original PDF', () => openOriginal(meta)], ['🗑 Remove this PDF', () => confirmModal('Remove this PDF?', `"${esc(meta.name)}" and the times you linked to it will be deleted from this device.`, 'Remove', () => docRemove(meta.id))], ['📎 All PDFs & summaries', () => docsModal(v)]]); };
+  if($('#pfDoc')) $('#pfDoc').onchange = e => { pdfView.id = e.target.value; pdfView.page = 1; pdfView.form = null; pdfView.hit = -1; pdfView.mode = searching ? 'results' : 'page'; redraw(); };
+  const qi = $('#pfQ');
+  qi.oninput = () => { pdfView.q = qi.value; pdfView.hit = -1; pdfView.form = null; pdfView.mode = qi.value.trim().length >= 2 ? 'results' : 'page'; redraw(true); };
+  if(keepFocus){ qi.focus(); qi.setSelectionRange(qi.value.length, qi.value.length); }
+  const goPage = (p, hit) => { pdfView.page = p; pdfView.hit = hit == null ? -1 : hit; pdfView.mode = 'page'; pdfView.form = null; redraw(); };
+  box.querySelectorAll('[data-go]').forEach(b => b.onclick = e => { e.stopPropagation(); const m = marks.find(x => x.id === b.dataset.go); if(m) jumpTo(m.v, m.t, 3); });
+  box.querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => { rec.marks = marks.filter(x => x.id !== b.dataset.rm); await docPut(meta.id, rec); redraw(); });
+  if(pdfView.mode === 'marks'){
+    box.querySelectorAll('[data-mp]').forEach(r => r.onclick = () => { const m = marks.find(x => x.id === r.dataset.mp); if(m) goPage(m.p, m.i); });
+  } else if(pdfView.mode === 'results'){
+    box.querySelectorAll('.pf-r').forEach(r => r.onclick = () => goPage(+r.dataset.pg, +r.dataset.i));
+  } else {
+    const pg = pages[pdfView.page - 1];
+    $('#pfPrev').onclick = () => goPage(pdfView.page - 1); $('#pfNext').onclick = () => goPage(pdfView.page + 1);
+    $('#pfPg').onchange = e => goPage(Math.min(np, Math.max(1, parseInt(e.target.value) || 1)));
+    if($('#pfBack')) $('#pfBack').onclick = () => { pdfView.mode = 'results'; pdfView.hit = -1; redraw(); };
+    box.querySelectorAll('[data-add]').forEach(b => b.onclick = () => { pdfView.form = pdfView.form === +b.dataset.add ? null : +b.dataset.add; redraw(); });
+    const put = async (i, t) => { marks.push({id: 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), p: pg.n, i, v: v.id, t: Math.round(t * 10) / 10}); rec.marks = marks; await docPut(meta.id, rec); pdfView.form = null; redraw(); toast('⏱ Linked'); };
+    box.querySelectorAll('[data-now]').forEach(b => b.onclick = () => { const t = playerTime(); put(+b.dataset.now, t == null ? c.start : t); });
+    box.querySelectorAll('[data-set]').forEach(b => b.onclick = () => {
+      const s = toSec($('#pfT').value), abs = s == null ? null : c.start + s;
+      if(abs == null || /^\d+$/.test($('#pfT').value.trim()) && false){ toast('Type a time like 2:15'); return; }
+      if(c.end != null && abs >= c.end){ toast('That is after this chapter ends'); return; }
+      put(+b.dataset.set, abs);
+    });
+    box.querySelectorAll('[data-cancel]').forEach(b => b.onclick = () => { pdfView.form = null; redraw(); });
+    if($('#pfT')){ $('#pfT').onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); const b = box.querySelector('[data-set]'); if(b) b.click(); } }; if(!keepFocus) $('#pfT').focus(); }
+    const hit = box.querySelector('.pf-p.hit'); if(hit) hit.scrollIntoView({block: 'nearest'});
+  }
+}
+async function openOriginal(d){
+  const f = await docRead(d.id + ':f');
+  if(!f){ toast("The original file isn't stored on this device (only its text is)"); return; }
+  const url = URL.createObjectURL(f), w = window.open(url, '_blank');
+  if(!w) openModal(`<h2>Open the PDF</h2><p class="muted">Your browser blocked the new tab.</p><div class="actions"><button onclick="closeModal()">Close</button><a class="btn primary" href="${url}" target="_blank" rel="noopener">Open ${esc(shortText(d.name, 30))}</a></div>`);
+  setTimeout(() => URL.revokeObjectURL(url), 120000);
+}
+// all the PDFs and summaries of this lecture and its course
+async function docsModal(v){
+  const list = docMeta().filter(d => (d.sc === 'o' && v.course && d.o === v.course) || ((d.sc === 'v' || d.sc === 'c') && d.o === v.id)).sort((a, b) => a.at - b.at);
+  const where = d => d.sc === 'c' ? 'Chapter ' + (chapterOfTime(v, d.ts).idx + 1) : scName(d.sc);
+  const c = curChapter(v);
+  openModal(`<h2>📎 PDFs &amp; summaries</h2><p class="muted" style="margin:0">Everything attached to this lecture${v.course ? ' and its playlist' : ''}. The text is kept on this device only.</p>
+    <div style="margin-top:10px">${list.length ? list.map(d => `<div class="rev-row"><span>${d.k === 'pdf' ? '📄' : '📑'}</span><div class="t" style="cursor:default"><b>${esc(shortText(d.name, 50))}</b><div class="muted" style="font-size:12px">${where(d)}${d.pg > 1 ? ' · ' + d.pg + ' pages' : ''} · ${d.n || 0} words · ${new Date(d.at).toLocaleDateString('en-IN', {day: 'numeric', month: 'short'})}</div></div>${d.k === 'pdf' && d.src === 'pdf' ? `<button class="small" data-op="${d.id}">📂 Open</button>` : ''}<button class="small danger" data-rm="${d.id}">🗑</button></div>`).join('') : '<div class="muted">Nothing attached yet.</div>'}</div>
+    <div class="actions" style="justify-content:space-between"><span class="row"><button class="small" id="dmPdf">📄 Upload PDF</button><button class="small" id="dmSum">📑 Add summary</button></span><button class="primary" onclick="closeModal()">Done</button></div>`);
+  $('#dmPdf').onclick = () => addDocModal(v, c, 'pdf'); $('#dmSum').onclick = () => addDocModal(v, c, 'sum');
+  $('#modal').querySelectorAll('[data-op]').forEach(b => b.onclick = () => openOriginal(docById(b.dataset.op)));
+  $('#modal').querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { const d = docById(b.dataset.rm); confirmModal('Remove this?', `"${esc(d.name)}" will be deleted from this device.`, 'Remove', async () => { await docRemove(d.id); docsModal(v); }); });
+}
+// global search (the box at the top) also looks inside your PDFs
+async function docSearch(q){
+  q = q.trim().toLowerCase(); if(q.length < 3 || !docMeta().some(d => d.k === 'pdf')) return [];
+  if(!docIdx) docIdx = await docAllRecs();
+  const res = [];
+  for(const d of docMeta()){
+    if(d.k !== 'pdf') continue;
+    const rec = docIdx.get(d.id); if(!rec || !rec.pages) continue;
+    const v = d.sc === 'o' ? (cur() && cur().course === d.o ? cur() : store.videos.find(x => x.course === d.o)) : store.videos.find(x => x.id === d.o); if(!v) continue;
+    const ci = d.sc === 'c' ? chapterOfTime(v, d.ts).idx : resumeIdx(v), o = courseOf(v);
+    for(const pg of rec.pages) for(let i = 0; i < pg.p.length; i++){
+      const t = pg.p[i][0], at = t.toLowerCase().indexOf(q);
+      if(at >= 0){ res.push({v, i: ci, doc: {id: d.id, page: pg.n, para: i}, label: `📄 p.${pg.n} · …${t.slice(Math.max(0, at - 30), at + 70).replace(/\s+/g, ' ')}…`, where: `${d.name} · ${o ? '📚 ' + o.title + ' · ' : ''}${v.title}`}); if(res.length >= 25) return res; }
+    }
+  }
+  return res;
+}
+
+// ---------- ✨ quick summary and 🗂 outline ----------
+async function quickModal(v, c, mode, pre){
+  const out = mode === 'out', title = out ? '🗂 Make an outline' : '✨ Quick summary';
+  const srcs = await docSources(v, c);
+  if(!srcs.length){
+    openModal(`<h2>${title}</h2><p class="muted">There is nothing to read for this chapter yet. Write some notes, attach a PDF, or grab the transcript (📜 Transcript), then try again.</p><div class="actions"><button onclick="closeModal()">Close</button><button class="primary" id="qmPdf">📄 Upload PDF notes</button></div>`);
+    $('#qmPdf').onclick = () => addDocModal(v, c, 'pdf'); return;
+  }
+  const pi = pre ? srcs.findIndex(s => s.id === pre) : -1, fp = srcs.findIndex(s => s.id.startsWith('pdf:')), defI = pi >= 0 ? pi : fp >= 0 ? fp : 0;
+  let nBul = 8, result = null;
+  openModal(`<h2>${title}</h2><p class="muted" style="margin:0">${out ? 'Turns messy notes into main idea → sub-points → examples.' : 'Picks the most important sentences.'} It is made on this device from what you already have.</p>
+    <label>Read from</label><div class="pl-way" id="qmSrc" style="margin:0">${srcs.map((s, i) => `<label class="chk" style="margin:0 0 6px"><input type="checkbox" value="${esc(s.id)}" ${i === defI ? 'checked' : ''}> ${esc(shortText(s.label, 60))} <span class="muted">· ${s.words} words</span></label>`).join('')}</div>
+    ${out ? '' : `<div class="row" style="margin-top:10px">How long <span class="seg" id="qmN">${[[5, 'Short'], [8, 'Medium'], [12, 'Long']].map(([n, l]) => `<button data-n="${n}" class="${n === 8 ? 'on' : ''}">${l}</button>`).join('')}</span></div>`}
+    <div class="row" style="margin-top:12px"><button class="primary" id="qmGo">${out ? '🗂 Make outline' : '✨ Make summary'}</button>${aiReady() ? `<button id="qmAI" title="Sends the text to Gemini with your key">🤖 Use AI instead</button>` : ''}${out ? '<button id="qmAll" class="small">Whole lecture</button>' : ''}</div>
+    <div id="qmOut" style="margin-top:12px"></div><div class="actions"><button onclick="closeModal()">Close</button></div>`, true);
+  if(!out) $('#qmN').querySelectorAll('button').forEach(b => b.onclick = () => { nBul = +b.dataset.n; $('#qmN').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); });
+  const ids = () => [...$('#qmSrc').querySelectorAll('input:checked')].map(i => i.value);
+  const run = async ai => {
+    const o = $('#qmOut'); if(!ids().length){ o.innerHTML = '<span style="color:var(--warn)">Tick at least one source.</span>'; return; }
+    o.innerHTML = `<span class="muted">${ai ? '🤖 Thinking…' : '✨ Reading…'}</span>`;
+    try{
+      result = out ? await genOutline(v, c, ids(), ai) : await genSummary(v, c, ids(), nBul, ai);
+      if(!result){ o.innerHTML = '<span style="color:var(--warn)">There was not enough text to make something useful. Try another source or add more notes.</span>'; return; }
+      o.innerHTML = out ? `${outlineHtml(result, c)}<div class="hint">${ai ? '🤖 Made by AI. Double-check anything important.' : 'Made on this device. It picks sentences from your text, so add an AI key (⋯ → AI helper) for smarter ones.'}</div>`
+        : `<textarea id="qmTxt" rows="9">${esc(result.text)}</textarea><div class="hint">${ai ? '🤖 Made by AI. Double-check anything important. ' : 'Made on this device. '}You can edit it before saving.</div>`;
+      o.innerHTML += `<div class="row" style="margin-top:8px"><button class="primary small" id="qmSave">💾 Save to this chapter</button><button class="small" id="qmCopy">📋 Copy</button></div>`;
+      $('#qmCopy').onclick = () => copyText(out ? outlineText(result, c.start) : $('#qmTxt').value, 'Copied');
+      $('#qmSave').onclick = async () => {
+        if(out){ saveOutline(v, c, result); dpMode = 'out'; }
+        else { await saveQuickSummary(v, c, {text: $('#qmTxt').value.trim() || result.text, src: result.src}); dpMode = 'sum'; }
+        store.settings.dpOpen = true; save(); closeModal(); nowSig = ''; nowExtras(v, c); toast(out ? '🗂 Outline saved' : '✨ Summary saved');
+      };
+    }catch(e){ o.innerHTML = `<span style="color:var(--warn)">🤖 ${esc(e.message)}</span>`; }
+  };
+  $('#qmGo').onclick = () => run(false);
+  if($('#qmAI')) $('#qmAI').onclick = () => run(true);
+  if($('#qmAll')) $('#qmAll').onclick = () => lectureOutlineModal(v);
+  if(pi >= 0) run(false);   // opened from a PDF's own ✨ Summarize button: one click, it just makes it
+}
+function lectureOutlineText(v){
+  return `# ${v.title}\n\n` + chapters(v).map(c => { const o = (v.outl || {})[c.key]; return o ? `## ${c.idx + 1}. ${c.title}\n\n${outlineText(o, c.start)}\n` : ''; }).filter(Boolean).join('\n');
+}
+async function lectureOutlineModal(v){
+  const chs = chapters(v);
+  const draw = () => {
+    const have = chs.filter(c => (v.outl || {})[c.key]).length;
+    openModal(`<h2>🗂 Outline of the whole lecture</h2><p class="muted" style="margin:0">${esc(v.title)} · ${have} of ${chs.length} chapters have an outline.</p>
+      <div class="row" style="margin-top:10px"><button class="primary small" id="loMake" ${have === chs.length ? 'disabled' : ''}>✨ Make the missing ones</button><button class="small" id="loCopy" ${have ? '' : 'disabled'}>📋 Copy all</button><button class="small" id="loDl" ${have ? '' : 'disabled'}>⬇️ Download .md</button></div>
+      <div id="loMsg" class="hint"></div>
+      <div style="margin-top:8px;max-height:56vh;overflow:auto">${chs.map(c => { const o = (v.outl || {})[c.key]; return `<div class="ds"><div class="ds-h"><b>${c.idx + 1}. ${esc(shortText(c.title, 70))}</b></div>${o ? outlineHtml(o, c) : '<div class="muted" style="font-size:13px">No outline yet.</div>'}</div>`; }).join('')}</div>
+      <div class="actions"><button class="primary" onclick="closeModal()">Done</button></div>`, true);
+    $('#loCopy').onclick = () => copyText(lectureOutlineText(v), 'Outline copied');
+    $('#loDl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lectureOutlineText(v)], {type: 'text/markdown'})); a.download = (v.title.replace(/[^\w\- ]+/g, '').trim().slice(0, 50).replace(/\s+/g, '-') || 'lecture') + '-outline.md'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+    $('#loMake').onclick = async () => {
+      $('#loMake').disabled = true; let n = 0, skipped = 0;
+      for(const c of chs){
+        if((v.outl || {})[c.key]) continue;
+        $('#loMsg').textContent = `Reading chapter ${c.idx + 1} of ${chs.length}…`;
+        const s = (await docSources(v, c)).filter(x => !x.id.startsWith('sum:') && !x.id.startsWith('pdf:') || (x.id.startsWith('pdf:') && docById(x.id.slice(4)).sc === 'c')), pick = s.find(x => x.id.startsWith('pdf:')) || s.find(x => x.id === 'notes') || s.find(x => x.id === 'tr');
+        if(!pick){ skipped++; continue; }
+        const o = await genOutline(v, c, [pick.id], false);
+        if(o){ saveOutline(v, c, o); n++; } else skipped++;
+      }
+      nowSig = ''; nowExtras(v); draw();
+      $('#loMsg').textContent = `Made ${n} outline${n === 1 ? '' : 's'}${skipped ? `. ${skipped} chapter${skipped === 1 ? ' has' : 's have'} nothing to read yet (no notes, transcript or PDF).` : '.'}`;
+    };
+  };
+  draw();
+}
+
+// ================= ❓ v18 · confusing moments, explain-first, weak-spot map =================
+let qRun = null, gateOpen = false, lastDone = null, queueScope = 'all', weakSel = null;
+const newId = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+
+// ---------- ❓ doubt marker ----------
+const doubtsIn = (v, c) => (v.doubts || []).filter(d => d.t >= c.start && (c.end == null || d.t < c.end)).sort((a, b) => a.t - b.t);
+function allDoubts(){ const out = []; for(const v of store.videos) for(const d of v.doubts || []) out.push({v, d, c: chapterOfTime(v, d.t)}); return out; }
+const doubtBadge = (v, c) => { const n = doubtsIn(v, c).filter(d => !d.ok).length; return n ? ` · ❓ ${n}` : ''; };
+function doubtsChanged(){
+  save();
+  try{
+    if(view === 'watch' && cur()){ nowSig = ''; nowExtras(); renderPlaylist(); }
+    else if(view === 'home') renderHome();
+  }catch(e){}
+}
+// one click (or the C key) while watching: remember this exact second as "confused here"
+function markDoubt(){
+  const v = cur(); if(!v || view !== 'watch') return;
+  let t = playerTime();
+  if(t == null){ nowTab = 'dbt'; nowSig = ''; nowExtras(v); toast("I can't read the video time in this mode. Type the time in the ❓ Confused tab"); return; }
+  const ch = chapterOfTime(v, t); t = Math.max(ch.start, Math.round(t));
+  v.doubts = v.doubts || [];
+  if(v.doubts.some(d => !d.ok && Math.abs(d.t - t) < 4)){ toast('❓ Already marked here'); return; }
+  v.doubts.push({id: newId('q'), t, at: Date.now()});
+  const b = $('#cDoubt'); if(b){ b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse'); }
+  doubtsChanged();
+  toast(`❓ Marked ${fmt(t - ch.start)} as confusing. It's saved in the ❓ Confused tab`);
+}
+function drawDbt(v, c){
+  const box = $('#tabDbt'); if(!box) return;
+  const list = doubtsIn(v, c), open = list.filter(d => !d.ok), done = list.filter(d => d.ok), nAll = allDoubts().filter(x => !x.d.ok).length;
+  const row = d => `<div class="db-r ${d.ok ? 'ok' : ''}"><button class="small db-t" data-j="${d.id}" title="Jump back to this moment">⏱ ${fmt(d.t - c.start)}</button><input class="db-n" data-n="${d.id}" value="${esc(d.note || '')}" placeholder="What was confusing? (optional)" maxlength="200"><button class="small" data-ok="${d.id}">${d.ok ? '↩ Reopen' : '✓ Got it'}</button><button class="small" data-del="${d.id}" title="Delete">🗑</button></div>`;
+  box.innerHTML = `<div class="db"><div class="muted" style="font-size:13px">Press <b>❓</b> under the video (or <kbd>C</kbd>) the moment something doesn't click. It is saved here so you can come back to it.</div>
+    ${open.length ? open.map(row).join('') : '<div class="muted" style="padding:10px 0">Nothing marked in this chapter yet.</div>'}
+    ${done.length ? `<div class="db-g">Cleared (${done.length})</div>${done.map(row).join('')}` : ''}
+    <div class="row" style="margin-top:10px;gap:6px"><button class="small" id="dbMark">❓ Mark where I am</button><span class="muted" style="font-size:12px">or at</span><input id="dbT" placeholder="m:ss" style="width:74px;padding:4px 8px"><button class="small" id="dbAdd">Add</button><span style="flex:1"></span><button class="small" id="dbQ">❓ All my confusing moments${nAll ? ' · ' + nAll : ''}</button></div></div>`;
+  const find = id => (v.doubts || []).find(x => x.id === id);
+  box.querySelectorAll('[data-j]').forEach(b => b.onclick = () => { const d = find(b.dataset.j); if(d) jumpTo(v.id, d.t, 5, d.id); });
+  box.querySelectorAll('[data-n]').forEach(i => { i.onchange = () => { const d = find(i.dataset.n); if(d){ d.note = i.value.trim().slice(0, 200); save(); } }; i.onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); i.blur(); } }; });
+  box.querySelectorAll('[data-ok]').forEach(b => b.onclick = () => { const d = find(b.dataset.ok); if(!d) return; d.ok = d.ok ? 0 : Date.now(); doubtsChanged(); toast(d.ok ? '✓ Cleared. Nice!' : '↩ Back in the queue'); });
+  box.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { v.doubts = (v.doubts || []).filter(x => x.id !== b.dataset.del); doubtsChanged(); });
+  $('#dbMark').onclick = markDoubt;
+  $('#dbQ').onclick = () => queueModal('all');
+  const add = () => {
+    const s = toSec($('#dbT').value); if(s == null){ toast('Type a time like 2:15'); return; }
+    const abs = c.start + s; if(c.end != null && abs >= c.end){ toast('That is after this chapter ends'); return; }
+    v.doubts = v.doubts || [];
+    if(v.doubts.some(d => !d.ok && Math.abs(d.t - abs) < 4)){ toast('❓ Already marked there'); return; }
+    v.doubts.push({id: newId('q'), t: Math.round(abs), at: Date.now()}); doubtsChanged();
+  };
+  $('#dbAdd').onclick = add; $('#dbT').onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); add(); } };
+}
+
+// ---------- ❓ the confusion queue ----------
+function queueItems(scope){
+  const cv = cur();
+  const order = x => { const o = courseOf(x.v); return (o ? o.title : '') + '\u0001' + String(o ? o.order.indexOf(x.v.ytId) : 0).padStart(4, '0') + '\u0001' + x.v.id; };
+  return allDoubts().filter(x => !x.d.ok && (scope !== 'cur' || (cv && x.v.id === cv.id))).sort((a, b) => order(a).localeCompare(order(b)) || a.d.t - b.d.t);
+}
+function queueModal(scope){
+  scope = scope || queueScope; queueScope = scope;
+  const items = queueItems(scope), cleared = allDoubts().filter(x => x.d.ok).length, cv = cur();
+  let lastV = null, html = '';
+  for(const x of items){
+    if(x.v !== lastV){ lastV = x.v; const o = courseOf(x.v); html += `<div class="db-g" style="margin-top:12px">${o ? '📚 ' + esc(shortText(o.title, 36)) + ' · L' + (courseVideos(o).indexOf(x.v) + 1) + ' · ' : ''}${esc(shortText(x.v.title, 60))}</div>`; }
+    const many = chapters(x.v).length > 1;
+    html += `<div class="db-r"><button class="small db-t" data-j="${x.d.id}|${x.v.id}" title="Jump back to this moment">⏱ ${fmt(x.d.t - x.c.start)}</button><span style="flex:1;min-width:150px;font-size:13px">${many ? `<span class="muted">Ch ${x.c.idx + 1} · ${esc(shortText(x.c.title, 40))}</span>` : ''}${x.d.note ? `<div>${esc(x.d.note)}</div>` : ''}</span><button class="small" data-ok="${x.d.id}|${x.v.id}">✓ Got it</button><button class="small" data-del="${x.d.id}|${x.v.id}" title="Delete">🗑</button></div>`;
+  }
+  openModal(`<h2>❓ Confusion queue</h2><p class="muted" style="margin:0">Every moment you marked as confusing. Tap a time to jump straight back to it. After you rewatch it, ChapterBox asks if it is clear now.</p>
+    <div class="row" style="margin-top:10px"><span class="seg" id="qSc"><button data-s="all" class="${scope === 'all' ? 'on' : ''}">All lectures</button><button data-s="cur" class="${scope === 'cur' ? 'on' : ''}" ${cv ? '' : 'disabled'}>This lecture</button></span><span style="flex:1"></span>${items.length ? '<button class="primary small" id="qStart">▶ Start with the first</button>' : ''}</div>
+    <div style="max-height:52vh;overflow:auto;margin-top:4px">${html || `<div class="muted" style="padding:18px 0;text-align:center">${cleared ? '🎉 Nothing left. Every confusing moment is cleared.' : 'No confusing moments yet. While you watch, press the ❓ button (or the C key) when something does not click.'}</div>`}</div>
+    <div class="actions" style="justify-content:space-between"><span class="muted" style="font-size:12px">${cleared ? '✓ ' + cleared + ' cleared so far' : ''}</span><button class="primary" onclick="closeModal()">Done</button></div>`, true);
+  const m = $('#modal'), find = s => { const [id, vid] = s.split('|'), v = store.videos.find(x => x.id === vid); return {v, d: v && (v.doubts || []).find(q => q.id === id)}; };
+  m.querySelectorAll('#qSc button').forEach(b => b.onclick = () => queueModal(b.dataset.s));
+  m.querySelectorAll('[data-j]').forEach(b => b.onclick = () => { const {v, d} = find(b.dataset.j); if(d) jumpTo(v.id, d.t, 5, d.id); });
+  m.querySelectorAll('[data-ok]').forEach(b => b.onclick = () => { const {d} = find(b.dataset.ok); if(d){ d.ok = Date.now(); doubtsChanged(); queueModal(scope); } });
+  m.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { const {v, d} = find(b.dataset.del); if(d){ v.doubts = v.doubts.filter(q => q !== d); doubtsChanged(); queueModal(scope); } });
+  if($('#qStart')) $('#qStart').onclick = () => { const x = items[0]; jumpTo(x.v.id, x.d.t, 5, x.d.id); };
+}
+// after you re-watch a marked moment for a while, ask if it is clear now
+function askClear(){
+  const q = qRun, v = cur(); if(!q || !v) return; q.asked = true;
+  const d = (v.doubts || []).find(x => x.id === q.id); if(!d || d.ok){ qRun = null; return; }
+  const nx = queueItems('all').find(x => x.d.id !== d.id && !x.d.ok && (x.v.id !== v.id || x.d.t > d.t)) || queueItems('all').find(x => x.d.id !== d.id);
+  const b = $('#clearBar'); if(!b) return;
+  b.innerHTML = `<span>Clear now? <b>${esc(momentLabel(v.id, d.t))}</b></span><button class="small" data-c="1">✓ Yes, got it</button><button class="small" data-c="0">❓ Still confusing</button>${nx ? '<button class="small" data-c="n" title="Jump to the next confusing moment">Next ❓ →</button>' : ''}<button class="small" data-c="x" title="Dismiss">✕</button>`;
+  b.hidden = false; clearTimeout(askClear.t); askClear.t = setTimeout(() => { b.hidden = true; }, 30000);
+  b.querySelectorAll('[data-c]').forEach(x => x.onclick = () => {
+    const a = x.dataset.c; b.hidden = true; qRun = null;
+    if(a === '1' || a === 'n'){ d.ok = Date.now(); doubtsChanged(); toast('✓ Cleared. Nice!'); }
+    if(a === 'n' && nx) jumpTo(nx.v.id, nx.d.t, 5, nx.d.id);
+    if(a === '0') toast("Okay, it stays in your ❓ queue. Try the outline or ask the AI about it");
+  });
+}
+setInterval(() => {
+  try{
+    if(!qRun) return;
+    const v = cur(); if(!v || v.id !== qRun.vid || view !== 'watch' || gateOpen){ if(!v || v.id !== qRun.vid) qRun = null; return; }
+    if(qRun.asked) return;
+    const t = playerTime(); if(t == null) return;
+    const c = chapterOfTime(v, qRun.t);
+    if(t >= Math.min(qRun.t + 25, c.end != null ? c.end - 1 : Infinity) && t >= qRun.t) askClear();
+  }catch(e){}
+}, 1000);
+(() => { const b = document.getElementById('cDoubt'); if(b) b.onclick = markDoubt; })();
+
+// ---------- 🧠 explain it before the next chapter ----------
+const feynOn = () => !!store.settings.feyn;
+const explOf = (v, key) => { const e = (v.expl || {})[key]; return e && e.t ? e.t : ''; };
+// at the end of a chapter: needs an explanation. Via the Next button: only for the chapter you just finished
+function feynNeeds(v, c, viaNext){
+  if(!feynOn() || (v.expl || {})[c.key]) return false;
+  if(!viaNext) return true;
+  return !!(v.done[c.key] && lastDone && lastDone.vid === v.id && String(lastDone.key) === String(c.key));
+}
+function gatedNext(go){
+  const v = cur(); if(!v) return go();
+  const c = curChapter(v);
+  if(feynNeeds(v, c, true)){ feynGate(v, c, go); return; }
+  go();
+}
+function toggleFeyn(){
+  store.settings.feyn = !feynOn(); save();
+  try{ if(view === 'watch' && cur()) renderNow(); }catch(e){}
+  toast(feynOn() ? '🧠 Explain-first is on. After each chapter you write 2–3 sentences before the next one' : '🧠 Explain-first is off');
+}
+function gateGo(v, c){
+  if(cur() !== v) return;
+  if(c.idx < chapters(v).length - 1){
+    if(store.settings.autoNext) playChapter(c.idx + 1, true, true);
+    else{ heldAt = c.start; toast('✓ Saved. Press play or Next to continue'); }
+  } else if(store.settings.autoNext && nextLecture(v)) goNextLecture(v);
+  else toast('🎉 That was the last chapter!');
+}
+function feynGate(v, c, after){
+  if(gateOpen) return;
+  gateOpen = true; try{ player.pauseVideo(); }catch(e){}
+  const rb = $('#rateBar'); if(rb) rb.hidden = true;
+  const MIN = 12, hasNext = c.idx < chapters(v).length - 1; let rate = (v.rate || {})[c.key] || 0;
+  const ov = document.createElement('div'); ov.className = 'fy-bg'; ov.id = 'gateBg';
+  ov.innerHTML = `<div class="fy" role="dialog" aria-modal="true" aria-labelledby="fyT"><h2 id="fyT">🧠 Explain it before you move on</h2>
+    <div class="muted">${c.idx + 1}. ${esc(shortText(c.title, 80))}</div>
+    <p style="margin:10px 0 0"><b>Explain this chapter in your own words in 2–3 sentences.</b> ${hasNext ? 'The next chapter unlocks when you are done. ' : ''}No peeking at your notes. Saying it yourself is what makes it stick.</p>
+    <textarea id="fyTxt" placeholder="This chapter is about… The main idea is… For example…"></textarea>
+    <div class="fy-m" id="fyM"><i></i></div><div class="hint" id="fyHint">0 of ${MIN} words</div>
+    <div class="row" style="margin-top:10px"><span class="muted" style="font-size:13px">How did it feel?</span><span class="rate-inline" id="fyRate">${[[1, '😀', 'Easy'], [2, '😐', 'OK'], [3, '😵', 'Hard']].map(([r, e, t]) => `<button data-r="${r}" title="${t}" class="${rate === r ? 'on' : ''}">${e}</button>`).join('')}</span></div>
+    <div style="display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-top:14px"><span class="row"><button class="small" id="fyStuck" title="Be honest. It is marked hard and comes back for a review">🤔 I can't explain it</button><button class="small" id="fyOff" title="Stop asking me after each chapter">Turn this off</button></span><button class="primary" id="fySave" disabled>Save &amp; continue</button></div></div>`;
+  document.body.appendChild(ov);
+  const ta = ov.querySelector('#fyTxt'), btn = ov.querySelector('#fySave');
+  const finish = () => {
+    gateOpen = false; ov.remove();
+    if(lastDone && lastDone.vid === v.id && String(lastDone.key) === String(c.key)) lastDone = null;
+    nowSig = '';
+    try{ renderNow(); }catch(e){}
+    (after || (() => gateGo(v, c)))();
+  };
+  ta.oninput = () => { const n = wordCount(ta.value), ok = n >= MIN; ov.querySelector('#fyM i').style.width = Math.min(100, n / MIN * 100) + '%'; ov.querySelector('#fyM').classList.toggle('ok', ok); ov.querySelector('#fyHint').textContent = ok ? `${n} words. That's enough, nice` : `${n} of ${MIN} words`; btn.disabled = !ok; };
+  ov.querySelectorAll('#fyRate button').forEach(b => b.onclick = () => { rate = +b.dataset.r; ov.querySelectorAll('#fyRate button').forEach(x => x.classList.toggle('on', x === b)); });
+  btn.onclick = () => {
+    const t = ta.value.trim(); if(wordCount(t) < MIN) return;
+    v.expl = v.expl || {}; v.expl[c.key] = {t, at: Date.now()}; save();
+    gateOpen = false;
+    if(rate) setRate(v, c.key, rate); else if(!(v.rate || {})[c.key]) setTimeout(() => askRate(v, c.key), 0);
+    finish();
+  };
+  ov.querySelector('#fyStuck').onclick = () => {
+    v.expl = v.expl || {}; v.expl[c.key] = {skip: 1, at: Date.now()}; save();
+    gateOpen = false; if((v.rate || {})[c.key] !== 3) setRate(v, c.key, 3);
+    finish();
+  };
+  ov.querySelector('#fyOff').onclick = () => { store.settings.feyn = false; save(); toast('🧠 Explain-first is off. You can turn it back on next to auto-play'); finish(); };
+  ov.addEventListener('keydown', e => {
+    if(e.key !== 'Tab') return;
+    const f = [...ov.querySelectorAll('button:not([disabled]),textarea')]; if(!f.length) return;
+    const a = f[0], z = f[f.length - 1];
+    if(e.shiftKey && document.activeElement === a){ e.preventDefault(); z.focus(); } else if(!e.shiftKey && document.activeElement === z){ e.preventDefault(); a.focus(); }
+  });
+  setTimeout(() => ta.focus(), 30);
+}
+// write your own explanation any time (it lives in the summary panel, under "In my words")
+function explainModal(v, c){
+  const old = explOf(v, c.key);
+  openModal(`<h2>🧠 In my own words</h2><div class="muted">${c.idx + 1}. ${esc(shortText(c.title, 70))}</div><p class="muted" style="margin:8px 0 0">Explain this chapter in 2–3 sentences, like you are teaching a friend.</p><textarea id="exTxt" rows="6" placeholder="This chapter is about…">${esc(old)}</textarea>
+    <div class="actions">${old ? '<button class="danger" id="exDel" style="margin-right:auto">🗑 Delete</button>' : ''}<button onclick="closeModal()">Cancel</button><button class="primary" id="exSave">Save</button></div>`);
+  $('#exSave').onclick = () => { const t = $('#exTxt').value.trim(); if(!t){ toast('Write a sentence or two first'); return; } v.expl = v.expl || {}; v.expl[c.key] = {t, at: Date.now()}; save(); closeModal(); dpMode = 'me'; store.settings.dpOpen = true; nowSig = ''; nowExtras(v, c); toast('🧠 Saved under "In my words"'); };
+  if($('#exDel')) $('#exDel').onclick = () => { delete (v.expl || {})[c.key]; save(); closeModal(); if(dpMode === 'me') dpMode = 'sum'; nowSig = ''; nowExtras(v, c); };
+}
+
+// ---------- 🔥 confusion + confidence map ----------
+// score = how shaky a chapter is: open doubts and a "hard" rating weigh most, an easy rating and your own explanation lower it
+function weakOf(v, c){
+  const k = c.key, dbs = doubtsIn(v, c), open = dbs.filter(d => !d.ok).length, clr = dbs.length - open;
+  const rate = (v.rate || {})[k] || 0, ex = (v.expl || {})[k], skip = !!(ex && ex.skip), exp = !!(ex && ex.t), star = !!(v.stars || {})[k], done = !!v.done[k];
+  const s = open * 2 + (rate === 3 ? 3 : 0) + (skip ? 3 : 0) + (star ? 1 : 0) - (exp ? 1 : 0) - (rate === 1 ? 1 : 0);
+  const any = open || clr || rate || skip || exp || star;
+  const lvl = !done && !any ? null : s <= 0 ? 0 : s <= 2 ? 1 : s <= 4 ? 2 : s <= 6 ? 3 : 4;
+  const why = [];
+  if(open) why.push(`❓ ${open} confusing moment${open === 1 ? '' : 's'} still open`);
+  if(clr) why.push(`✓ ${clr} confusing moment${clr === 1 ? '' : 's'} cleared`);
+  if(rate === 3) why.push('😵 You rated it hard'); else if(rate === 2) why.push('😐 You rated it OK'); else if(rate === 1) why.push('😀 You rated it easy');
+  if(skip) why.push("🤔 You couldn't explain it");
+  if(exp) why.push('🧠 You explained it in your own words');
+  if(star) why.push('⭐ Marked to revise');
+  if(!why.length) why.push(done ? 'Watched, nothing marked' : 'Not studied yet');
+  return {s, lvl, open, clr, rate, skip, exp, star, done, why};
+}
+const wmLvl = w => w.lvl === null ? 'ns' : w.lvl ? 'l' + w.lvl : '';
+const WM_NAME = ['No problems marked', 'A bit shaky', 'Shaky', 'Weak', 'Very weak'];
+function wmTip(v, c, w){ return `${c.idx + 1}. ${shortText(c.title, 50)}: ${w.lvl === null ? 'not studied yet' : WM_NAME[w.lvl].toLowerCase()}${w.open ? `, ${w.open} open doubt${w.open === 1 ? '' : 's'}` : ''}${w.rate === 3 ? ', rated hard' : ''}${w.skip ? ", couldn't explain it" : ''}`; }
+function weakOwners(all){
+  const owners = [...store.courses.filter(c => courseVideos(c).length), ...store.videos.filter(v => !courseOf(v))];
+  return owners.map(o => {
+    const vids = ownerVideos(o); let open = 0, shaky = 0, signals = 0, studied = 0, total = 0;
+    for(const v of vids) for(const c of chapters(v)){ const w = weakOf(v, c); total++; if(w.lvl !== null) studied++; open += w.open; if(w.lvl >= 2) shaky++; if(w.lvl >= 1 || w.open) signals++; }
+    return {o, key: ownerKey(o), vids, n: {open, shaky, signals, studied, total}};
+  }).filter(x => all || x.n.signals);
+}
+function weakModal(key){
+  const all = weakOwners(true); if(!all.length){ toast('Add a lecture first'); return; }
+  const cv = cur();
+  const sel = all.find(x => x.key === (key || weakSel)) || (cv && all.find(x => x.key === ownerKey(ownerOf(cv)))) || all.find(x => x.n.signals) || all[0];
+  weakSel = sel.key;
+  const multi = !!sel.o.order;
+  const rows = sel.vids.map((v, li) => ({v, li, cs: chapters(v).map(c => ({c, w: weakOf(v, c)}))}));
+  const flat = rows.flatMap(r => r.cs.map(x => ({v: r.v, li: r.li, c: x.c, w: x.w})));
+  const ranked = flat.filter(x => x.w.s > 0).sort((a, b) => b.w.s - a.w.s || b.w.open - a.w.open).slice(0, 8);
+  const n = sel.n;
+  openModal(`<div class="wm"><h2>🔥 Weak-spot map</h2>
+    <div class="row" style="gap:8px;flex-wrap:wrap">${all.length > 1 ? `<select id="wmSel" aria-label="Choose a course">${all.map(x => `<option value="${esc(x.key)}" ${x.key === sel.key ? 'selected' : ''}>${x.o.order ? '📚 ' : ''}${esc(shortText(x.o.title, 50))}</option>`).join('')}</select>` : `<b>${multi ? '📚 ' : ''}${esc(shortText(sel.o.title, 60))}</b>`}<span class="muted" style="font-size:13px;flex:1;min-width:180px">${n.studied} of ${n.total} chapters studied · ${n.shaky} shaky or worse · ${n.open} open doubt${n.open === 1 ? '' : 's'}</span></div>
+    ${rows.map(r => `<div class="wm-lec"><div class="wm-lt">${multi ? 'L' + (r.li + 1) + ' · ' : ''}${esc(r.v.title)}</div><div class="wm-g">${r.cs.map(({c, w}) => `<button class="wm-c ${wmLvl(w)}" data-v="${esc(r.v.id)}" data-i="${c.idx}" title="${esc(wmTip(r.v, c, w))}" aria-label="${esc(wmTip(r.v, c, w))}">${c.idx + 1}${w.open ? `<span class="wm-k">${w.open}</span>` : ''}${w.star ? '<span class="wm-s">★</span>' : ''}</button>`).join('')}</div></div>`).join('')}
+    <div class="wm-leg"><span><i class="ns"></i>Not studied</span><span><i></i>No problems</span><span><i class="l1"></i>A bit shaky</span><span><i class="l2"></i>Shaky</span><span><i class="l3"></i>Weak</span><span><i class="l4"></i>Very weak</span><span>🔢 open doubts · ★ revise</span></div>
+    <div class="wm-det" id="wmDet"><span class="muted">Tap a square to see why it is coloured and jump to it.</span></div>
+    ${ranked.length ? `<h3 style="font-size:15px;margin:16px 0 2px">🎯 Rewatch these first</h3>${ranked.map((x, i) => `<div class="wm-r"><span class="wm-sw ${wmLvl(x.w)}"></span><span class="t"><b>${i + 1}.</b> ${esc(shortText(x.c.title, 60))}<div class="muted" style="font-size:12px">${multi ? 'L' + (x.li + 1) + ' · ' : ''}${esc(x.w.why.filter(y => !y.startsWith('✓')).join(' · '))}</div></span><button class="small" data-rw="${esc(x.v.id)}|${x.c.idx}">▶ Rewatch</button></div>`).join('')}` : '<div class="muted" style="margin-top:14px;font-size:13px">Nothing is marked weak yet. While you watch, press ❓ on a confusing moment, rate chapters 😵 Hard, or turn on 🧠 Explain before next. They show up here so you know what to rewatch before the exam.</div>'}
+    <div class="actions" style="justify-content:space-between"><button id="wmQ2">❓ Confusion queue${allDoubts().filter(x => !x.d.ok).length ? ' · ' + allDoubts().filter(x => !x.d.ok).length : ''}</button><button class="primary" onclick="closeModal()">Done</button></div></div>`, true);
+  const m = $('#modal'), openAt = (vid, ci) => { const v = store.videos.find(x => x.id === vid); if(!v) return; closeModal(); if(cur() !== v || view !== 'watch') openVideo(v.id); playChapter(ci, true, true); };
+  if($('#wmSel')) $('#wmSel').onchange = e => weakModal(e.target.value);
+  $('#wmQ2').onclick = () => queueModal('all');
+  m.querySelectorAll('[data-rw]').forEach(b => b.onclick = () => { const [vid, ci] = b.dataset.rw.split('|'); openAt(vid, +ci); });
+  m.querySelectorAll('.wm-c[data-v]').forEach(b => b.onclick = () => {
+    const v = store.videos.find(x => x.id === b.dataset.v); if(!v) return;
+    const c = chapters(v)[+b.dataset.i]; if(!c) return;
+    m.querySelectorAll('.wm-c.sel').forEach(x => x.classList.remove('sel')); b.classList.add('sel');
+    const w = weakOf(v, c), dbs = doubtsIn(v, c).filter(d => !d.ok), me = explOf(v, c.key);
+    $('#wmDet').innerHTML = `<b>${c.idx + 1}. ${esc(c.title)}</b><div class="muted" style="font-size:12px">${esc(shortText(v.title, 70))}${c.len != null ? ' · ' + fmt(c.len) : ''}</div>
+      <ul style="margin:6px 0 0;padding-left:18px">${w.why.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+      ${dbs.length ? `<div class="row" style="margin-top:8px;gap:6px">${dbs.map(d => `<button class="small" data-qj="${d.id}" title="Jump back to this moment">⏱ ${fmt(d.t - c.start)}${d.note ? ' · ' + esc(shortText(d.note, 24)) : ''}</button>`).join('')}</div>` : ''}
+      ${me ? `<div class="muted" style="margin-top:8px;font-size:12px">🧠 You wrote: ${esc(shortText(me, 180))}</div>` : ''}
+      <div class="row" style="margin-top:10px"><button class="primary small" id="wmGo">▶ ${w.done ? 'Rewatch' : 'Open'} this chapter</button></div>`;
+    $('#wmGo').onclick = () => openAt(v.id, c.idx);
+    $('#wmDet').querySelectorAll('[data-qj]').forEach(x => x.onclick = () => { const d = (v.doubts || []).find(q => q.id === x.dataset.qj); if(d) jumpTo(v.id, d.t, 5, d.id); });
+  });
+}
+function weakCard(){ try{ return weakCard_(); }catch(e){ return ''; } }
+function weakCard_(){
+  const os = weakOwners(false); if(!os.length) return '';
+  os.sort((a, b) => b.n.shaky - a.n.shaky || b.n.open - a.n.open);
+  const nq = allDoubts().filter(x => !x.d.ok).length;
+  return `<div class="sec-h" id="wmSec"><h2>🔥 Weak spots</h2><div class="row"><button class="small" id="wmOpen">🗺 Open the map</button>${nq ? `<button class="small" id="wmQ">❓ Confusion queue · ${nq}</button>` : ''}</div></div>
+    <div class="wm wm-card">${os.slice(0, 4).map(x => `<div class="wm-row" data-wo="${esc(x.key)}" style="cursor:pointer" title="Open the map"><div class="t"><b>${x.o.order ? '📚 ' : ''}${esc(shortText(x.o.title, 50))}</b><div class="muted" style="font-size:12px">${x.n.shaky ? x.n.shaky + ' shaky or worse' : 'No weak chapters'}${x.n.open ? ' · ❓ ' + x.n.open + ' open' : ''}</div></div><div class="wm-m" style="margin:0;max-width:60%">${x.vids.flatMap(v => chapters(v).map(c => { const w = weakOf(v, c); return `<span class="wm-c ${wmLvl(w)}" title="${esc(wmTip(v, c, w))}"></span>`; })).slice(0, 400).join('')}</div></div>`).join('')}</div>`;
+}
+function bindWeak(el){
+  const a = el.querySelector('#wmOpen'), q = el.querySelector('#wmQ');
+  if(a) a.onclick = () => weakModal();
+  if(q) q.onclick = () => queueModal('all');
+  el.querySelectorAll('[data-wo]').forEach(r => r.onclick = () => weakModal(r.dataset.wo));
+}
+
 
 // start
 applyTheme(); setInterval(tickFocus, 1000); setInterval(liveTick, 120000); setTimeout(liveTick, 9000);

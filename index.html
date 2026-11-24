@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="chapterbox-build" content="2026-11-24-daily-checkin-2">
 <title>ChapterBox — split long lectures into chapter videos</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4e45'/><path d='M40 30v40l32-20z' fill='white'/></svg>">
 <style>
@@ -582,6 +583,7 @@ body.simple #tbLecs{white-space:normal;text-align:left;overflow-wrap:anywhere;ma
 .activity-row button{justify-self:start}
 .activity-energy{max-width:230px}
 #activityError{color:var(--warn);margin:8px 0 0}
+@media (max-width:600px){#activitiesBtn .activity-label{display:none}}
 @media (max-width:400px){.activity-row{grid-template-columns:1fr}}
 /* Reschedule dialog */
 body.rs-open{overflow:hidden}
@@ -650,6 +652,7 @@ button.rs-chip{font-size:13px;padding:5px 11px;border-radius:999px;white-space:n
   <nav id="pageNav" aria-label="Pages"></nav>
   <div class="search"><input id="q" type="search" placeholder="🔍 Search chapters, notes, PDFs &amp; transcripts   ( / )" autocomplete="off"><div class="sres" id="sres" hidden></div></div>
   <div class="spacer"></div>
+  <button id="activitiesBtn" aria-label="Today's activities" title="Set today's activities and available study time">📅 <span class="activity-label">Today's activities</span></button>
   <button class="primary" id="addBtn">+ Add</button>
   <button id="focusBtn" title="Focus timer (Pomodoro)">🍅</button>
   <button id="themeBtn" title="Light theme">☀️</button>
@@ -813,7 +816,7 @@ function resumePoint(v){
 let toastT;
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2400); }
 function openModal(html, wide){ $('#modal').classList.toggle('wide', !!wide); $('#modal').innerHTML = html; $('#modalBg').classList.add('show'); const f = $('#modal').querySelector('input,textarea'); if(f) setTimeout(() => f.focus(), 30); }
-function closeModal(){ $('#modalBg').classList.remove('show'); }
+function closeModal(){ $('#modalBg').classList.remove('show'); setTimeout(promptDailyActivities, 0); }
 $('#modalBg').addEventListener('mousedown', e => { if(e.target.id === 'modalBg') closeModal(); });
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
 function confirmModal(title, bodyHtml, okLabel, onOk){
@@ -1535,6 +1538,7 @@ $('#logo').onclick = showHome;
 $('#themeBtn').onclick = () => { store.settings.theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; save(); applyTheme(); };
 $('#menuBtn').onclick = e => { e.stopPropagation(); popMenu(e.currentTarget, [['🤖 Plan all my courses', autoPlanModal], ['🔑 AI helper (optional)', aiModal], ['📋 Week timetable', () => weekModal(0)], ['🤖 Reschedule with AI', () => rsOpen()], ['🗓 Auto-schedule & calendar', () => calModal()], ['✨ Smart timetable', () => smartModal()], ['🔥 Weak-spot map', () => weakModal()], ['❓ Confusion queue', () => queueModal()], [`🧠 Explain before next: ${feynOn() ? 'on' : 'off'}`, toggleFeyn], [`🔁 Spaced review: ${store.settings.revise === false ? 'off' : 'on'}`, toggleRevise], ['⬇️ Export backup', exportBackup], ['⬆️ Import backup', () => $('#importFile').click()], ['❓ Help & shortcuts', helpModal], ['🧩 Use the simple layout (separate pages)', () => setLayout('simple')]]); };
 $('#focusBtn').onclick = focusMenu;
+$('#activitiesBtn').onclick = () => activitiesModal(dayKey());
 function applyTheme(){
   const t = store.settings.theme === 'light' ? 'light' : 'dark';
   document.documentElement.dataset.theme = t;
@@ -3278,6 +3282,14 @@ function dailyActivities(k){
   return Array.isArray(activities) ? activities : [];
 }
 function studyCheckNeeded(){ return store.settings.activityCheckDay !== dayKey(); }
+let dailyActivityReady = false, activityPromptedDay = null;
+function promptDailyActivities(){
+  if(!dailyActivityReady || document.hidden || !studyCheckNeeded() || activityPromptedDay === dayKey()) return;
+  // Wait for an open form or a running study session instead of replacing it.
+  if($('#modalBg').classList.contains('show') || gateOpen || [1, 3].includes(playerState()) || (focus && focus.phase === 'focus')) return;
+  activityPromptedDay = dayKey();
+  activitiesModal(dayKey(), {checkin: true});
+}
 function withStudyCheck(then){
   if(studyCheckNeeded()) activitiesModal(dayKey(), {start: then});
   else then();
@@ -3302,11 +3314,13 @@ function saveDailyActivities(k, list){
   if(list.length || dailyActivities(k).length) dayPut(k, {activities: list});
   if(today){ store.settings.activityCheckDay = dayKey(); save(); }
 }
-function activitiesModal(k, {start, done, back} = {}){
+function activitiesModal(k, {start, done, back, checkin = false} = {}){
   const today = k === dayKey(), hours = dayHrs(k);
-  const energy = start && energyOpen();
+  const energy = (start || checkin) && energyOpen();
+  if(today) activityPromptedDay = k;
   openModal(`<h2>${today ? "What's on your schedule today?" : 'Activities for ' + fmtDay(parseDay(k))}</h2>
     <p class="muted">Block out your other activities for ${fmtDay(parseDay(k))}. ChapterBox will fit whole chapters around them.</p>
+    ${today ? '<p class="hint">These activities apply only to today. I’ll ask again tomorrow before you study.</p>' : ''}
     <form id="activityForm">
       <div id="activityRows"></div>
       <button type="button" class="small" id="activityAdd">＋ Add activity</button>
@@ -3318,7 +3332,7 @@ function activitiesModal(k, {start, done, back} = {}){
   const rows = $('#activityRows'), error = $('#activityError');
   const refresh = () => {
     const hasRows = !!rows.children.length;
-    $('#activitySave').textContent = start ? (hasRows ? 'Save & start' : 'No activities · Start') : 'Save activities';
+    $('#activitySave').textContent = start ? (hasRows ? 'Save & start' : 'No activities · Start') : checkin ? (hasRows ? 'Save my day' : 'No activities today') : 'Save activities';
     error.hidden = true;
   };
   const add = (activity = {}) => {
@@ -3340,7 +3354,7 @@ function activitiesModal(k, {start, done, back} = {}){
   $('#activityCancel').onclick = () => { closeModal(); if(back) back(); };
   $('#activityForm').onsubmit = event => {
     event.preventDefault();
-    if(start && k !== dayKey()){ activitiesModal(dayKey(), {start}); return; }
+    if((start || checkin) && k !== dayKey()){ activitiesModal(dayKey(), {start, checkin}); return; }
     const blocks = [];
     for(const row of rows.children){
       const value = name => row.querySelector(`[name="${name}"]`).value;
@@ -4261,6 +4275,15 @@ function onReady(){
   if(pending){ const p = pending; pending = null; loadIntoPlayer(p.v, p.start, p.end, p.autoplay); }
 }
 function onStateChange(e){
+  if(e.data === YT.PlayerState.PLAYING && studyCheckNeeded()){
+    // Also cover playback started with YouTube's own controls.
+    try{ player.pauseVideo(); }catch(err){}
+    if(!$('#modalBg').classList.contains('show')){
+      const playing = cur();
+      withStudyCheck(() => { if(cur() === playing && player) player.playVideo(); });
+    }
+    return;
+  }
   if(e.data !== YT.PlayerState.ENDED) return;
   const v = cur(); if(!v) return;
   const c = curChapter(v);
@@ -6598,6 +6621,12 @@ render();
 loadYouTubeApi();
 receiveGrab();
 readShareHash().then(added => { if(added && cur()) openVideo(store.currentId); else render(); });
+dailyActivityReady = true;
+setTimeout(promptDailyActivities, 0);
+window.addEventListener('focus', promptDailyActivities);
+window.addEventListener('pageshow', promptDailyActivities);
+document.addEventListener('visibilitychange', promptDailyActivities);
+setInterval(promptDailyActivities, 30000);
 </script>
 </body>
 </html>

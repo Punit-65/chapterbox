@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="chapterbox-build" content="2026-11-24-daily-checkin-2">
+<meta name="chapterbox-build" content="2026-11-25-course-roadmap">
 <title>ChapterBox — split long lectures into chapter videos</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4e45'/><path d='M40 30v40l32-20z' fill='white'/></svg>">
 <style>
@@ -488,6 +488,7 @@ body.simple:not([data-page=watch]) main{max-width:980px}
   body.simple:has(#fivePill:not([hidden])):has(#rateBar:not([hidden])) #clearBar{bottom:190px}
 }
 @media (max-width:760px){body.simple header{position:static}}
+@media (min-width:1000px) and (max-width:1399px){body.simple header{flex-wrap:wrap}body.simple #pageNav{order:9;flex-basis:100%;justify-content:center;margin:0}}
 /* page headers and explained option rows */
 .pg-h{margin:2px 0 14px}
 .pg-h h1{font-size:24px;margin:0 0 4px}
@@ -583,6 +584,57 @@ body.simple #tbLecs{white-space:normal;text-align:left;overflow-wrap:anywhere;ma
 .activity-row button{justify-self:start}
 .activity-energy{max-width:230px}
 #activityError{color:var(--warn);margin:8px 0 0}
+/* Course roadmap */
+.rm{font-size:16px;line-height:1.55}
+.rm h2,.rm h3,.rm p{margin:0}
+.rm-hero,.rm-course,.rm-start,.rm-reason,.rm-home{border:1px solid var(--line);border-radius:16px;padding:20px;background:var(--panel);margin-bottom:16px}
+.rm-hero{background:linear-gradient(135deg,#ff4e4518,transparent 70%),var(--panel)}
+.rm-top,.rm-course-head,.rm-home{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.rm-top>div:first-child,.rm-course-head>div:first-child,.rm-home>div{flex:1;min-width:0}
+.rm-kicker{font-size:14px;color:var(--muted);margin-bottom:6px!important}
+.rm-percent{font-size:42px;font-weight:750;line-height:1.1}
+.rm progress{display:block;width:100%;height:10px;margin:14px 0 8px;appearance:none;border:0;border-radius:99px;overflow:hidden;background:var(--track);accent-color:var(--accent)}
+.rm progress::-webkit-progress-bar{background:var(--track)}
+.rm progress::-webkit-progress-value{background:var(--accent);border-radius:99px}
+.rm progress::-moz-progress-bar{background:var(--accent);border-radius:99px}
+.rm-numbers{display:flex;gap:10px 24px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.rm-numbers b{color:var(--text)}
+.rm-start{border-left:4px solid var(--accent)}
+.rm-start h2{font-size:21px;margin-bottom:5px}
+.rm-start .row{margin-top:12px}
+.rm-start-name{font-weight:650;margin:12px 0 2px!important;overflow-wrap:anywhere}
+.rm-reason blockquote{margin:8px 0;white-space:pre-wrap;overflow-wrap:anywhere;border-left:3px solid var(--accent);padding-left:12px}
+.rm-reason .row{justify-content:space-between}
+.rm-earned{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0;list-style:none;padding:0}
+.rm-earned li,.rm-status{font-size:14px;background:var(--active);border-radius:99px;padding:4px 10px}
+.rm-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:24px 0 14px}
+.rm-toolbar h2{font-size:20px}
+.rm-filters{display:flex;gap:5px;flex-wrap:wrap}
+.rm-filters button[aria-pressed=true]{background:var(--active);border-color:var(--accent);color:var(--text)}
+.rm-course h3{font-size:19px;overflow-wrap:anywhere}
+.rm-course .muted,.rm-home .muted{font-size:14px}
+.rm-course-head{align-items:flex-start}
+.rm-milestones{display:flex;list-style:none;padding:0;margin:20px 0;gap:0}
+.rm-milestones li{position:relative;flex:1;min-width:0;font-size:14px;padding:30px 8px 0 0;overflow-wrap:anywhere}
+.rm-milestones li:before{content:'';position:absolute;top:8px;left:0;right:0;height:2px;background:var(--line)}
+.rm-milestones li:last-child:before{display:none}
+.rm-node{position:absolute;top:0;left:0;width:20px;height:20px;display:grid;place-items:center;border:2px solid var(--line);border-radius:50%;background:var(--panel);font-size:12px;line-height:1}
+.rm-milestones .earned .rm-node{background:var(--good);border-color:var(--good);color:#062313}
+.rm-milestones .next .rm-node{border-color:var(--accent);box-shadow:0 0 0 4px #ff4e4518}
+.rm-milestones small{display:block;font-size:12px;color:var(--muted)}
+.rm-course details{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.rm-course summary{cursor:pointer;font-size:14px;font-weight:600}
+.rm-chapters{list-style:none;padding:0;max-height:440px;overflow:auto;margin:12px 0 0}
+.rm-chapters li{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:10px 0}
+.rm-chapters li:last-child{border-bottom:0}
+.rm-chapters .rm-chapter-name{flex:1;min-width:0;overflow-wrap:anywhere}
+.rm-chapters .rm-chapter-name small{display:block;font-size:14px;color:var(--muted)}
+.rm-chapters .rm-step{font-size:14px;color:var(--muted);min-width:56px}
+.rm-chapters li[aria-current=step] .rm-step{color:var(--accent);font-weight:700}
+.rm-home{background:linear-gradient(110deg,#ff4e4512,transparent),var(--panel)}
+.rm-home h2{font-size:18px;margin:0 0 4px}
+.rm-home p{margin:0}
+@media (max-width:600px){.rm-hero,.rm-course,.rm-start,.rm-reason,.rm-home{padding:16px}.rm-percent{font-size:34px}.rm-milestones li{font-size:12px;padding-right:4px}.rm-chapters li{flex-wrap:wrap}.rm-chapters .rm-chapter-name{flex-basis:65%}}
 @media (max-width:600px){#activitiesBtn .activity-label{display:none}}
 @media (max-width:400px){.activity-row{grid-template-columns:1fr}}
 /* Reschedule dialog */
@@ -1092,7 +1144,7 @@ let view = 'home';
 function render(){
   renderLibrary();
   const v = cur(), any = store.videos.length > 0, watch = view === 'watch' && !!v, sm = simple();
-  const pg = watch ? 'watch' : sm ? pageOf() : 'home';
+  const pg = watch ? 'watch' : sm || view === 'roadmap' ? pageOf() : 'home';
   document.body.classList.toggle('simple', sm); document.body.dataset.page = pg;
   const empty = !any && pg === 'home';
   $('#emptyView').hidden = !empty; $('#homeView').hidden = empty || watch; $('#watchView').hidden = !watch;
@@ -1603,6 +1655,7 @@ function renderHomeClassic(){
   el.innerHTML = `<div class="home">
     <div class="hello"><div><h1>${['Good morning', 'Good afternoon', 'Good evening'][new Date().getHours() < 12 ? 0 : new Date().getHours() < 17 ? 1 : 2]}! 👋</h1>
       <p class="muted">${offToday ? '🏖 Day off today. Your plans moved ahead and your streak is safe.' : ts >= goal ? "Today's goal is done. Nice work! 🎉" : `${fmtDur(goal - ts)} more to reach today's goal.`}</p></div><div class="row">${activitiesButton()}<button class="primary" id="fiveBtn" title="Starts the easiest next part. You can stop after 5 minutes">⏱ Just 5 minutes</button></div></div>
+    ${roadmapHomeCard()}
     ${coachCard()}
     ${last && lc ? `<div class="cont" id="contCard"><img src="${thumb(last.ytId)}" alt="" onerror="this.remove()"><div style="flex:1;min-width:0">
       <div class="muted" style="font-size:12px">Continue watching${courseOf(last) ? ' · 📚 ' + esc(courseOf(last).title) : ''}</div>
@@ -4120,6 +4173,7 @@ function smartModal(){
   $('#smDone').onclick = () => closeModal();
 }
 function bindHome8(el){
+  bindRoadmap(el);
   el.querySelectorAll('[data-activities]').forEach(button => button.onclick = () => activitiesModal(dayKey()));
   el.querySelectorAll('[data-ss]').forEach(row => row.onclick = () => withEnergy(() => {
     const session = todaySched().sessions.find(s => sessionKey(s) === row.dataset.ss);
@@ -5469,7 +5523,7 @@ function bindWeak(el){
 // ================= v19 · simple layout: a few clear pages instead of one long page =================
 // The old one-long-page layout still exists as "Classic" (More → Layout). Everything below only runs in the simple layout.
 const DEFAULT_LAYOUT = 'simple';
-const PAGES = [['home', '🏠', 'Home'], ['courses', '📚', 'Courses'], ['plan', '📅', 'Plan'], ['review', '🔁', 'Review'], ['progress', '📊', 'Progress'], ['more', '⚙️', 'More']];
+const PAGES = [['home', '🏠', 'Home'], ['courses', '📚', 'Courses'], ['roadmap', '🗺️', 'Roadmap'], ['plan', '📅', 'Plan'], ['review', '🔁', 'Review'], ['progress', '📊', 'Progress'], ['more', '⚙️', 'More']];
 const simple = () => ((typeof store !== 'undefined' && store && store.settings && store.settings.layout) || DEFAULT_LAYOUT) !== 'classic';
 const onPage = () => view !== 'watch';
 const pageOf = () => PAGES.some(p => p[0] === view) ? view : 'home';
@@ -5502,6 +5556,108 @@ const optGrp = t => `<div class="opt-grp">${t}</div>`;
 const pgBtn = (act, label, cls) => `<button class="small ${cls || ''}" data-pg="${act}">${label}</button>`;
 const toggleBtn = (act, on) => `<button class="small ${on ? 'on' : ''}" data-pg="${act}" aria-pressed="${on}">${on ? 'On' : 'Off'}</button>`;
 const emptyNote = (text, adds) => `<div class="empty-note">${text}${adds ? `<div class="row"><button class="primary" data-pg="add">+ Add a video</button><button data-pg="addpl">📚 Add a playlist</button></div>` : ''}</div>`;
+
+// ================= all-course roadmap =================
+let roadmapFilter = 'all', roadmapGentle = false;
+function roadmapData(){
+  const owners = [...store.courses.filter(o => courseVideos(o).length), ...store.videos.filter(v => !courseOf(v))];
+  const tracks = owners.map(o => {
+    const videos = [...new Map(ownerVideos(o).map(v => [v.id, v])).values()];
+    const steps = videos.flatMap((v, lecture) => chapters(v).map(c => ({v, c, lecture,
+      done: !!v.done[c.key], remaining: c.len == null ? null : Math.max(0, c.len - reachOf(v, c))})));
+    const done = steps.filter(x => x.done).length, total = steps.length, next = steps.find(x => !x.done);
+    const started = done > 0 || steps.some(x => reachOf(x.v, x.c) > 0);
+    return {o, key: ownerKey(o), steps, done, total, next, started, complete: total > 0 && done === total,
+      pct: total ? Math.floor(done / total * 100) : 0, recent: Math.max(0, ...videos.map(v => v.opened || 0))};
+  }).filter(t => t.total);
+  const done = tracks.reduce((n, t) => n + t.done, 0), total = tracks.reduce((n, t) => n + t.total, 0);
+  return {tracks, done, total, pct: total ? Math.floor(done / total * 100) : 0,
+    finished: tracks.filter(t => t.complete).length, active: tracks.filter(t => !t.complete).length};
+}
+function roadmapMilestones(total){
+  return [...new Set([1, Math.ceil(total / 4), Math.ceil(total / 2), Math.ceil(total * 3 / 4), total])].filter(n => n > 0).sort((a, b) => a - b);
+}
+function roadmapPick(data, gentle){
+  const k = dayKey(), weekday = parseDay(k).getDay();
+  if(gOffs()[k]) return null;
+  const eligible = data.tracks.filter(t => t.next && !offKind(t.o, k) && (!t.o.plan?.days?.length || t.o.plan.days.includes(weekday)));
+  const duration = t => t.next.remaining == null ? Infinity : t.next.remaining * paceOf(t.o.plan);
+  return eligible.sort((a, b) => gentle ? duration(a) - duration(b) || b.recent - a.recent : b.recent - a.recent)[0] || null;
+}
+function roadmapTime(track){
+  const seconds = track.next?.remaining;
+  if(seconds == null) return 'Length will appear when the video loads.';
+  const minutes = Math.max(1, Math.ceil(seconds * paceOf(track.o.plan) / 60));
+  return `About ${minutes} min of study${paceOf(track.o.plan) > 1 ? ' at your plan’s pace' : ''}.`;
+}
+function roadmapHomeCard(){
+  const d = roadmapData(); if(!d.total) return '';
+  return `<section class="rm-home" aria-label="Your learning roadmap"><div><h2>🗺️ Your learning journey</h2><p class="muted">${d.done ? `${d.done} of ${d.total} chapters completed across ${d.tracks.length} course${d.tracks.length === 1 ? '' : 's'}. Every chapter counts.` : `${d.tracks.length} course${d.tracks.length === 1 ? '' : 's'}, one place to see where you’re going. Start with one chapter.`}</p></div><div class="row"><button data-roadmap-open>View roadmap</button>${d.active ? '<button class="small" data-roadmap-gentle>Need a gentle start?</button>' : ''}</div></section>`;
+}
+function roadmapCourse(track){
+  const {o, key, done, total, next, complete, pct} = track, targets = roadmapMilestones(total), nextTarget = targets.find(n => n > done);
+  const status = complete ? 'Completed' : track.started ? 'In progress' : 'Ready to begin';
+  return `<article class="rm-course" data-rm-course="${esc(key)}">
+    <div class="rm-course-head"><div><h3>${esc(o.title)}</h3><p class="muted">${done} of ${total} chapters completed · ${pct}%</p></div><span class="rm-status">${complete ? '✓ ' : ''}${status}</span></div>
+    <progress value="${done}" max="${total}" aria-label="${esc(o.title)} chapter progress">${pct}%</progress>
+    <ol class="rm-milestones" aria-label="Course milestones">${targets.map(n => `<li class="${n <= done ? 'earned' : n === nextTarget ? 'next' : ''}" ${n === nextTarget ? 'aria-current="step"' : ''}><span class="rm-node" aria-hidden="true">${n <= done ? '✓' : ''}</span>${n === total ? 'Finish course' : n === 1 ? 'First chapter' : n + ' chapters'}<small>${n <= done ? 'Reached' : n === nextTarget ? `${n - done} to go` : 'Ahead'}</small></li>`).join('')}</ol>
+    ${next ? `<p class="muted">Next in course order</p><p class="rm-start-name">${esc(next.c.title)}${o.order ? ` <span class="muted">· Lecture ${next.lecture + 1}</span>` : ''}</p><div class="row" style="margin-top:10px"><button class="primary small" data-rm-start="${esc(key)}">Study one chapter</button><span class="muted">${roadmapTime(track)}</span></div>` : '<p>🎉 Every chapter is complete. You can revisit any part below.</p>'}
+    <details data-rm-outline="${esc(key)}"><summary>See the full chapter path (${total})</summary><ol class="rm-chapters"></ol></details>
+  </article>`;
+}
+function pgRoadmap(){
+  const d = roadmapData();
+  if(!d.total) return pgHead('🗺️ Your roadmap', 'All your courses, one learning journey.') + emptyNote('Add your first course to start building your roadmap. Your chapter progress will appear here automatically.', true);
+  const nextGoal = [...new Set([1, 5, 10, 25, 50, 100, 250, 500, ...roadmapMilestones(d.total)])].sort((a, b) => a - b).find(n => n > d.done && n <= d.total);
+  const headline = !d.active ? 'Look what you’ve finished.' : d.done ? 'You’re already on your way.' : 'A small start is still a start.';
+  const pick = roadmapPick(d, roadmapGentle), why = store.settings.roadmapWhy || '';
+  const earned = [d.done >= 1 && 'First chapter finished', d.done >= 10 && '10 chapters behind you', d.done >= 50 && '50 chapters behind you', d.finished >= 1 && `${d.finished} course${d.finished === 1 ? '' : 's'} completed`].filter(Boolean);
+  const tracks = d.tracks.filter(t => roadmapFilter === 'all' || (roadmapFilter === 'active' ? !t.complete : t.complete));
+  return `<div class="rm">${pgHead('🗺️ Your roadmap', 'All your courses together. See what you’ve finished and the small steps ahead.')}
+    ${!simple() ? '<button class="small" data-roadmap-home style="margin-bottom:14px">Back to Home</button>' : ''}
+    <section class="rm-hero" aria-label="Overall learning progress"><div class="rm-top"><div><p class="rm-kicker">YOUR LEARNING JOURNEY</p><h2>${headline}</h2><p class="muted">${d.done ? 'Your progress stays with you, even after a day away.' : 'You don’t have to finish everything today. One chapter is enough to begin.'}</p></div><div class="rm-percent" aria-hidden="true">${d.pct}%</div></div>
+      <progress value="${d.done}" max="${d.total}" aria-label="Completed chapters across all courses">${d.pct}%</progress>
+      <div class="rm-numbers"><span><b>${d.done} / ${d.total}</b> chapters completed</span><span><b>${d.active}</b> courses to explore</span><span><b>${d.finished}</b> courses completed</span></div>
+      <p class="muted" style="font-size:14px;margin-top:12px">${nextGoal ? `Next milestone · ${nextGoal} chapters completed. Just ${nextGoal - d.done} more to reach it.` : 'Every chapter in your current library is complete. Take a moment to enjoy that.'} Progress is based on chapters marked done.</p>
+      ${earned.length ? `<ul class="rm-earned" aria-label="Milestones reached">${earned.map(s => `<li>✓ ${s}</li>`).join('')}</ul>` : ''}
+    </section>
+    <section class="rm-start" aria-label="A manageable next step"><h2>${gOffs()[dayKey()] ? 'Rest is part of the journey.' : roadmapGentle ? 'One small step is enough.' : 'Your next step'}</h2>
+      ${pick ? `<p class="muted">${roadmapGentle ? 'The shortest next chapter among today’s eligible courses. Earlier chapters stay in order.' : 'Continue one chapter from a course you’re pursuing. You choose when to start.'}</p><p class="rm-start-name">${esc(pick.o.title)} · ${esc(pick.next.c.title)}</p><p class="muted">${roadmapTime(pick)} The session stops at the chapter’s end.</p><div class="row"><button class="primary" data-rm-start="${esc(pick.key)}">Study this chapter</button><button class="small" data-rm-gentle-toggle aria-pressed="${roadmapGentle}">${roadmapGentle ? 'Back to my next course' : 'Find a gentler start'}</button></div>` : `<p class="muted">${d.active ? 'No course is due today. Enjoy the break — your roadmap will be here when you return.' : 'You’ve finished the courses in this roadmap. Revisit a favourite chapter or add something new when you’re ready.'}</p>`}
+    </section>
+    <section class="rm-reason" aria-label="Your reason for learning"><div class="row"><b>What are you working toward?</b><button class="small" data-rm-why>${why ? 'Edit my reason' : 'Add my reason'}</button></div>${why ? `<blockquote>${esc(why)}</blockquote>` : '<p class="muted">A skill, a job, an exam, or something you want to understand. Keep your own reason here for difficult days.</p>'}</section>
+    <div class="rm-toolbar"><h2>Your courses</h2><div class="rm-filters" role="group" aria-label="Filter roadmap courses">${[['all', 'All', d.tracks.length], ['active', 'Learning', d.active], ['completed', 'Completed', d.finished]].map(([key, label, n]) => `<button class="small" data-rm-filter="${key}" aria-pressed="${roadmapFilter === key}">${label} (${n})</button>`).join('')}</div></div>
+    <div id="roadmapCourses">${tracks.map(roadmapCourse).join('') || '<p class="empty-note">No courses in this view yet. Each chapter you finish moves your roadmap forward.</p>'}</div>
+  </div>`;
+}
+function openRoadmap(gentle = false){ roadmapGentle = gentle; roadmapFilter = 'all'; showPage('roadmap'); }
+function startRoadmapChapter(key){
+  withEnergy(() => {
+    const track = roadmapData().tracks.find(t => t.key === key), x = track?.next;
+    if(!x){ render(); toast('This course is already complete'); return; }
+    five = null; drawFive();
+    const from = x.c.len == null ? 0 : Math.min(Math.floor(reachOf(x.v, x.c)), Math.max(0, x.c.len - 1));
+    goSlice(x.v, x.c.idx, from, null, true);
+  });
+}
+function roadmapWhyModal(){
+  openModal(`<h2>Your reason to keep learning</h2><label for="roadmapWhy">What will this learning help you do?</label><textarea id="roadmapWhy" maxlength="240" rows="3" placeholder="I want to build my first app…">${esc(store.settings.roadmapWhy || '')}</textarea><p class="hint">Saved only in this browser, with your courses.</p><div class="actions"><button onclick="closeModal()">Cancel</button><button class="primary" id="roadmapWhySave">Save my reason</button></div>`);
+  $('#roadmapWhySave').onclick = () => { store.settings.roadmapWhy = $('#roadmapWhy').value.trim().slice(0, 240); save(); closeModal(); render(); };
+}
+function bindRoadmap(el){
+  el.querySelectorAll('[data-roadmap-open]').forEach(b => b.onclick = () => openRoadmap());
+  el.querySelectorAll('[data-roadmap-gentle]').forEach(b => b.onclick = () => openRoadmap(true));
+  el.querySelectorAll('[data-roadmap-home]').forEach(b => b.onclick = showHome);
+  el.querySelectorAll('[data-rm-start]').forEach(b => b.onclick = () => startRoadmapChapter(b.dataset.rmStart));
+  el.querySelectorAll('[data-rm-filter]').forEach(b => b.onclick = () => { roadmapFilter = b.dataset.rmFilter; renderHome(); });
+  el.querySelectorAll('[data-rm-gentle-toggle]').forEach(b => b.onclick = () => { roadmapGentle = !roadmapGentle; renderHome(); });
+  el.querySelectorAll('[data-rm-why]').forEach(b => b.onclick = roadmapWhyModal);
+  el.querySelectorAll('[data-rm-outline]').forEach(details => details.ontoggle = () => {
+    const list = details.querySelector('ol'); if(!details.open || list.children.length) return;
+    const track = roadmapData().tracks.find(t => t.key === details.dataset.rmOutline); if(!track) return;
+    list.innerHTML = track.steps.map((x, i) => `<li ${x === track.next ? 'aria-current="step"' : ''}><span class="rm-step">${x.done ? '✓ Done' : x === track.next ? 'Next' : i + 1}</span><span class="rm-chapter-name">${esc(x.c.title)}${track.o.order ? `<small>Lecture ${x.lecture + 1} · ${esc(x.v.title)}</small>` : ''}</span><button class="small" data-rm-view="${esc(x.v.id)}" data-rm-index="${x.c.idx}" aria-label="${x.done ? 'Revisit' : 'Preview'} ${esc(x.c.title)}">${x.done ? 'Revisit' : 'Preview'}</button></li>`).join('');
+    list.querySelectorAll('[data-rm-view]').forEach(b => b.onclick = () => { if(openVideo(b.dataset.rmView)) playChapter(+b.dataset.rmIndex, false); });
+  });
+}
 
 function homeData(){
   const today = statDay(), ts = studied(today), goal = (store.settings.goal || 60) * 60, offToday = !!gOffs()[dayKey()];
@@ -5558,12 +5714,13 @@ function todayLite(o){
 // a one-time, dismissible heads-up for people who already had lectures before the pages existed
 const layoutNote = () => store.settings.layoutNote === 'show' ? `<div class="notice" id="layoutNote"><div>✨ <b>ChapterBox is now split into pages</b> (Home, Courses, Plan, Review, Progress, More), so each screen shows less. Prefer the old single page? You can switch any time in More → Layout.</div><div class="row"><button class="small" data-pg="note:classic">Use the old layout</button><button class="small primary" data-pg="note:ok">Got it</button></div></div>` : '';
 
-// ---------- the six pages ----------
+// ---------- the main pages ----------
 function pgHome(d){
   const hr = new Date().getHours();
   const status = d.offToday ? '🏖 Day off today. Your plans moved ahead and your streak is safe.' : d.ts >= d.goal ? "Today's goal is done. Nice work! 🎉" : `${fmtDur(d.goal - d.ts)} more to reach today's goal.`;
   return layoutNote() + `<div class="hello"><div><h1>${['Good morning', 'Good afternoon', 'Good evening'][hr < 12 ? 0 : hr < 17 ? 1 : 2]}! 👋</h1><p class="muted">${status}</p></div><div class="row">${activitiesButton()}<button class="primary" id="fiveBtn" title="Starts the easiest next part. You can stop after 5 minutes">⏱ Just 5 minutes</button></div></div>
     <p class="hint5 muted">Short on time or motivation? <b>Just 5 minutes</b> opens the easiest next part. You can stop after 5.</p>
+    ${roadmapHomeCard()}
     ${contCard(d)}
     ${d.plans.length ? `<div class="sec-h"><h2>📅 Today's plan</h2><div class="row">${rsMini()}<button class="small" data-pg="go:plan">See the whole plan</button></div></div>${d.offToday ? '' : calSet().on ? schedCard() || '<p class="muted">No sessions to schedule today.</p>' : energyOwners(d.plans).slice(0, 3).map(todayLite).join('')}` : ''}
     ${coachLite(2)}
@@ -5627,6 +5784,7 @@ function pgMore(){
     + optRow('❓ How ChapterBox works', 'A 2 minute guide: add a lecture, watch chapter by chapter, make a plan. It also lists the keyboard shortcuts.', pgBtn('help', 'Open the guide'));
 }
 function pgNone(pg){
+  if(pg === 'roadmap') return pgRoadmap();
   const t = {courses: ['📚 Courses', 'Everything you added will show up here.'], plan: ['📅 Plan', 'Your plan keeps each chapter whole and schedules it on an eligible study day.'], review: ['🔁 Review', 'Chapters worth another look will show up here.'], progress: ['📊 Progress', 'Your goal, streak and study calendar will show up here.']}[pg] || ['ChapterBox', ''];
   return pgHead(t[0], t[1]) + emptyNote('<b>Nothing here yet.</b><div class="muted" style="margin-top:4px">Add a YouTube video or playlist first. ChapterBox splits it into chapters, and then this page fills up.</div>', true);
 }
@@ -5636,11 +5794,11 @@ function renderPage(){
   const el = $('#homeView'), pg = pageOf(), any = store.videos.length > 0;
   try{ smartWeek(); }catch(e){}
   coachActs = [];
-  const d = any ? homeData() : null, f = {home: pgHome, courses: pgCourses, plan: pgPlan, review: pgReview, progress: pgProgress, more: pgMore}[pg];
+  const d = any ? homeData() : null, f = {home: pgHome, courses: pgCourses, roadmap: pgRoadmap, plan: pgPlan, review: pgReview, progress: pgProgress, more: pgMore}[pg];
   el.innerHTML = `<div class="home pg pg-${pg}">${any || pg === 'more' ? f(d) : pgNone(pg)}</div>`;
   bindPage(el, d);
 }
-function renderHome(){ return simple() ? renderPage() : renderHomeClassic(); }
+function renderHome(){ return simple() || view === 'roadmap' ? renderPage() : renderHomeClassic(); }
 function pgAct(a, e){
   if(a.startsWith('layout:')) return setLayout(a.slice(7));
   if(a.startsWith('go:')) return showPage(a.slice(3));
@@ -5930,6 +6088,7 @@ function helpFullSimple(){
       '<b>⚙ Options → Edit chapters</b> fixes where chapters start. <b>Play without chapters / Use chapters</b> switches any time.',
       '<b>⚙ Options → 🔗 Share</b> sends a lecture or a playlist, split into its chapters, to friends.']) }
     ${sec('📅 Planning', 'plans, days off, timetables, calendar', [
+      '<b>🗺️ Roadmap</b> (Home or the Roadmap tab): see every course together, completed chapters, milestones and the next chapter in each course. Open a course’s full chapter path to explore it. <b>Need a gentle start?</b> picks the shortest next chapter among today’s eligible courses and plays it through to the end. Add your own reason for learning to keep it in view.',
       '<b>📅 Plan page</b>: pick minutes a day or a finish date, and your study days. Chapters stay whole in the day-by-day plan; long lectures without chapter markers can still be split into parts that fit your day.',
       '<b>🏖 Days off</b>: on the Plan page, <b>Day off today</b> skips today for every subject, and <b>⏭ Shift to next day</b> on a plan\'s card skips it for one. Add future days off inside a plan (More options). Plans move ahead to the next study day, unfinished parts carry over (marked ↪), and days off do not break your streak.',
       '<b>🤖 Reschedule with AI</b> (Plan page and Home): write what changed in your own words, like <i>exam on Friday 4 to 7 pm, take Thursday off</i> or <i>3 hour project due Wednesday evening</i>. The AI only turns your words into allowed changes: days off, busy times, a task with a deadline, a new daily time or finish date, new study hours. It never writes times. Your planner redoes every day with exact lengths, you see what changes (the new finish date of each plan and the next 7 days), and nothing happens until you press <b>Apply</b>. <b>↩ Undo it</b> on the Plan page puts everything back, as long as nothing else was changed in between. It needs the AI helper (More page).',

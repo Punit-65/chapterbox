@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="chapterbox-build" content="2026-11-25-course-roadmap">
+<meta name="chapterbox-build" content="2026-11-25-visual-roadmap">
 <title>ChapterBox — split long lectures into chapter videos</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4e45'/><path d='M40 30v40l32-20z' fill='white'/></svg>">
 <style>
@@ -635,6 +635,60 @@ body.simple #tbLecs{white-space:normal;text-align:left;overflow-wrap:anywhere;ma
 .rm-home h2{font-size:18px;margin:0 0 4px}
 .rm-home p{margin:0}
 @media (max-width:600px){.rm-hero,.rm-course,.rm-start,.rm-reason,.rm-home{padding:16px}.rm-percent{font-size:34px}.rm-milestones li{font-size:12px;padding-right:4px}.rm-chapters li{flex-wrap:wrap}.rm-chapters .rm-chapter-name{flex-basis:65%}}
+/* Connected topic map, inspired by the visual language of roadmap.sh. */
+body.simple[data-page=roadmap] main{max-width:1440px}
+.home.pg-roadmap{max-width:none}
+.rm-map-page .rm-hero{padding:16px 20px;margin-bottom:18px}
+.rm-map-page .rm-percent{font-size:32px}
+.rm-map-page .rm-hero h2{font-size:20px}
+.rm-map-page .rm-hero progress{height:7px;margin:10px 0}
+.rm-map-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px;border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;background:var(--panel)}
+.rm-map-tools label{margin:0;font-size:14px;color:var(--text)}
+.rm-map-tools select{font:inherit;font-size:14px;color:var(--text);background:var(--input);border:1px solid var(--line);border-radius:6px;padding:8px;max-width:280px}
+.rm-map-tools button,.rm-view-switch button,.rm-panel button{font-size:14px;min-height:36px}
+.rm-view-switch{display:flex;gap:4px;margin-left:auto}
+.rm-view-switch button[aria-pressed=true]{background:var(--active);border-color:var(--accent)}
+.rm-workspace{display:grid;grid-template-columns:minmax(0,1fr) 292px;gap:0;border:1px solid var(--line);border-radius:0 0 12px 12px;overflow:hidden;background:var(--panel);margin-bottom:12px}
+.rm-map-main{min-width:0}
+.rm-map-nav{padding:8px 12px;display:flex;gap:5px;align-items:center;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.rm-map-nav button{font-size:14px;min-height:32px;padding:4px 9px}
+.rm-map-nav output{min-width:44px;text-align:center;font-size:14px}
+.rm-map-nav .muted{font-size:14px;margin-left:auto}
+.rm-viewport{height:620px;max-height:72dvh;min-height:360px;overflow:auto;position:relative;background-color:#fcfcff;background-image:radial-gradient(#dce3ee .8px,transparent .8px);background-size:20px 20px;overscroll-behavior:contain;cursor:grab;scrollbar-color:#9caac2 #edf1f8}
+.rm-viewport.dragging{cursor:grabbing;user-select:none}
+.rm-viewport:focus-visible{outline:3px solid #8154d8;outline-offset:-3px}
+.rm-map-space{position:relative;min-width:100%;min-height:100%}
+.rm-map-content{position:absolute;left:0;top:0;transform-origin:top left}
+.rm-map-edges{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.rm-map-edges path{fill:none;stroke:#327dea;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.rm-map-edges path.branch{stroke-dasharray:3 6}
+.rm-box{position:absolute;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:9px 14px;border:2px solid #222735;border-radius:6px;background:#ffe7a3;color:#191d28;box-shadow:0 2px 0 #22273518;text-align:center;line-height:1.25;font:inherit;font-size:16px;white-space:normal;overflow:hidden}
+button.rm-box:hover{background:#ffdfa0;border-color:#8154d8;box-shadow:0 0 0 3px #8154d828}
+.rm-box b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;font-weight:600}
+.rm-box-kicker{font-size:12px;line-height:1.2;font-weight:650;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.rm-box.course,.rm-box.section{background:#fff139}
+.rm-box.root{background:#fff;color:#171b28;border-width:2px;font-size:19px}
+.rm-box.summary{background:#f0eaff;border-style:dashed;font-size:14px}
+.rm-box.done{background:#d9f4df}
+.rm-box.next{background:#eee2ff;border-color:#7741cf;border-width:3px}
+.rm-box[aria-pressed=true]{outline:4px solid #7741cf;outline-offset:4px}
+.rm-box:focus-visible{outline:4px solid #245fc8;outline-offset:4px}
+.rm-panel{padding:20px;border-left:1px solid var(--line);border-right:0;min-width:0;overflow-wrap:anywhere;position:static;max-height:none;display:block;order:initial}
+.rm-panel h2{font-size:19px;margin:6px 0 10px}
+.rm-panel p{font-size:14px;margin:8px 0}
+.rm-panel .rm-panel-actions{display:grid;gap:8px;margin:18px 0}
+.rm-panel .rm-panel-close{float:right;min-width:32px}
+.rm-panel .rm-status{display:inline-block;margin-bottom:8px}
+.rm-map-legend{display:flex;gap:10px 18px;flex-wrap:wrap;font-size:14px;color:var(--muted);margin:12px 0 22px}
+.rm-map-legend span{display:inline-flex;align-items:center;gap:7px}
+.rm-map-legend i{width:16px;height:16px;display:inline-block;border:1px solid #222735;border-radius:3px;background:#ffe7a3}
+.rm-map-legend .done{background:#d9f4df}.rm-map-legend .next{background:#eee2ff;border:2px solid #7741cf}.rm-map-legend .course{background:#fff139}
+.rm-bottom{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;margin-top:18px}
+.rm-bottom>section{margin:0}
+.rm-map-page .rm-toolbar{margin-top:18px}
+.rm-map-list{padding:16px 0}
+@media(max-width:1000px){.rm-workspace{grid-template-columns:minmax(0,1fr)}.rm-panel{border-left:0;border-top:1px solid var(--line)}.rm-panel:empty{display:none}.rm-bottom{grid-template-columns:1fr}.rm-viewport{height:540px}.rm-map-tools select{max-width:210px}}
+@media(max-width:500px){.rm-map-tools select{max-width:175px}.rm-map-tools .rm-view-switch{margin-left:0}.rm-map-nav .muted{width:100%;margin-left:0;font-size:12px}.rm-map-page .rm-toolbar{align-items:flex-start}}
 @media (max-width:600px){#activitiesBtn .activity-label{display:none}}
 @media (max-width:400px){.activity-row{grid-template-columns:1fr}}
 /* Reschedule dialog */
@@ -5559,6 +5613,7 @@ const emptyNote = (text, adds) => `<div class="empty-note">${text}${adds ? `<div
 
 // ================= all-course roadmap =================
 let roadmapFilter = 'all', roadmapGentle = false;
+let roadmapView = 'map', roadmapCourseKey = 'all', roadmapSelected = null, roadmapZoom = 1, roadmapAutoFit = true;
 function roadmapData(){
   const owners = [...store.courses.filter(o => courseVideos(o).length), ...store.videos.filter(v => !courseOf(v))];
   const tracks = owners.map(o => {
@@ -5605,31 +5660,208 @@ function roadmapCourse(track){
     <details data-rm-outline="${esc(key)}"><summary>See the full chapter path (${total})</summary><ol class="rm-chapters"></ol></details>
   </article>`;
 }
+// Layout uses only course order and real chapters; no inferred prerequisites between courses.
+function roadmapMapLayout(tracks, focused = false){
+  const nodes = [], edges = [], width = focused ? 1000 : Math.max(720, tracks.length * 320 + 80);
+  const add = n => { n.id = 'map-' + nodes.length; nodes.push(n); return n; };
+  const link = (a, b, branch = false, side = 0) => {
+    let d;
+    if(side){
+      const ax = side < 0 ? a.x : a.x + a.w, ay = a.y + a.h / 2;
+      const bx = side < 0 ? b.x + b.w : b.x, by = b.y + b.h / 2, mid = (ax + bx) / 2;
+      d = `M ${ax} ${ay} C ${mid} ${ay}, ${mid} ${by}, ${bx} ${by}`;
+    }else{
+      const ax = a.x + a.w / 2, ay = a.y + a.h, bx = b.x + b.w / 2, by = b.y, mid = (ay + by) / 2;
+      d = `M ${ax} ${ay} C ${ax} ${mid}, ${bx} ${mid}, ${bx} ${by}`;
+    }
+    edges.push({from: a.id, to: b.id, d, branch});
+  };
+  const chapter = (t, step, x, y) => add({kind: 'chapter', x, y, w: 260, h: 78, course: t.key,
+    vid: step.v.id, key: String(step.c.key), idx: step.c.idx, title: step.c.title,
+    status: step.done ? 'done' : step === t.next ? 'next' : 'upcoming',
+    label: `Chapter ${t.steps.indexOf(step) + 1} · ${step.done ? 'Completed' : step === t.next ? 'Up next' : 'To learn'}`});
+  if(focused && tracks.length === 1){
+    const t = tracks[0];
+    let previous = add({kind: 'root', x: 360, y: 28, w: 280, h: 86, title: t.o.title, label: `${t.done}/${t.total} chapters completed`});
+    let top = 200;
+    const videos = [...new Set(t.steps.map(s => s.v.id))];
+    for(const vid of videos){
+      const steps = t.steps.filter(s => s.v.id === vid);
+      for(let offset = 0; offset < steps.length; offset += 8){
+        const batch = steps.slice(offset, offset + 8), height = Math.max(100, Math.ceil(batch.length / 2) * 110);
+        const section = add({kind: 'section', x: 390, y: top + (height - 76) / 2, w: 220, h: 76,
+          title: t.o.order ? steps[0].v.title : 'Chapter path',
+          label: `${t.o.order ? 'Lecture ' + (steps[0].lecture + 1) + ' · ' : ''}${offset + 1}–${offset + batch.length} of ${steps.length}`});
+        link(previous, section); previous = section;
+        batch.forEach((s, i) => { const side = i % 2 ? 1 : -1, n = chapter(t, s, side < 0 ? 40 : 700, top + Math.floor(i / 2) * 110); link(section, n, true, side); });
+        top += height + 86;
+      }
+    }
+    const end = add({kind: 'root', x: 360, y: top + 10, w: 280, h: 76, title: t.complete ? 'Course completed' : 'Keep moving, one chapter at a time', label: t.complete ? '✓ You reached this milestone' : `${t.total - t.done} chapters ahead`, status: t.complete ? 'done' : ''});
+    link(previous, end);
+  }else{
+    const root = add({kind: 'root', x: (width - 280) / 2, y: 28, w: 280, h: 80, title: 'My learning journey', label: `${tracks.length} course${tracks.length === 1 ? '' : 's'} · choose your path`});
+    tracks.forEach((t, col) => {
+      const x = (width - tracks.length * 320) / 2 + col * 320 + 30;
+      let previous = add({kind: 'course', x, y: 188, w: 260, h: 86, course: t.key, title: t.o.title, label: `${t.done}/${t.total} completed · open full map`, status: t.complete ? 'done' : ''});
+      link(root, previous);
+      let y = 334;
+      const start = t.next ? t.steps.indexOf(t.next) : t.steps.length;
+      if(start){
+        const n = add({kind: 'summary', x, y, w: 260, h: 68, course: t.key, title: `${start} chapter${start === 1 ? '' : 's'} completed`, label: '✓ View your finished chapters', status: 'done'});
+        link(previous, n); previous = n; y += 110;
+      }
+      t.steps.slice(start, start + 5).forEach(s => { const n = chapter(t, s, x, y); link(previous, n, true); previous = n; y += 110; });
+      const left = Math.max(0, t.total - start - 5);
+      const end = add({kind: 'summary', x, y, w: 260, h: 68, course: t.key,
+        title: left ? `${left} more chapters ahead` : t.complete ? 'You finished this course' : 'Your course finish line', label: 'Explore the complete course map', status: t.complete ? 'done' : ''});
+      link(previous, end, true);
+    });
+  }
+  return {width, height: Math.max(440, ...nodes.map(n => n.y + n.h + 60)), nodes, edges};
+}
+function roadmapVisibleTracks(d){
+  return d.tracks.filter(t => roadmapFilter === 'all' || (roadmapFilter === 'active' ? !t.complete : t.complete));
+}
+function roadmapMapHtml(tracks){
+  const chosen = tracks.find(t => t.key === roadmapCourseKey), graph = roadmapMapLayout(chosen ? [chosen] : tracks, !!chosen);
+  return `<div class="rm-workspace"><div class="rm-map-main"><div class="rm-map-nav" role="group" aria-label="Map controls">
+    <button data-rm-zoom="out" aria-label="Zoom out">−</button><output id="rmZoomLabel" aria-label="Map zoom">100%</output><button data-rm-zoom="in" aria-label="Zoom in">＋</button><button data-rm-zoom="fit">Fit</button><button data-rm-zoom="reset">100%</button><button data-rm-jump>Find my next chapter</button><span class="muted">Drag the background or scroll to explore</span></div>
+    <div class="rm-viewport" id="rmViewport" tabindex="0" aria-label="Interactive course map. Use arrow keys to scroll; Tab to explore topics.">
+      <div class="rm-map-space" id="rmMapSpace"><div class="rm-map-content" id="rmMapContent" data-width="${graph.width}" data-height="${graph.height}" style="width:${graph.width}px;height:${graph.height}px">
+        <svg class="rm-map-edges" width="${graph.width}" height="${graph.height}" viewBox="0 0 ${graph.width} ${graph.height}" aria-hidden="true">${graph.edges.map(e => `<path class="${e.branch ? 'branch' : ''}" d="${e.d}"/>`).join('')}</svg>
+        ${graph.nodes.map(n => {
+          const interactive = ['course', 'chapter', 'summary'].includes(n.kind), tag = interactive ? 'button' : 'div';
+          const selected = n.kind === 'chapter' && roadmapSelected?.vid === n.vid && roadmapSelected.key === n.key;
+          const action = n.kind === 'chapter' ? `data-rm-map-chapter="${esc(n.vid)}" data-rm-key="${esc(n.key)}" aria-pressed="${selected}"` : interactive ? `data-rm-map-course="${esc(n.course)}"` : '';
+          return `<${tag} ${interactive ? 'type="button"' : ''} class="rm-box ${n.kind} ${n.status || ''}" ${action} style="left:${n.x}px;top:${n.y}px;width:${n.w}px;height:${n.h}px" title="${esc(n.title)}" ${interactive ? `aria-label="${esc(n.title + '. ' + n.label)}"` : ''}><span class="rm-box-kicker">${esc(n.label || '')}</span><b>${esc(n.title)}</b></${tag}>`;
+        }).join('')}
+      </div></div>
+    </div></div><aside class="rm-panel" id="rmPanel" aria-label="Selected chapter"></aside></div>`;
+}
+function roadmapSelection(d = roadmapData()){
+  if(!roadmapSelected) return null;
+  for(const track of d.tracks){
+    const step = track.steps.find(s => s.v.id === roadmapSelected.vid && String(s.c.key) === roadmapSelected.key);
+    if(step) return {track, step};
+  }
+  return null;
+}
+function drawRoadmapPanel(){
+  const panel = $('#rmPanel'); if(!panel) return;
+  const selection = roadmapSelection();
+  if(!selection){ panel.innerHTML = '<p class="rm-kicker">YOUR NEXT DISCOVERY</p><h2>Choose a chapter</h2><p class="muted">Click a topic on the map to see its details, start studying, or mark it complete.</p><p class="muted">Yellow boxes open a course’s full map. Blue branches group its chapters; the numbers show their course order.</p><p class="muted">Your courses are separate paths. You can make progress in more than one.</p>'; return; }
+  const {track, step} = selection, {v, c} = step, next = step === track.next;
+  panel.innerHTML = `<button class="small rm-panel-close" data-rm-panel-close aria-label="Close chapter details">✕</button><p class="rm-kicker">${esc(track.o.title)}</p><span class="rm-status">${step.done ? '✓ Completed' : next ? 'Up next' : 'To learn'}</span><h2>${esc(c.title)}</h2>
+    <p class="muted">Chapter ${track.steps.indexOf(step) + 1} of ${track.total}${track.o.order ? ' · Lecture ' + (step.lecture + 1) : ''}</p>
+    <p>${c.len == null ? 'Duration will appear when the video loads.' : `${fmtDur(c.len)} of video${step.remaining !== c.len && !step.done ? ' · ' + fmtDur(step.remaining) + ' left' : ''}`}</p>
+    ${!step.done && !next ? '<p class="muted">An earlier chapter is still unfinished. You can preview this topic or continue in course order.</p>' : ''}
+    <div class="rm-panel-actions"><button class="primary" data-rm-panel-study>${step.done ? 'Revisit chapter' : 'Study this chapter'}</button><button data-rm-panel-done>${step.done ? 'Mark as unfinished' : 'Mark as complete'}</button>${!next && track.next ? `<button data-rm-panel-next>Go to next unfinished chapter</button>` : ''}</div>
+    <p class="muted">Study sessions stop at the end of the chapter. Completion here updates the same progress used throughout ChapterBox.</p>`;
+  panel.querySelector('[data-rm-panel-close]').onclick = () => { roadmapSelected = null; highlightRoadmapSelection(); drawRoadmapPanel(); };
+  panel.querySelector('[data-rm-panel-study]').onclick = () => withEnergy(() => {
+    const x = roadmapSelection(); if(!x) return;
+    five = null; drawFive();
+    const s = x.step, from = s.done || s.c.len == null ? 0 : Math.min(Math.floor(reachOf(s.v, s.c)), Math.max(0, s.c.len - 1));
+    goSlice(s.v, s.c.idx, from, null, true);
+  });
+  panel.querySelector('[data-rm-panel-done]').onclick = () => {
+    const x = roadmapSelection(); if(!x) return;
+    if(x.step.v.done[x.step.c.key]) delete x.step.v.done[x.step.c.key]; else markDone(x.step.v, x.step.c.key);
+    const viewport = $('#rmViewport'), scroll = viewport && {left: viewport.scrollLeft, top: viewport.scrollTop};
+    save(); render();
+    const restored = $('#rmViewport'); if(restored && scroll){ restored.scrollLeft = scroll.left; restored.scrollTop = scroll.top; }
+  };
+  const nextButton = panel.querySelector('[data-rm-panel-next]');
+  if(nextButton) nextButton.onclick = () => focusRoadmapChapter(track, track.next);
+}
+function highlightRoadmapSelection(){
+  document.querySelectorAll('[data-rm-map-chapter]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.rmMapChapter === roadmapSelected?.vid && b.dataset.rmKey === roadmapSelected?.key)));
+}
+function chooseRoadmapCourse(key){
+  roadmapCourseKey = key; roadmapSelected = null; roadmapAutoFit = true; renderHome();
+}
+function focusRoadmapChapter(track, step){
+  if(!track || !step) return;
+  roadmapView = 'map'; roadmapCourseKey = track.key; roadmapSelected = {vid: step.v.id, key: String(step.c.key)}; roadmapAutoFit = true;
+  if((track.complete && roadmapFilter === 'active') || (!track.complete && roadmapFilter === 'completed')) roadmapFilter = 'all';
+  renderHome();
+  const viewport = $('#rmViewport'), node = [...document.querySelectorAll('[data-rm-map-chapter]')].find(b => b.dataset.rmMapChapter === step.v.id && b.dataset.rmKey === String(step.c.key));
+  if(viewport && node){ viewport.scrollLeft = Math.max(0, (parseFloat(node.style.left) + parseFloat(node.style.width) / 2) * roadmapZoom - viewport.clientWidth / 2); viewport.scrollTop = Math.max(0, parseFloat(node.style.top) * roadmapZoom - 80); node.focus({preventScroll: true}); }
+}
+function setRoadmapZoom(value, preserve = true){
+  const viewport = $('#rmViewport'), content = $('#rmMapContent'), space = $('#rmMapSpace'); if(!viewport || !content || !space) return;
+  const previous = roadmapZoom, centerX = (viewport.scrollLeft + viewport.clientWidth / 2) / previous, centerY = (viewport.scrollTop + viewport.clientHeight / 2) / previous;
+  roadmapZoom = Math.max(.35, Math.min(1.6, value));
+  content.style.transform = `scale(${roadmapZoom})`;
+  content.style.left = Math.max(0, (viewport.clientWidth - +content.dataset.width * roadmapZoom) / 2) + 'px';
+  space.style.width = +content.dataset.width * roadmapZoom + 'px'; space.style.height = +content.dataset.height * roadmapZoom + 'px';
+  $('#rmZoomLabel').textContent = Math.round(roadmapZoom * 100) + '%';
+  if(preserve){ viewport.scrollLeft = Math.max(0, centerX * roadmapZoom - viewport.clientWidth / 2); viewport.scrollTop = Math.max(0, centerY * roadmapZoom - viewport.clientHeight / 2); }
+  document.querySelectorAll('[data-rm-zoom]').forEach(b => { b.disabled = b.dataset.rmZoom === 'out' ? roadmapZoom <= .35 : b.dataset.rmZoom === 'in' ? roadmapZoom >= 1.6 : false; });
+}
+function bindRoadmapMap(el){
+  const select = el.querySelector('#rmCourseSelect'); if(select) select.onchange = () => chooseRoadmapCourse(select.value);
+  el.querySelectorAll('[data-rm-view-mode]').forEach(b => b.onclick = () => { roadmapView = b.dataset.rmViewMode; renderHome(); });
+  el.querySelectorAll('[data-rm-map-course]').forEach(b => b.onclick = () => chooseRoadmapCourse(b.dataset.rmMapCourse));
+  el.querySelectorAll('[data-rm-map-chapter]').forEach(b => b.onclick = () => {
+    roadmapSelected = {vid: b.dataset.rmMapChapter, key: b.dataset.rmKey}; highlightRoadmapSelection(); drawRoadmapPanel();
+    if(window.matchMedia?.('(max-width:1000px)').matches) $('#rmPanel')?.scrollIntoView?.({block: 'nearest', behavior: 'smooth'});
+  });
+  const jump = el.querySelector('[data-rm-jump]'); if(jump) jump.onclick = () => {
+    const data = roadmapData(), chosen = data.tracks.find(t => t.key === roadmapCourseKey && t.next), track = chosen || roadmapPick(data, roadmapGentle) || data.tracks.find(t => t.next);
+    if(track) focusRoadmapChapter(track, track.next); else toast('All chapters are complete');
+  };
+  const viewport = el.querySelector('#rmViewport'), content = el.querySelector('#rmMapContent');
+  if(!viewport || !content) return;
+  el.querySelectorAll('[data-rm-zoom]').forEach(b => b.onclick = () => {
+    roadmapAutoFit = false;
+    const action = b.dataset.rmZoom;
+    setRoadmapZoom(action === 'fit' ? Math.min(1, (viewport.clientWidth || 900) / +content.dataset.width) : action === 'reset' ? 1 : roadmapZoom + (action === 'in' ? .15 : -.15));
+  });
+  let drag = null;
+  viewport.onpointerdown = e => {
+    if(e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('button')) return;
+    drag = {x: e.clientX, y: e.clientY, left: viewport.scrollLeft, top: viewport.scrollTop};
+    viewport.setPointerCapture?.(e.pointerId); viewport.classList.add('dragging'); e.preventDefault();
+  };
+  viewport.onpointermove = e => { if(drag){ viewport.scrollLeft = drag.left - (e.clientX - drag.x); viewport.scrollTop = drag.top - (e.clientY - drag.y); } };
+  const endDrag = () => { drag = null; viewport.classList.remove('dragging'); };
+  viewport.onpointerup = endDrag; viewport.onpointercancel = endDrag; viewport.onlostpointercapture = endDrag;
+  viewport.onkeydown = e => {
+    if(e.target !== viewport) return;
+    const moves = {ArrowLeft: [-100, 0], ArrowRight: [100, 0], ArrowUp: [0, -100], ArrowDown: [0, 100]};
+    if(moves[e.key]){ e.preventDefault(); viewport.scrollLeft += moves[e.key][0]; viewport.scrollTop += moves[e.key][1]; }
+  };
+  if(roadmapAutoFit){
+    const w = viewport.clientWidth || 900;
+    setRoadmapZoom(w < 600 ? .85 : Math.min(1, Math.max(.55, w / +content.dataset.width)), false);
+    viewport.scrollLeft = Math.max(0, (+content.dataset.width * roadmapZoom - w) / 2); roadmapAutoFit = false;
+  }else setRoadmapZoom(roadmapZoom, false);
+  drawRoadmapPanel();
+}
 function pgRoadmap(){
   const d = roadmapData();
   if(!d.total) return pgHead('🗺️ Your roadmap', 'All your courses, one learning journey.') + emptyNote('Add your first course to start building your roadmap. Your chapter progress will appear here automatically.', true);
-  const nextGoal = [...new Set([1, 5, 10, 25, 50, 100, 250, 500, ...roadmapMilestones(d.total)])].sort((a, b) => a - b).find(n => n > d.done && n <= d.total);
-  const headline = !d.active ? 'Look what you’ve finished.' : d.done ? 'You’re already on your way.' : 'A small start is still a start.';
+  const tracks = roadmapVisibleTracks(d);
+  if(!tracks.some(t => t.key === roadmapCourseKey)) roadmapCourseKey = 'all';
+  if(roadmapSelected && !tracks.some(t => t.steps.some(s => s.v.id === roadmapSelected.vid && String(s.c.key) === roadmapSelected.key))) roadmapSelected = null;
   const pick = roadmapPick(d, roadmapGentle), why = store.settings.roadmapWhy || '';
-  const earned = [d.done >= 1 && 'First chapter finished', d.done >= 10 && '10 chapters behind you', d.done >= 50 && '50 chapters behind you', d.finished >= 1 && `${d.finished} course${d.finished === 1 ? '' : 's'} completed`].filter(Boolean);
-  const tracks = d.tracks.filter(t => roadmapFilter === 'all' || (roadmapFilter === 'active' ? !t.complete : t.complete));
-  return `<div class="rm">${pgHead('🗺️ Your roadmap', 'All your courses together. See what you’ve finished and the small steps ahead.')}
+  const headline = !d.active ? 'Look what you’ve finished.' : d.done ? 'You’re already on your way.' : 'A small start is still a start.';
+  return `<div class="rm rm-map-page">${pgHead('🗺️ Your roadmap', 'Follow the connections. Open a course, choose a chapter, and keep moving forward.')}
     ${!simple() ? '<button class="small" data-roadmap-home style="margin-bottom:14px">Back to Home</button>' : ''}
-    <section class="rm-hero" aria-label="Overall learning progress"><div class="rm-top"><div><p class="rm-kicker">YOUR LEARNING JOURNEY</p><h2>${headline}</h2><p class="muted">${d.done ? 'Your progress stays with you, even after a day away.' : 'You don’t have to finish everything today. One chapter is enough to begin.'}</p></div><div class="rm-percent" aria-hidden="true">${d.pct}%</div></div>
-      <progress value="${d.done}" max="${d.total}" aria-label="Completed chapters across all courses">${d.pct}%</progress>
-      <div class="rm-numbers"><span><b>${d.done} / ${d.total}</b> chapters completed</span><span><b>${d.active}</b> courses to explore</span><span><b>${d.finished}</b> courses completed</span></div>
-      <p class="muted" style="font-size:14px;margin-top:12px">${nextGoal ? `Next milestone · ${nextGoal} chapters completed. Just ${nextGoal - d.done} more to reach it.` : 'Every chapter in your current library is complete. Take a moment to enjoy that.'} Progress is based on chapters marked done.</p>
-      ${earned.length ? `<ul class="rm-earned" aria-label="Milestones reached">${earned.map(s => `<li>✓ ${s}</li>`).join('')}</ul>` : ''}
-    </section>
-    <section class="rm-start" aria-label="A manageable next step"><h2>${gOffs()[dayKey()] ? 'Rest is part of the journey.' : roadmapGentle ? 'One small step is enough.' : 'Your next step'}</h2>
-      ${pick ? `<p class="muted">${roadmapGentle ? 'The shortest next chapter among today’s eligible courses. Earlier chapters stay in order.' : 'Continue one chapter from a course you’re pursuing. You choose when to start.'}</p><p class="rm-start-name">${esc(pick.o.title)} · ${esc(pick.next.c.title)}</p><p class="muted">${roadmapTime(pick)} The session stops at the chapter’s end.</p><div class="row"><button class="primary" data-rm-start="${esc(pick.key)}">Study this chapter</button><button class="small" data-rm-gentle-toggle aria-pressed="${roadmapGentle}">${roadmapGentle ? 'Back to my next course' : 'Find a gentler start'}</button></div>` : `<p class="muted">${d.active ? 'No course is due today. Enjoy the break — your roadmap will be here when you return.' : 'You’ve finished the courses in this roadmap. Revisit a favourite chapter or add something new when you’re ready.'}</p>`}
-    </section>
-    <section class="rm-reason" aria-label="Your reason for learning"><div class="row"><b>What are you working toward?</b><button class="small" data-rm-why>${why ? 'Edit my reason' : 'Add my reason'}</button></div>${why ? `<blockquote>${esc(why)}</blockquote>` : '<p class="muted">A skill, a job, an exam, or something you want to understand. Keep your own reason here for difficult days.</p>'}</section>
-    <div class="rm-toolbar"><h2>Your courses</h2><div class="rm-filters" role="group" aria-label="Filter roadmap courses">${[['all', 'All', d.tracks.length], ['active', 'Learning', d.active], ['completed', 'Completed', d.finished]].map(([key, label, n]) => `<button class="small" data-rm-filter="${key}" aria-pressed="${roadmapFilter === key}">${label} (${n})</button>`).join('')}</div></div>
-    <div id="roadmapCourses">${tracks.map(roadmapCourse).join('') || '<p class="empty-note">No courses in this view yet. Each chapter you finish moves your roadmap forward.</p>'}</div>
+    <section class="rm-hero" aria-label="Overall learning progress"><div class="rm-top"><div><h2>${headline}</h2><p class="muted" style="font-size:14px">${d.done} of ${d.total} chapters completed across ${d.tracks.length} courses. Your progress stays with you after a day away.</p></div><span class="rm-percent" aria-hidden="true">${d.pct}%</span></div><progress value="${d.done}" max="${d.total}" aria-label="Completed chapters across all courses">${d.pct}%</progress><div class="rm-numbers"><span><b>${d.active}</b> courses in progress</span><span><b>${d.finished}</b> completed</span><span>Progress follows chapters marked done.</span></div></section>
+    <div class="rm-toolbar"><h2>Explore your learning paths</h2><div class="rm-filters" role="group" aria-label="Filter roadmap courses">${[['all', 'All', d.tracks.length], ['active', 'Learning', d.active], ['completed', 'Completed', d.finished]].map(([key, label, n]) => `<button class="small" data-rm-filter="${key}" aria-pressed="${roadmapFilter === key}">${label} (${n})</button>`).join('')}</div></div>
+    <div class="rm-map-tools"><label for="rmCourseSelect">Show</label><select id="rmCourseSelect"><option value="all">All courses together</option>${tracks.map(t => `<option value="${esc(t.key)}" ${roadmapCourseKey === t.key ? 'selected' : ''}>${esc(t.o.title)}</option>`).join('')}</select><div class="rm-view-switch" role="group" aria-label="Roadmap view"><button data-rm-view-mode="map" aria-pressed="${roadmapView === 'map'}">Map</button><button data-rm-view-mode="list" aria-pressed="${roadmapView === 'list'}">List</button></div></div>
+    ${!tracks.length ? '<p class="empty-note">No courses in this view yet. Try All to see your learning journey.</p>' : roadmapView === 'map' ? roadmapMapHtml(tracks) : `<div id="roadmapCourses" class="rm-map-list">${tracks.filter(t => roadmapCourseKey === 'all' || t.key === roadmapCourseKey).map(roadmapCourse).join('')}</div>`}
+    ${roadmapView === 'map' ? '<div class="rm-map-legend" aria-label="Map legend"><span><i class="course"></i>Course / lecture</span><span><i></i>To learn</span><span><i class="next"></i>Next chapter</span><span><i class="done"></i>Completed</span><span>Course paths are independent · branches group chapters</span></div>' : ''}
+    <div class="rm-bottom"><section class="rm-start" aria-label="A manageable next step"><h2>${gOffs()[dayKey()] ? 'Rest is part of the journey.' : roadmapGentle ? 'One small step is enough.' : 'Your next step'}</h2>
+      ${pick ? `<p class="muted">${roadmapGentle ? 'The shortest next chapter among today’s eligible courses, in course order.' : 'Choose one chapter. You can decide what comes after when you finish.'}</p><p class="rm-start-name">${esc(pick.o.title)} · ${esc(pick.next.c.title)}</p><p class="muted">${roadmapTime(pick)} The session stops at the chapter’s end.</p><div class="row"><button class="primary" data-rm-start="${esc(pick.key)}">Study this chapter</button><button class="small" data-rm-gentle-toggle aria-pressed="${roadmapGentle}">${roadmapGentle ? 'Back to my next course' : 'Find a gentler start'}</button></div>` : `<p class="muted">${d.active ? 'No course is due today. Your roadmap will be here when you return.' : 'Every current course is complete. Enjoy what you’ve accomplished.'}</p>`}
+    </section><section class="rm-reason" aria-label="Your reason for learning"><div class="row"><b>What are you working toward?</b><button class="small" data-rm-why>${why ? 'Edit my reason' : 'Add my reason'}</button></div>${why ? `<blockquote>${esc(why)}</blockquote>` : '<p class="muted">Keep your own reason here for the days when getting started feels hard.</p>'}</section></div>
   </div>`;
 }
-function openRoadmap(gentle = false){ roadmapGentle = gentle; roadmapFilter = 'all'; showPage('roadmap'); }
+
+function openRoadmap(gentle = false){ roadmapGentle = gentle; roadmapFilter = 'all'; roadmapView = 'map'; roadmapCourseKey = 'all'; roadmapSelected = null; roadmapAutoFit = true; showPage('roadmap'); }
 function startRoadmapChapter(key){
   withEnergy(() => {
     const track = roadmapData().tracks.find(t => t.key === key), x = track?.next;
@@ -5644,11 +5876,12 @@ function roadmapWhyModal(){
   $('#roadmapWhySave').onclick = () => { store.settings.roadmapWhy = $('#roadmapWhy').value.trim().slice(0, 240); save(); closeModal(); render(); };
 }
 function bindRoadmap(el){
+  bindRoadmapMap(el);
   el.querySelectorAll('[data-roadmap-open]').forEach(b => b.onclick = () => openRoadmap());
   el.querySelectorAll('[data-roadmap-gentle]').forEach(b => b.onclick = () => openRoadmap(true));
   el.querySelectorAll('[data-roadmap-home]').forEach(b => b.onclick = showHome);
   el.querySelectorAll('[data-rm-start]').forEach(b => b.onclick = () => startRoadmapChapter(b.dataset.rmStart));
-  el.querySelectorAll('[data-rm-filter]').forEach(b => b.onclick = () => { roadmapFilter = b.dataset.rmFilter; renderHome(); });
+  el.querySelectorAll('[data-rm-filter]').forEach(b => b.onclick = () => { roadmapFilter = b.dataset.rmFilter; roadmapAutoFit = true; renderHome(); });
   el.querySelectorAll('[data-rm-gentle-toggle]').forEach(b => b.onclick = () => { roadmapGentle = !roadmapGentle; renderHome(); });
   el.querySelectorAll('[data-rm-why]').forEach(b => b.onclick = roadmapWhyModal);
   el.querySelectorAll('[data-rm-outline]').forEach(details => details.ontoggle = () => {
@@ -6088,7 +6321,7 @@ function helpFullSimple(){
       '<b>⚙ Options → Edit chapters</b> fixes where chapters start. <b>Play without chapters / Use chapters</b> switches any time.',
       '<b>⚙ Options → 🔗 Share</b> sends a lecture or a playlist, split into its chapters, to friends.']) }
     ${sec('📅 Planning', 'plans, days off, timetables, calendar', [
-      '<b>🗺️ Roadmap</b> (Home or the Roadmap tab): see every course together, completed chapters, milestones and the next chapter in each course. Open a course’s full chapter path to explore it. <b>Need a gentle start?</b> picks the shortest next chapter among today’s eligible courses and plays it through to the end. Add your own reason for learning to keep it in view.',
+      '<b>🗺️ Roadmap</b> (Home or the Roadmap tab): see every course together, completed chapters, milestones and the next chapter in each course. Click a yellow course box to open its full map, then click any chapter for details and completion controls. Drag or zoom the map, or switch to List. <b>Need a gentle start?</b> picks the shortest next chapter among today’s eligible courses and plays it through to the end. Add your own reason for learning to keep it in view.',
       '<b>📅 Plan page</b>: pick minutes a day or a finish date, and your study days. Chapters stay whole in the day-by-day plan; long lectures without chapter markers can still be split into parts that fit your day.',
       '<b>🏖 Days off</b>: on the Plan page, <b>Day off today</b> skips today for every subject, and <b>⏭ Shift to next day</b> on a plan\'s card skips it for one. Add future days off inside a plan (More options). Plans move ahead to the next study day, unfinished parts carry over (marked ↪), and days off do not break your streak.',
       '<b>🤖 Reschedule with AI</b> (Plan page and Home): write what changed in your own words, like <i>exam on Friday 4 to 7 pm, take Thursday off</i> or <i>3 hour project due Wednesday evening</i>. The AI only turns your words into allowed changes: days off, busy times, a task with a deadline, a new daily time or finish date, new study hours. It never writes times. Your planner redoes every day with exact lengths, you see what changes (the new finish date of each plan and the next 7 days), and nothing happens until you press <b>Apply</b>. <b>↩ Undo it</b> on the Plan page puts everything back, as long as nothing else was changed in between. It needs the AI helper (More page).',
@@ -6637,7 +6870,7 @@ function rsOpen(o){
   rsDraw(true);
 }
 // a second click of a double click lands on whatever is under the button that just closed the screen: for a moment, clicks are ignored
-let rsShield = 0;
+let rsShield = -Infinity;
 document.addEventListener('click', e => { if(performance.now() - rsShield < 300){ e.preventDefault(); e.stopPropagation(); } }, true);
 function rsClose(byClick){
   if(RS) RS.token++;
